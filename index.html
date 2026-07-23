@@ -280,6 +280,13 @@
             transform: scale(0.96);
         }
 
+        /* 💡 改為 2 欄網格排版：戰力佔 2 格寬（兩倍大），背包佔 1 格寬 */
+        .menu-grid-prepare {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+        }
+
         .menu-grid-3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -371,7 +378,7 @@
             width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); background-color: #333;
         }
 
-        /* 💡 新增：全螢幕非阻塞式動態提示 Toast 樣式 */
+        /* 💡 Toast 動態提示樣式 */
         #toast-container {
             position: fixed;
             top: 20px;
@@ -409,7 +416,7 @@
 </head>
 <body>
 
-    <!-- 💡 動態提示容器 (取代傳統阻斷式 alert) -->
+    <!-- 💡 動態提示容器 -->
     <div id="toast-container"></div>
 
     <!-- 側邊選單 -->
@@ -478,12 +485,8 @@
             </button>
 
             <div class="section-label">準備 PREPARE</div>
-            <div class="menu-grid-3">
-                <div class="grid-card" id="menu-card-profile">
-                    <div class="grid-card-icon">👤</div>
-                    <div class="grid-card-title">身份資訊</div>
-                    <div class="grid-card-sub">IDENTITY</div>
-                </div>
+            <!-- 💡 移除下方的身份資訊按鈕，改為戰力（佔 2 格寬，兩倍大）與背包（佔 1 格寬） -->
+            <div class="menu-grid-prepare">
                 <div class="grid-card" id="menu-card-combat">
                     <div class="grid-card-icon">🛡️</div>
                     <div class="grid-card-title">戰力</div>
@@ -663,13 +666,12 @@
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // 💡 取代原生 alert 的非阻塞式動態提示 Toast 函式
         function showToast(message) {
             const container = document.getElementById('toast-container');
             if (!container) return;
             const toast = document.createElement('div');
             toast.className = 'toast-message';
-            toast.innerHTML = `<span>⚡</span> <span>${message}</span>`;
+            toast.innerHTML = `⚡ <span>${message}</span>`;
             container.appendChild(toast);
             setTimeout(() => {
                 toast.remove();
@@ -869,7 +871,6 @@ ${PROMPT_COMBAT}
             bind('menu-home', 'click', () => closeNav());
             bind('menu-profile', 'click', () => { openProfileModal(); closeNav(); });
             bind('menu-settings', 'click', () => { openSettings(); closeNav(); });
-            bind('menu-card-profile', 'click', openProfileModal);
             bind('btn-card-profile-quick', 'click', openProfileModal);
             bind('btn-open-settings-main', 'click', openSettings);
 
