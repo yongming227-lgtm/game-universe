@@ -115,11 +115,17 @@
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: transform 0.05s ease, opacity 0.2s;
+            touch-action: manipulation; /* 💡 消除手機點擊 300ms 延遲 */
         }
 
         button:hover {
             opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.96);
+            opacity: 0.85;
         }
 
         button.btn-secondary {
@@ -174,6 +180,8 @@
             border-radius: 14px;
             padding: 12px 16px;
             margin-bottom: 16px;
+            cursor: pointer;
+            touch-action: manipulation;
         }
         .player-avatar-small {
             width: 44px;
@@ -265,11 +273,12 @@
             border: none;
             width: 100%;
             text-align: left;
-            transition: transform 0.1s;
+            transition: transform 0.05s ease;
+            touch-action: manipulation;
         }
 
         .action-main-btn:active {
-            transform: scale(0.98);
+            transform: scale(0.96);
         }
 
         .menu-grid-3 {
@@ -291,11 +300,16 @@
             padding: 14px 10px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.1s;
+            touch-action: manipulation;
         }
 
         .grid-card:hover {
             border-color: var(--sub-text);
+        }
+
+        .grid-card:active {
+            transform: scale(0.96);
         }
 
         .grid-card-icon {
@@ -347,10 +361,12 @@
         .sidebar a {
             padding: 12px 20px; text-decoration: none; font-size: 14px; color: var(--text-color); display: block;
             border-bottom: 1px solid var(--border-color);
+            touch-action: manipulation;
         }
         .sidebar a:hover { background-color: var(--input-bg); }
         .sidebar .close-btn {
             position: absolute; top: 10px; right: 15px; font-size: 22px; background: none; border: none; color: var(--text-color); cursor: pointer;
+            touch-action: manipulation;
         }
         .avatar-preview {
             width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); background-color: #333;
@@ -387,7 +403,7 @@
             </div>
 
             <!-- 玩家頭像與身份資訊卡片 -->
-            <div class="player-info-card" id="btn-card-profile-quick" style="cursor: pointer;">
+            <div class="player-info-card" id="btn-card-profile-quick">
                 <img id="main-player-avatar" src="" alt="頭像" class="player-avatar-small">
                 <div class="player-info-text">
                     <div id="main-player-name" style="font-weight: bold; font-size: 15px;">執行者</div>
@@ -541,7 +557,7 @@
             <h3>執行者身份資訊</h3>
             <div class="input-group" style="text-align: center; margin-top: 10px;">
                 <img id="modal-avatar-preview" src="" alt="頭像預覽" class="avatar-preview" style="margin: 0 auto 10px auto; display: block;">
-                <label for="avatar-file-input" style="display: inline-block; background-color: var(--badge-bg); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; border: 1px solid var(--border-color);">
+                <label for="avatar-file-input" style="display: inline-block; background-color: var(--badge-bg); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; border: 1px solid var(--border-color); touch-action: manipulation;">
                     📁 上傳自訂頭像
                 </label>
                 <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
