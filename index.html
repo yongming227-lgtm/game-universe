@@ -72,7 +72,6 @@
             color: var(--sub-text);
         }
 
-        input[type="email"],
         input[type="password"],
         input[type="text"],
         select,
@@ -342,44 +341,11 @@
         <a href="#" id="menu-profile">👤 身份資訊設定</a>
         <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">系統管理</div>
         <a href="#" id="menu-settings">⚙️ 遊戲與 API 設定</a>
-        <a href="#" id="menu-logout" style="color: #ef4444;">🚪 離開系統 / 登出</a>
     </div>
 
     <div class="container">
-        <!-- 介紹頁面 -->
-        <div id="intro-screen">
-            <h2 style="text-align: center;">[臨界軸：萬界修正錄]</h2>
-            <div style="background-color: var(--input-bg); padding: 18px; border-radius: 12px; margin: 16px 0; font-size: 14px; line-height: 1.6; text-align: center; border: 1px solid var(--border-color);">
-                <p style="margin-top: 0; font-size: 16px; font-weight: bold;">想明白生命的意義嗎？想真正的……活著嗎？</p>
-                <p style="color: var(--sub-text); font-size: 12px; margin-bottom: 0;">當你做出選擇的那一刻起，多元宇宙的命脈與修正錄便已將你鎖定。</p>
-            </div>
-            <div class="btn-group">
-                <button type="button" id="btn-yes">YES</button>
-                <button type="button" class="btn-secondary" id="btn-no">NO</button>
-            </div>
-        </div>
-
-        <!-- 登入頁面 -->
-        <div id="auth-screen" style="display: none;">
-            <h2 style="text-align: center;">[身份認證]</h2>
-            <p style="text-align: center; color: var(--sub-text); font-size: 13px; margin-bottom: 20px;">請登入以同步您的雲端遊戲存檔</p>
-            <div class="input-group">
-                <label for="email-input">電子信箱 (Email)</label>
-                <input type="email" id="email-input" placeholder="example@email.com">
-            </div>
-            <div class="input-group">
-                <label for="password-input">密碼</label>
-                <input type="password" id="password-input" placeholder="請輸入密碼">
-            </div>
-            <div class="btn-group">
-                <button type="button" id="btn-login">登入</button>
-                <button type="button" class="btn-secondary" id="btn-register">註冊帳號</button>
-            </div>
-            <button type="button" class="btn-secondary" id="btn-back-intro" style="width: 100%; margin-top: 10px;">返回介紹</button>
-        </div>
-
-        <!-- 遊戲主介面 (仿造圖片全新 UI) -->
-        <div id="game-screen" style="display: none;">
+        <!-- 遊戲主介面 -->
+        <div id="game-screen">
             <!-- 頂部列 -->
             <div class="terminal-header">
                 <div class="terminal-title">
@@ -554,19 +520,8 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const SUPABASE_URL = 'https://xjuspusyimjdgitsbaku.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8';
-            
-            let supabase = null;
-            try {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } catch (e) {
-                console.error("Supabase 初始化失敗", e);
-            }
-
             // 世界觀與核心規則
             const GAME_WORLD_RULES = `--- ［臨界軸：萬界修正錄］世界觀與核心規則 v1.0 ---
 【戰鬥-回合制】採《崩壞：星穹鐵道》模式。
@@ -575,7 +530,6 @@
 
             const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23818cf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
 
-            let currentUser = null;
             let playerGameData = { 
                 apiKey: "", 
                 aiModel: "gemini-2.5-flash",
@@ -586,15 +540,27 @@
                 maxHp: 100,
                 en: 72,
                 maxEn: 100,
-                progress: {}, 
-                profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: false }
+                profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: true }
             };
+
+            // 從 localStorage 讀取存檔
+            const savedData = localStorage.getItem('critical_axis_save');
+            if (savedData) {
+                try {
+                    playerGameData = JSON.parse(savedData);
+                } catch (e) {
+                    console.error("解析存檔失敗", e);
+                }
+            }
 
             const applyTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
                 const themeSelect = document.getElementById('theme-select');
                 if (themeSelect) themeSelect.value = theme;
             };
+
+            applyTheme(playerGameData.theme || "dark");
+            updateMainUI();
 
             const bind = (id, event, fn) => {
                 const el = document.getElementById(id);
@@ -643,43 +609,7 @@
                 }
             }
 
-            // 事件繫結
-            bind('btn-yes', 'click', () => {
-                document.getElementById('intro-screen').style.display = 'none';
-                document.getElementById('auth-screen').style.display = 'block';
-            });
-            bind('btn-no', 'click', () => alert('你將繼續卑微的活著'));
-            bind('btn-back-intro', 'click', () => {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('intro-screen').style.display = 'block';
-            });
-
-            bind('btn-register', 'click', async () => {
-                if (!supabase) return alert('Supabase 未初始化');
-                const email = document.getElementById('email-input').value.trim();
-                const password = document.getElementById('password-input').value;
-                if (!email || !password) return alert('請輸入完整信箱與密碼！');
-                const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href } });
-                if (error) alert('註冊失敗：\n' + error.message);
-                else alert('註冊要求已送出！請至信箱驗證或直接登入。');
-            });
-
-            bind('btn-login', 'click', async () => {
-                if (!supabase) return alert('Supabase 未初始化');
-                const email = document.getElementById('email-input').value.trim();
-                const password = document.getElementById('password-input').value;
-                if (!email || !password) return alert('請輸入信箱與密碼！');
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) alert('登入失敗：\n' + error.message);
-                else { currentUser = data.user; enterGameSession(); }
-            });
-
-            const handleLogout = async () => {
-                if (supabase) await supabase.auth.signOut();
-                location.reload();
-            };
-            bind('menu-logout', 'click', handleLogout);
-
+            // 側邊選單與互動
             const openNav = () => document.getElementById("mySidebar").style.width = "250px";
             const closeNav = () => document.getElementById("mySidebar").style.width = "0";
             bind('btn-open-nav', 'click', openNav);
@@ -695,13 +625,9 @@
             bind('menu-card-inventory', 'click', () => alert('背包系統尚無道具。'));
             bind('menu-card-cultivate', 'click', () => alert('修煉功能：消耗能量提升基底屬性。'));
             bind('menu-card-history', 'click', () => alert('副本歷史紀錄目前為空。'));
-            bind('menu-card-protocol', 'click', alertProtocol);
+            bind('menu-card-protocol', 'click', () => alert('【主神規則 Protocol】\n1. 遵守任務指令，違者抹殺。\n2. 積極修正多元宇宙錯誤時間軸。\n3. 保持理性與冷靜。'));
             bind('menu-card-exchange', 'click', () => alert('兌換系統：可用獎勵點數兌換稀有道具。'));
             bind('menu-card-medical', 'click', () => alert('治療系統：使用點數恢復生命值。'));
-
-            function alertProtocol() {
-                alert('【主神規則 Protocol】\n1. 遵守任務指令，違者抹殺。\n2. 積極修正多元宇宙錯誤時間軸。\n3. 保持理性與冷靜。');
-            }
 
             bind('btn-enter-dungeon', 'click', async () => {
                 if (!playerGameData.apiKey) {
@@ -732,13 +658,13 @@
                 }
             });
 
-            bind('btn-save-api', 'click', async () => {
+            bind('btn-save-api', 'click', () => {
                 playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
                 playerGameData.aiModel = document.getElementById('ai-model-select').value;
                 const theme = document.getElementById('theme-select').value;
                 playerGameData.theme = theme;
                 applyTheme(theme);
-                await saveToCloud();
+                saveLocalStorage();
                 alert('設定已儲存！');
                 closeSettings();
             });
@@ -759,24 +685,17 @@
                 playerGameData.profile.avatar = DEFAULT_AVATAR;
                 document.getElementById('modal-avatar-preview').src = DEFAULT_AVATAR;
             });
-            bind('btn-save-profile', 'click', async () => {
+            bind('btn-save-profile', 'click', () => {
                 const name = document.getElementById('profile-name-input').value.trim();
                 if (!name) return alert('請輸入名字！');
                 playerGameData.profile.name = name;
                 playerGameData.profile.personality = document.getElementById('profile-personality-input').value.trim();
                 playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
-                playerGameData.profile.setupCompleted = true;
-                await saveToCloud();
+                saveLocalStorage();
                 closeProfileModal();
                 alert('身份資訊儲存成功！');
             });
             bind('profile-close-btn', 'click', closeProfileModal);
-
-            if (supabase) {
-                supabase.auth.getSession().then(({ data: { session } }) => {
-                    if (session) { currentUser = session.user; enterGameSession(); }
-                });
-            }
 
             function openSettings() { 
                 document.getElementById('api-key-input').value = playerGameData.apiKey || "";
@@ -792,37 +711,9 @@
                 document.getElementById('profile-personality-input').value = p.personality || "";
                 document.getElementById('profile-likes-input').value = p.likes || "";
                 document.getElementById('modal-avatar-preview').src = p.avatar || DEFAULT_AVATAR;
-                if (p.setupCompleted) document.getElementById('profile-close-btn').style.display = 'block';
                 document.getElementById('profile-modal').style.display = 'flex';
             }
             function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
-
-            async function enterGameSession() {
-                document.getElementById('intro-screen').style.display = 'none';
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'block';
-                document.getElementById('user-serial-id').innerText = `輪迴者 No.${currentUser.id.substring(0, 4).toUpperCase()}`;
-
-                const { data } = await supabase.from('player_saves').select('save_data').eq('id', currentUser.id).single();
-                if (data && data.save_data) {
-                    playerGameData = data.save_data;
-                    if (!playerGameData.profile) playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, setupCompleted: false };
-                    if (playerGameData.theme) applyTheme(playerGameData.theme);
-                } else {
-                    playerGameData.save_data = { 
-                        theme: "dark",
-                        points: 1280, sideQuests: 3, hp: 86, maxHp: 100, en: 72, maxEn: 100,
-                        profile: { name: currentUser.email.split('@')[0], avatar: DEFAULT_AVATAR, setupCompleted: false } 
-                    };
-                    saveToCloud();
-                }
-
-                updateMainUI();
-                if (!playerGameData.profile.setupCompleted) {
-                    openProfileModal();
-                    document.getElementById('profile-close-btn').style.display = 'none';
-                }
-            }
 
             function updateMainUI() {
                 document.getElementById('display-points').innerText = playerGameData.points ?? 1280;
@@ -837,12 +728,10 @@
                 document.getElementById('en-bar-fill').style.width = `${(en/maxEn)*100}%`;
             }
 
-            async function saveToCloud() {
-                if (!currentUser || !supabase) return;
-                await supabase.from('player_saves').upsert({ id: currentUser.id, save_data: playerGameData, updated_at: new Date() });
+            function saveLocalStorage() {
+                localStorage.setItem('critical_axis_save', JSON.stringify(playerGameData));
             }
         });
     </script>
 </body>
 </html>
-
