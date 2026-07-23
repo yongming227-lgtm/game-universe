@@ -280,7 +280,6 @@
             transform: scale(0.96);
         }
 
-        /* 💡 改為 2 欄網格排版：戰力佔 2 格寬（兩倍大），背包佔 1 格寬 */
         .menu-grid-prepare {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -321,6 +320,16 @@
         .grid-card-icon {
             font-size: 18px;
             margin-bottom: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .grid-card-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--text-color);
+            transition: fill 0.3s;
         }
 
         .grid-card-title {
@@ -378,7 +387,6 @@
             width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); background-color: #333;
         }
 
-        /* 💡 Toast 動態提示樣式 */
         #toast-container {
             position: fixed;
             top: 20px;
@@ -485,15 +493,19 @@
             </button>
 
             <div class="section-label">準備 PREPARE</div>
-            <!-- 💡 移除下方的身份資訊按鈕，改為戰力（佔 2 格寬，兩倍大）與背包（佔 1 格寬） -->
+            <!-- 💡 戰力 (佔 2 格) 與背包 (佔 1 格) -->
             <div class="menu-grid-prepare">
                 <div class="grid-card" id="menu-card-combat">
-                    <div class="grid-card-icon">🛡️</div>
+                    <div class="grid-card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                    </div>
                     <div class="grid-card-title">戰力</div>
                     <div class="grid-card-sub">COMBAT</div>
                 </div>
                 <div class="grid-card" id="menu-card-inventory">
-                    <div class="grid-card-icon">📦</div>
+                    <div class="grid-card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 15H4V8h16v11z"/></svg>
+                    </div>
                     <div class="grid-card-title">背包</div>
                     <div class="grid-card-sub">INVENTORY</div>
                 </div>
@@ -502,7 +514,9 @@
             <div class="section-label">行動 ACTION</div>
             <div class="menu-grid-2">
                 <div class="grid-card" id="menu-card-history" style="grid-column: span 2;">
-                    <div class="grid-card-icon">📜</div>
+                    <div class="grid-card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                    </div>
                     <div class="grid-card-title">副本歷史</div>
                     <div class="grid-card-sub">STAGE LOG</div>
                 </div>
@@ -511,17 +525,23 @@
             <div class="section-label">系統 SYSTEM</div>
             <div class="menu-grid-3">
                 <div class="grid-card" id="menu-card-protocol">
-                    <div class="grid-card-icon">📋</div>
+                    <div class="grid-card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    </div>
                     <div class="grid-card-title">主神規則</div>
                     <div class="grid-card-sub">PROTOCOL</div>
                 </div>
                 <div class="grid-card" id="menu-card-exchange">
-                    <div class="grid-card-icon">⇄</div>
+                    <div class="grid-card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+                    </div>
                     <div class="grid-card-title">兌換系統</div>
                     <div class="grid-card-sub">EXCHANGE</div>
                 </div>
                 <div class="grid-card" id="menu-card-medical">
-                    <div class="grid-card-icon">➕</div>
+                    <div class="grid-card-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
+                    </div>
                     <div class="grid-card-title">治療系統</div>
                     <div class="grid-card-sub">MEDICAL</div>
                 </div>
@@ -636,10 +656,6 @@
     </div>
 
     <script>
-        // ==========================================================
-        // 🛠️ 遊戲提示詞專用分區設定區 (可直接在 GitHub 修改)
-        // ==========================================================
-
         const PROMPT_COMBAT = `
 【戰鬥系統規範】
 - 採《崩壞：星鐵道》回合制模式。
@@ -660,7 +676,6 @@
 - 請以第一人稱或客觀旁白引導玩家進行副本體驗。
         `.trim();
 
-        // ==========================================================
         const SUPABASE_URL = "https://xjuspusyimjdgitsbaku.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8";
 
@@ -737,7 +752,7 @@
             });
 
             bind('btn-welcome-no', 'click', () => {
-                openSubPage('連線拒絕終端', '連線已拒絕，主神終端保持休眠。<br><br><span style="color: var(--text-color);">[此處為專屬子頁面，您可以隨時在此擴充拒絕連線後的導向內容與選單]</span>');
+                openSubPage('連線拒絕終端', '連線已拒絕，主神終端保持休眠。');
             });
 
             bind('btn-supabase-login', 'click', async () => {
@@ -949,7 +964,7 @@ ${PROMPT_COMBAT}
                 playerGameData.aiModel = modelInput || "gemini-2.5-flash";
                 try {
                     showToast('測試連線中...');
-                    const testReply = await callAI("系統連線測試，請回覆：連線正常。");
+                    await callAI("系統連線測試，請回覆：連線正常。");
                     showToast('測試成功！');
                 } catch (err) {
                     showToast('測試失敗：' + err.message);
