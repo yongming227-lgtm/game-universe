@@ -292,7 +292,7 @@
             </div>
             <div class="input-group">
                 <label for="password-input">密碼</label>
-                <input type="password" id="password-input" placeholder="請輸入密碼">
+                <input type="password" id="password-input" placeholder="請輸入密碼 (至少 6 位數)">
             </div>
             <div class="btn-group">
                 <button type="button" id="btn-login">登入</button>
@@ -401,6 +401,7 @@
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } catch (e) {
                 console.error("Supabase 初始化失敗", e);
+                alert("Supabase 初始化失敗：" + e.message);
             }
 
             const GAME_WORLD_RULES = `--- ［臨界軸：萬界修正錄］世界觀與核心規則 v1.0 ---
@@ -427,7 +428,6 @@
             const ruleDisplay = document.getElementById('rule-display');
             if (ruleDisplay) ruleDisplay.innerText = GAME_WORLD_RULES;
 
-            // 事件綁定
             const bind = (id, event, fn) => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener(event, fn);
@@ -442,23 +442,68 @@
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('intro-screen').style.display = 'block';
             });
+
+            // 強化版：註冊按鈕事件（含詳細錯誤彈窗）
             bind('btn-register', 'click', async () => {
-                if (!supabase) return;
+                if (!supabase) {
+                    alert('Supabase 未初始化成功！');
+                    return;
+                }
                 const email = document.getElementById('email-input').value.trim();
                 const password = document.getElementById('password-input').value;
-                if (!email || !password) return alert('請輸入完整的信箱與密碼！');
-                const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href } });
-                if (error) alert('註冊失敗：' + error.message);
-                else alert('註冊成功！請至信箱點擊驗證連結後登入。');
+                if (!email || !password) {
+                    alert('請輸入完整的信箱與密碼！');
+                    return;
+                }
+                if (password.length < 6) {
+                    alert('Supabase 預設密碼長度至少需要 6 個字元！');
+                    return;
+                }
+
+                try {
+                    const { data, error } = await supabase.auth.signUp({ 
+                        email, 
+                        password, 
+                        options: { emailRedirectTo: window.location.href } 
+                    });
+
+                    if (error) {
+                        alert('註冊失敗：\n' + error.message);
+                    } else {
+                        alert('註冊要求已送出！若後台未關閉 Email 驗證，請至信箱點擊驗證連結後再登入；若已關閉，可直接點擊登入。');
+                        console.log('Register success data:', data);
+                    }
+                } catch (err) {
+                    alert('註冊過程發生非預期錯誤：\n' + err.message);
+                    console.error(err);
+                }
             });
+
+            // 強化版：登入按鈕事件（含詳細錯誤彈窗）
             bind('btn-login', 'click', async () => {
-                if (!supabase) return;
+                if (!supabase) {
+                    alert('Supabase 未初始化成功！');
+                    return;
+                }
                 const email = document.getElementById('email-input').value.trim();
                 const password = document.getElementById('password-input').value;
-                if (!email || !password) return alert('請輸入信箱與密碼！');
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) alert('登入失敗：' + error.message);
-                else { currentUser = data.user; enterGameSession(); }
+                if (!email || !password) {
+                    alert('請輸入信箱與密碼！');
+                    return;
+                }
+
+                try {
+                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) {
+                        alert('登入失敗：\n' + error.message);
+                    } else {
+                        currentUser = data.user;
+                        enterGameSession();
+                    }
+                } catch (err) {
+                    alert('登入過程發生非預期錯誤：\n' + err.message);
+                    console.error(err);
+                }
             });
 
             const handleLogout = async () => {
@@ -563,7 +608,7 @@
                 document.getElementById('welcome-msg').innerText = `歡迎回來，${currentUser.email}`;
                 document.getElementById('user-display-email').innerText = currentUser.email;
 
-                const { data } = await supabase.from('player_saves').select('save_data').eq('id', currentUser.id).single();
+                const { data, error } = await supabase.from('player_saves').select('save_data').eq('id', currentUser.id).single();
                 if (data && data.save_data) {
                     playerGameData = data.save_data;
                     if (!playerGameData.profile) playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, setupCompleted: false };
