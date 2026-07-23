@@ -199,39 +199,14 @@
             cursor: pointer;
         }
 
-        .menu-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--input-bg);
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            gap: 8px;
-        }
-
         .hamburger-btn {
             background: #374151;
             border: none;
             color: #fff;
             font-size: 13px;
             cursor: pointer;
-            width: auto;
-            flex: unset;
             padding: 6px 12px;
             border-radius: 6px;
-        }
-
-        .profile-card {
-            background-color: var(--input-bg);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            border: 1px solid var(--border-color);
         }
 
         .avatar-preview {
@@ -241,6 +216,41 @@
             object-fit: cover;
             border: 2px solid var(--accent-color);
             background-color: #333;
+        }
+
+        /* 幾何風格大按鈕 */
+        .geo-dungeon-btn {
+            width: 100%;
+            min-height: 130px;
+            background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #115e59 100%);
+            border: 2px solid #2dd4bf;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #ffffff;
+            box-shadow: 0 6px 15px rgba(13, 148, 136, 0.3);
+            transition: all 0.3s ease;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+        }
+
+        .geo-dungeon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(13, 148, 136, 0.5);
+            border-color: #5eead4;
+        }
+
+        /* 劇情與狀態面板樣式 */
+        .story-panel {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            margin-top: 14px;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -257,6 +267,7 @@
     </div>
 
     <div class="container">
+        <!-- 介紹頁面 -->
         <div id="intro-screen">
             <h2>[臨界軸：萬界修正錄]</h2>
             <div style="background-color: var(--input-bg); padding: 18px; border-radius: 8px; margin: 16px 0; font-size: 15px; line-height: 1.6; text-align: center; border: 1px solid var(--border-color);">
@@ -269,6 +280,7 @@
             </div>
         </div>
 
+        <!-- 登入頁面 -->
         <div id="auth-screen" style="display: none;">
             <h2>[臨界軸：萬界修正錄]</h2>
             <p style="text-align: center; color: var(--sub-text); font-size: 14px; margin-bottom: 20px;">請登入以同步您的雲端遊戲存檔</p>
@@ -287,34 +299,47 @@
             <button type="button" class="btn-secondary" id="btn-back-intro" style="width: 100%; margin-top: 10px;">返回遊戲介紹</button>
         </div>
 
+        <!-- 遊戲主畫面 -->
         <div id="game-screen" style="display: none;">
-            <div class="menu-bar">
+            <!-- 右上角頭像與導覽列 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <button type="button" class="hamburger-btn" id="btn-open-nav">☰ 選單</button>
-                <span id="user-display-email" style="font-size: 12px; color: var(--sub-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">載入中...</span>
-                <a href="#" id="link-logout" style="font-size: 12px; color: #ef4444; text-decoration: none; font-weight: bold; white-space: nowrap;">離開系統</a>
+                
+                <div id="btn-open-profile-modal" style="cursor: pointer; display: flex; align-items: center; gap: 8px; background: var(--input-bg); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-color);">
+                    <span id="top-display-name" style="font-size: 13px; font-weight: bold;">執行者</span>
+                    <img id="top-display-avatar" src="" alt="頭像" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--accent-color);">
+                </div>
             </div>
 
             <div id="section-home">
                 <h2>主神空間大廳</h2>
-                
-                <div class="profile-card">
-                    <img id="display-avatar" src="" alt="頭像" class="avatar-preview">
-                    <div style="flex: 1; overflow: hidden;">
-                        <div id="display-profile-name" style="font-weight: bold; font-size: 16px; margin-bottom: 4px;">執行者</div>
-                        <div id="display-profile-info" style="font-size: 12px; color: var(--sub-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">個性 / 喜好：尚未設定</div>
-                    </div>
-                    <button type="button" class="btn-secondary" style="padding: 6px 10px; font-size: 12px; flex: unset;" id="btn-open-profile-inline">編輯</button>
+
+                <!-- 幾何風格大按鈕：進入副本 -->
+                <div style="margin: 16px 0; width: 100%;">
+                    <button type="button" id="btn-enter-dungeon" class="geo-dungeon-btn">
+                        <span style="font-size: 26px;">⚔️</span>
+                        <span style="font-size: 18px; font-weight: bold; letter-spacing: 2px;">進入副本</span>
+                        <span style="font-size: 12px; opacity: 0.8;">(開始遊戲與 AI 測試)</span>
+                    </button>
                 </div>
 
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
-                    <button type="button" id="btn-enter-dungeon" style="padding: 16px; font-size: 16px; background-color: #0d9488;">⚔️ 進入副本 (開始遊戲與 AI 測試)</button>
-                    <button type="button" class="btn-secondary" id="btn-open-settings-main">⚙️ 遊戲設定 (API / 模型 / 主題)</button>
+                <!-- 當前劇情面板 -->
+                <div class="story-panel">
+                    <div style="font-weight: bold; color: var(--accent-color); margin-bottom: 6px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px;">📜 當前劇情與狀態面板</div>
+                    <div id="story-summary" style="color: var(--sub-text); margin-bottom: 10px; line-height: 1.4;">劇情簡述：尚未進入副本，主神空間連結待機中...</div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+                        <div>❤️ 血條：<span id="stat-hp" style="color: #22c55e; font-weight: bold;">1000 / 1000</span></div>
+                        <div>🔥 餘燼點數：<span id="stat-embers" style="color: #f59e0b; font-weight: bold;">0</span></div>
+                        <div>💎 維度核心：<span id="stat-cores" style="color: #38bdf8; font-weight: bold;">0</span></div>
+                        <div>⚡ 速度/攻擊：<span id="stat-other" style="color: var(--text-color);">100 / 200</span></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 設定彈窗 -->
+    <!-- 遊戲設定彈窗 (移至選單叫出) -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <h3>遊戲設定</h3>
@@ -341,13 +366,13 @@
             </div>
             <div class="btn-group">
                 <button type="button" id="btn-save-api">儲存設定</button>
-                <button type="button" class="btn-secondary" id="btn-test-api">測試 AI 連線</button>
+                <button type="button" class="btn-secondary" id="btn-test-api">測試 AI</button>
                 <button type="button" class="btn-secondary" id="btn-close-settings">關閉</button>
             </div>
         </div>
     </div>
 
-    <!-- 個人檔案彈窗 -->
+    <!-- 個人檔案彈窗 (點擊右上角頭像開啟) -->
     <div id="profile-modal" class="modal">
         <div class="modal-content">
             <h3>執行者檔案設定</h3>
@@ -391,7 +416,6 @@
                 console.error("Supabase 初始化失敗", e);
             }
 
-            // 遊戲世界觀與提示詞設定
             const GAME_WORLD_RULES = `--- ［臨界軸：萬界修正錄］世界觀與核心規則 v1.0 ---
 【戰鬥-回合制】採《崩壞：星穹鐵道》模式。
 【回合】分劇情與戰鬥回合。
@@ -404,7 +428,8 @@
                 apiKey: "", 
                 aiModel: "gemini-2.5-flash",
                 theme: "dark",
-                progress: {}, 
+                stats: { hp: 1000, maxHp: 1000, embers: 0, cores: 0 },
+                storyText: "主神空間連結待機中，等待執行者發起指令。",
                 profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: false }
             };
 
@@ -419,63 +444,37 @@
                 if (el) el.addEventListener(event, fn);
             };
 
-            // --- AI 呼叫封裝核心 (支援 Gemini 與通用 API 接口) ---
             async function callAI(promptText) {
                 const apiKey = playerGameData.apiKey;
                 const model = playerGameData.aiModel || "gemini-2.5-flash";
 
-                if (!apiKey) {
-                    throw new Error("尚未設定 API Key，請至遊戲設定中填寫。");
-                }
+                if (!apiKey) throw new Error("尚未設定 API Key，請至選單中的遊戲設定填寫。");
 
-                // 組合系統提示詞與玩家資訊
                 const fullSystemPrompt = `${GAME_WORLD_RULES}\n\n【目前執行者檔案】\n名字：${playerGameData.profile.name}\n個性：${playerGameData.profile.personality}\n喜好：${playerGameData.profile.likes}`;
 
-                // 範例：串接 Google Gemini 官方 API 格式
                 if (model.includes("gemini")) {
                     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
                     const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [
-                                { role: "user", parts: [{ text: `${fullSystemPrompt}\n\n玩家指令：${promptText}` }] }
-                            ]
-                        })
+                        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: `${fullSystemPrompt}\n\n玩家指令：${promptText}` }] }] })
                     });
-
                     const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.error?.message || "Gemini API 請求失敗");
-                    }
+                    if (!response.ok) throw new Error(data.error?.message || "Gemini API 請求失敗");
                     return data.candidates[0].content.parts[0].text;
                 } else {
-                    // 若選擇其他 OpenAI 格式模型 (如 GPT / Claude 轉接)
                     const endpoint = `https://api.openai.com/v1/chat/completions`;
                     const response = await fetch(endpoint, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`
-                        },
-                        body: JSON.stringify({
-                            model: model,
-                            messages: [
-                                { role: "system", content: fullSystemPrompt },
-                                { role: "user", content: promptText }
-                            ]
-                        })
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                        body: JSON.stringify({ model: model, messages: [{ role: "system", content: fullSystemPrompt }, { role: "user", content: promptText }] })
                     });
-
                     const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.error?.message || "AI API 請求失敗");
-                    }
+                    if (!response.ok) throw new Error(data.error?.message || "AI API 請求失敗");
                     return data.choices[0].message.content;
                 }
             }
 
-            // --- 畫面互動繫結 ---
             bind('btn-yes', 'click', () => {
                 document.getElementById('intro-screen').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'block';
@@ -510,7 +509,6 @@
                 if (supabase) await supabase.auth.signOut();
                 location.reload();
             };
-            bind('link-logout', 'click', handleLogout);
             bind('menu-logout', 'click', handleLogout);
 
             const openNav = () => document.getElementById("mySidebar").style.width = "250px";
@@ -520,32 +518,31 @@
             bind('menu-home', 'click', () => closeNav());
             bind('menu-profile', 'click', () => { openProfileModal(); closeNav(); });
             bind('menu-settings', 'click', () => { openSettings(); closeNav(); });
-            bind('btn-open-profile-inline', 'click', openProfileModal);
-            bind('btn-open-settings-main', 'click', openSettings);
+            
+            // 右上角頭像點擊事件：開啟個人檔案
+            bind('btn-open-profile-modal', 'click', openProfileModal);
 
-            // 進入副本按鈕：自動透過 AI 進行初始化開場測試
             bind('btn-enter-dungeon', 'click', async () => {
                 if (!playerGameData.apiKey) {
-                    alert('尚未設定 API Key！請先至設定中填寫並儲存。');
+                    alert('尚未設定 API Key！請先至選單中的遊戲設定填寫。');
                     openSettings();
                     return;
                 }
                 
                 try {
                     alert('正在連接主神空間與 AI 核心，產生副本開場...');
-                    const aiReply = await callAI("執行者已進入副本，請生成一段第一人稱的開場劇情，並等待玩家下一步指令。");
-                    alert('【AI 回應測試成功】\n\n' + aiReply);
+                    const aiReply = await callAI("執行者已進入副本，請生成一段第一人稱的開場劇情簡述。");
+                    playerGameData.storyText = aiReply;
+                    updateUI();
+                    await saveToCloud();
                 } catch (err) {
                     alert('AI 連線失敗：\n' + err.message);
                 }
             });
 
-            // 測試 AI 連線按鈕
             bind('btn-test-api', 'click', async () => {
                 const key = document.getElementById('api-key-input').value.trim();
                 if (!key) return alert('請先輸入 API Key 才能測試！');
-                
-                // 暫存至暫時變數進行測試
                 playerGameData.apiKey = key;
                 playerGameData.aiModel = document.getElementById('ai-model-select').value;
 
@@ -554,19 +551,15 @@
                     const testReply = await callAI("系統連線測試，請回覆：連線正常。");
                     alert('測試成功！AI 回應：\n' + testReply);
                 } catch (err) {
-                    alert('測試失敗，請檢查金鑰或模型是否正確：\n' + err.message);
+                    alert('測試失敗：\n' + err.message);
                 }
             });
 
             bind('btn-save-api', 'click', async () => {
-                const key = document.getElementById('api-key-input').value.trim();
-                const model = document.getElementById('ai-model-select').value;
-                const theme = document.getElementById('theme-select').value;
-
-                playerGameData.apiKey = key;
-                playerGameData.aiModel = model;
-                playerGameData.theme = theme;
-                applyTheme(theme);
+                playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
+                playerGameData.aiModel = document.getElementById('ai-model-select').value;
+                playerGameData.theme = document.getElementById('theme-select').value;
+                applyTheme(playerGameData.theme);
 
                 await saveToCloud();
                 alert('設定已成功儲存！');
@@ -574,9 +567,7 @@
             });
             bind('btn-close-settings', 'click', closeSettings);
 
-            bind('theme-select', 'change', (e) => {
-                applyTheme(e.target.value);
-            });
+            bind('theme-select', 'change', (e) => applyTheme(e.target.value));
 
             bind('avatar-file-input', 'change', (e) => {
                 const file = e.target.files[0];
@@ -600,7 +591,7 @@
                 playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
                 playerGameData.profile.setupCompleted = true;
                 await saveToCloud();
-                updateProfileUI();
+                updateUI();
                 closeProfileModal();
                 alert('執行者檔案儲存成功！');
             });
@@ -635,36 +626,54 @@
                 document.getElementById('intro-screen').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'block';
-                document.getElementById('user-display-email').innerText = currentUser.email;
 
                 const { data } = await supabase.from('player_saves').select('save_data').eq('id', currentUser.id).single();
                 if (data && data.save_data) {
-                    playerGameData = data.save_data;
-                    if (!playerGameData.profile) playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, setupCompleted: false };
+                    const sd = data.save_data;
+                    playerGameData = {
+                        apiKey: sd.apiKey || "",
+                        aiModel: sd.aiModel || "gemini-2.5-flash",
+                        theme: sd.theme || "dark",
+                        stats: sd.stats || { hp: 1000, maxHp: 1000, embers: 0, cores: 0 },
+                        storyText: sd.storyText || "主神空間連結待機中，等待執行者發起指令。",
+                        profile: {
+                            name: sd.profile?.name || currentUser.email.split('@')[0],
+                            avatar: sd.profile?.avatar || DEFAULT_AVATAR,
+                            personality: sd.profile?.personality || "",
+                            likes: sd.profile?.likes || "",
+                            setupCompleted: sd.profile?.setupCompleted ?? false
+                        }
+                    };
                     if (playerGameData.theme) applyTheme(playerGameData.theme);
                 } else {
                     playerGameData = { 
                         apiKey: "", 
                         aiModel: "gemini-2.5-flash",
                         theme: "dark",
-                        progress: {}, 
+                        stats: { hp: 1000, maxHp: 1000, embers: 0, cores: 0 },
+                        storyText: "主神空間連結待機中，等待執行者發起指令。",
                         profile: { name: currentUser.email.split('@')[0], avatar: DEFAULT_AVATAR, setupCompleted: false } 
                     };
-                    saveToCloud();
+                    await saveToCloud();
                 }
 
-                updateProfileUI();
+                updateUI();
                 if (!playerGameData.profile.setupCompleted) {
                     openProfileModal();
                     document.getElementById('profile-close-btn').style.display = 'none';
                 }
             }
 
-            function updateProfileUI() {
+            function updateUI() {
                 const p = playerGameData.profile;
-                document.getElementById('display-avatar').src = p.avatar || DEFAULT_AVATAR;
-                document.getElementById('display-profile-name').innerText = p.name || "執行者";
-                document.getElementById('display-profile-info').innerText = `個性：${p.personality || '未填寫'} | 喜好：${p.likes || '未填寫'}`;
+                const s = playerGameData.stats;
+                document.getElementById('top-display-avatar').src = p.avatar || DEFAULT_AVATAR;
+                document.getElementById('top-display-name').innerText = p.name || "執行者";
+                
+                document.getElementById('story-summary').innerText = `劇情簡述：${playerGameData.storyText}`;
+                document.getElementById('stat-hp').innerText = `${s.hp} / ${s.maxHp}`;
+                document.getElementById('stat-embers').innerText = s.embers;
+                document.getElementById('stat-cores').innerText = s.cores;
             }
 
             async function saveToCloud() {
