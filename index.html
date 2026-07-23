@@ -260,11 +260,12 @@
             margin: 18px 0 8px 4px;
         }
 
+        /* 💡 放大「進入副本」按鈕 */
         .action-main-btn {
             background-color: var(--accent-color);
             color: var(--card-bg);
-            border-radius: 14px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 24px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -274,6 +275,7 @@
             text-align: left;
             transition: transform 0.05s ease;
             touch-action: manipulation;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
 
         .action-main-btn:active {
@@ -283,12 +285,6 @@
         .menu-grid-prepare {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 10px;
-        }
-
-        .menu-grid-3 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
             gap: 10px;
         }
 
@@ -374,11 +370,16 @@
             padding-top: 60px; border-right: 1px solid var(--border-color);
         }
         .sidebar a {
-            padding: 12px 20px; text-decoration: none; font-size: 14px; color: var(--text-color); display: block;
+            padding: 14px 20px; text-decoration: none; font-size: 14px; color: var(--text-color); display: flex; align-items: center; gap: 12px;
             border-bottom: 1px solid var(--border-color);
             touch-action: manipulation;
         }
         .sidebar a:hover { background-color: var(--input-bg); }
+        .sidebar a svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-color);
+        }
         .sidebar .close-btn {
             position: absolute; top: 10px; right: 15px; font-size: 22px; background: none; border: none; color: var(--text-color); cursor: pointer;
             touch-action: manipulation;
@@ -427,15 +428,40 @@
     <!-- 💡 動態提示容器 -->
     <div id="toast-container"></div>
 
-    <!-- 側邊選單 -->
+    <!-- 側邊選單 (已移入三大系統並更換簡約 SVG Icon) -->
     <div id="mySidebar" class="sidebar">
         <button class="close-btn" id="btn-close-nav">&times;</button>
-        <a href="#" id="menu-home">🏠 系統首頁</a>
+        <a href="#" id="menu-home">
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            系統首頁
+        </a>
         <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">執行者設定</div>
-        <a href="#" id="menu-profile">👤 身份資訊設定</a>
+        <a href="#" id="menu-profile">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            身份資訊設定
+        </a>
+        <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">系統模組</div>
+        <a href="#" id="menu-protocol-sidebar">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            主神規則
+        </a>
+        <a href="#" id="menu-exchange-sidebar">
+            <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+            兌換系統
+        </a>
+        <a href="#" id="menu-medical-sidebar">
+            <svg viewBox="0 0 24 24"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
+            治療系統
+        </a>
         <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">系統管理</div>
-        <a href="#" id="menu-settings">⚙️ 遊戲與 API 設定</a>
-        <a href="#" id="menu-logout" style="color: #ef4444;">🚪 登出雲端帳號</a>
+        <a href="#" id="menu-settings">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            遊戲與 API 設定
+        </a>
+        <a href="#" id="menu-logout" style="color: #ef4444;">
+            <svg viewBox="0 0 24 24" style="fill: #ef4444 !important;"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+            登出雲端帳號
+        </a>
     </div>
 
     <div class="container">
@@ -484,16 +510,17 @@
             </div>
 
             <div class="section-label">核心行動 PRIMARY</div>
+            <!-- 💡 放大後的進入副本按鈕 -->
             <button type="button" class="action-main-btn" id="btn-enter-dungeon">
                 <div>
-                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 2px;">進入副本</div>
-                    <div style="font-size: 11px; color: var(--sub-text);">STAGE ENTRY · 隨機輪迴世界</div>
+                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 4px;">進入副本</div>
+                    <div style="font-size: 12px; color: var(--sub-text);">STAGE ENTRY · 隨機輪迴世界</div>
                 </div>
-                <span style="font-size: 18px;">→</span>
+                <span style="font-size: 22px;">→</span>
             </button>
 
             <div class="section-label">準備 PREPARE</div>
-            <!-- 💡 戰力 (佔 2 格) 與背包 (佔 1 格) -->
+            <!-- 戰力 (佔 2 格) 與背包 (佔 1 格) -->
             <div class="menu-grid-prepare">
                 <div class="grid-card" id="menu-card-combat">
                     <div class="grid-card-icon">
@@ -519,31 +546,6 @@
                     </div>
                     <div class="grid-card-title">副本歷史</div>
                     <div class="grid-card-sub">STAGE LOG</div>
-                </div>
-            </div>
-
-            <div class="section-label">系統 SYSTEM</div>
-            <div class="menu-grid-3">
-                <div class="grid-card" id="menu-card-protocol">
-                    <div class="grid-card-icon">
-                        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                    </div>
-                    <div class="grid-card-title">主神規則</div>
-                    <div class="grid-card-sub">PROTOCOL</div>
-                </div>
-                <div class="grid-card" id="menu-card-exchange">
-                    <div class="grid-card-icon">
-                        <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
-                    </div>
-                    <div class="grid-card-title">兌換系統</div>
-                    <div class="grid-card-sub">EXCHANGE</div>
-                </div>
-                <div class="grid-card" id="menu-card-medical">
-                    <div class="grid-card-icon">
-                        <svg viewBox="0 0 24 24"><path d="M19 10.5h-5.5V5c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v5.5H5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5h5.5V19c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5v-5.5H19c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5z"/></svg>
-                    </div>
-                    <div class="grid-card-title">治療系統</div>
-                    <div class="grid-card-sub">MEDICAL</div>
                 </div>
             </div>
 
@@ -904,18 +906,22 @@ ${PROMPT_COMBAT}
                 openSubPage('副本歷史紀錄', '目前尚未有任何副本歷史紀錄。');
             });
 
-            bind('menu-card-protocol', 'click', () => {
+            // 側欄三大系統綁定
+            bind('menu-protocol-sidebar', 'click', () => {
+                closeNav();
                 openSubPage('主神規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸。<br>3. 維度核心為極稀有高級貨幣。');
             });
 
-            bind('menu-card-exchange', 'click', () => {
+            bind('menu-exchange-sidebar', 'click', async () => {
+                closeNav();
                 if (!playerGameData.inDungeon) {
                     return openSubPage('兌換系統未解鎖', '請先進入副本以啟用兌換系統！');
                 }
                 openSubPage('兌換系統', '可使用極其稀有的維度核心或餘燼兌換稀有道具。');
             });
 
-            bind('menu-card-medical', 'click', async () => {
+            bind('menu-medical-sidebar', 'click', async () => {
+                closeNav();
                 if (!playerGameData.inDungeon) {
                     return openSubPage('治療系統未解鎖', '請先進入副本！');
                 }
