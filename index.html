@@ -216,6 +216,7 @@
             height: 100%;
             background-color: var(--text-color);
             border-radius: 3px;
+            transition: width 0.3s ease;
         }
 
         .section-label {
@@ -365,8 +366,8 @@
             <div class="stats-overview">
                 <div class="stats-grid-top">
                     <div>
-                        <div class="stat-item-label">獎勵點數 · POINTS</div>
-                        <div class="stat-item-val" id="display-points">1,280</div>
+                        <div class="stat-item-label">餘燼 · EMBER</div>
+                        <div class="stat-item-val" id="display-ember">1,280</div>
                     </div>
                     <div>
                         <div class="stat-item-label">支線劇情 · SIDE</div>
@@ -378,11 +379,6 @@
                         <span>生命值 HP</span>
                         <span id="display-hp-text" style="font-size:11px; color:var(--sub-text);">86/100</span>
                         <div class="progress-bar-bg"><div class="progress-bar-fill" id="hp-bar-fill" style="width: 86%;"></div></div>
-                    </div>
-                    <div class="bar-row">
-                        <span>能量值 EN</span>
-                        <span id="display-en-text" style="font-size:11px; color:var(--sub-text);">72/100</span>
-                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="en-bar-fill" style="width: 72%;"></div></div>
                     </div>
                 </div>
             </div>
@@ -420,12 +416,7 @@
             <!-- 行動 -->
             <div class="section-label">行動 ACTION</div>
             <div class="menu-grid-2">
-                <div class="grid-card" id="menu-card-cultivate">
-                    <div class="grid-card-icon">🌀</div>
-                    <div class="grid-card-title">修煉</div>
-                    <div class="grid-card-sub">CULTIVATE</div>
-                </div>
-                <div class="grid-card" id="menu-card-history">
+                <div class="grid-card" id="menu-card-history" style="grid-column: span 2;">
                     <div class="grid-card-icon">📜</div>
                     <div class="grid-card-title">副本歷史</div>
                     <div class="grid-card-sub">STAGE LOG</div>
@@ -465,14 +456,8 @@
                 <input type="password" id="api-key-input" placeholder="請輸入您的 API Key">
             </div>
             <div class="input-group">
-                <label for="ai-model-select">選擇 AI 模型：</label>
-                <select id="ai-model-select">
-                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-4o-mini">GPT-4o-mini</option>
-                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
-                </select>
+                <label for="ai-model-input">AI 模型名稱：</label>
+                <input type="text" id="ai-model-input" placeholder="例如：gemini-2.5-flash">
             </div>
             <div class="input-group">
                 <label for="theme-select">介面主題：</label>
@@ -522,7 +507,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 世界觀與核心規則
             const GAME_WORLD_RULES = `--- ［臨界軸：萬界修正錄］世界觀與核心規則 v1.0 ---
 【戰鬥-回合制】採《崩壞：星穹鐵道》模式。
 【回合】分劇情與戰鬥回合。
@@ -534,16 +518,13 @@
                 apiKey: "", 
                 aiModel: "gemini-2.5-flash",
                 theme: "dark",
-                points: 1280,
+                ember: 1280,
                 sideQuests: 3,
                 hp: 86,
                 maxHp: 100,
-                en: 72,
-                maxEn: 100,
                 profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: true }
             };
 
-            // 從 localStorage 讀取存檔
             const savedData = localStorage.getItem('critical_axis_save');
             if (savedData) {
                 try {
@@ -567,7 +548,6 @@
                 if (el) el.addEventListener(event, fn);
             };
 
-            // AI 呼叫核心
             async function callAI(promptText) {
                 const apiKey = playerGameData.apiKey;
                 const model = playerGameData.aiModel || "gemini-2.5-flash";
@@ -609,7 +589,6 @@
                 }
             }
 
-            // 側邊選單與互動
             const openNav = () => document.getElementById("mySidebar").style.width = "250px";
             const closeNav = () => document.getElementById("mySidebar").style.width = "0";
             bind('btn-open-nav', 'click', openNav);
@@ -620,14 +599,20 @@
             bind('menu-card-profile', 'click', openProfileModal);
             bind('btn-open-settings-main', 'click', openSettings);
 
-            // 功能按鈕點擊事件
             bind('menu-card-combat', 'click', () => alert('戰力面板：生命 1000 | 攻擊 200 | 防禦 800 | 速度 100'));
             bind('menu-card-inventory', 'click', () => alert('背包系統尚無道具。'));
-            bind('menu-card-cultivate', 'click', () => alert('修煉功能：消耗能量提升基底屬性。'));
             bind('menu-card-history', 'click', () => alert('副本歷史紀錄目前為空。'));
             bind('menu-card-protocol', 'click', () => alert('【主神規則 Protocol】\n1. 遵守任務指令，違者抹殺。\n2. 積極修正多元宇宙錯誤時間軸。\n3. 保持理性與冷靜。'));
-            bind('menu-card-exchange', 'click', () => alert('兌換系統：可用獎勵點數兌換稀有道具。'));
-            bind('menu-card-medical', 'click', () => alert('治療系統：使用點數恢復生命值。'));
+            bind('menu-card-exchange', 'click', () => alert('兌換系統：可用餘燼兌換稀有道具。'));
+            bind('menu-card-medical', 'click', () => {
+                if (playerGameData.hp >= playerGameData.maxHp) {
+                    return alert('生命值已全滿，無需治療。');
+                }
+                playerGameData.hp = playerGameData.maxHp;
+                updateMainUI();
+                saveLocalStorage();
+                alert('治療系統啟動：生命值已恢復至上限！');
+            });
 
             bind('btn-enter-dungeon', 'click', async () => {
                 if (!playerGameData.apiKey) {
@@ -646,9 +631,10 @@
 
             bind('btn-test-api', 'click', async () => {
                 const key = document.getElementById('api-key-input').value.trim();
+                const modelInput = document.getElementById('ai-model-input').value.trim();
                 if (!key) return alert('請先輸入 API Key！');
                 playerGameData.apiKey = key;
-                playerGameData.aiModel = document.getElementById('ai-model-select').value;
+                playerGameData.aiModel = modelInput || "gemini-2.5-flash";
                 try {
                     alert('測試連線中...');
                     const testReply = await callAI("系統連線測試，請回覆：連線正常。");
@@ -660,7 +646,8 @@
 
             bind('btn-save-api', 'click', () => {
                 playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
-                playerGameData.aiModel = document.getElementById('ai-model-select').value;
+                const modelInput = document.getElementById('ai-model-input').value.trim();
+                playerGameData.aiModel = modelInput || "gemini-2.5-flash";
                 const theme = document.getElementById('theme-select').value;
                 playerGameData.theme = theme;
                 applyTheme(theme);
@@ -699,7 +686,7 @@
 
             function openSettings() { 
                 document.getElementById('api-key-input').value = playerGameData.apiKey || "";
-                document.getElementById('ai-model-select').value = playerGameData.aiModel || "gemini-2.5-flash";
+                document.getElementById('ai-model-input').value = playerGameData.aiModel || "gemini-2.5-flash";
                 document.getElementById('theme-select').value = playerGameData.theme || "dark";
                 document.getElementById('settings-modal').style.display = 'flex'; 
             }
@@ -716,16 +703,15 @@
             function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
 
             function updateMainUI() {
-                document.getElementById('display-points').innerText = playerGameData.points ?? 1280;
+                document.getElementById('display-ember').innerText = (playerGameData.ember ?? 1280).toLocaleString();
                 document.getElementById('display-side-quests').innerText = `${playerGameData.sideQuests ?? 3} 條進行中`;
+                
                 const hp = playerGameData.hp ?? 86;
                 const maxHp = playerGameData.maxHp ?? 100;
-                const en = playerGameData.en ?? 72;
-                const maxEn = playerGameData.maxEn ?? 100;
+                const hpPercentage = Math.max(0, Math.min(100, (hp / maxHp) * 100));
+                
                 document.getElementById('display-hp-text').innerText = `${hp}/${maxHp}`;
-                document.getElementById('hp-bar-fill').style.width = `${(hp/maxHp)*100}%`;
-                document.getElementById('display-en-text').innerText = `${en}/${maxEn}`;
-                document.getElementById('en-bar-fill').style.width = `${(en/maxEn)*100}%`;
+                document.getElementById('hp-bar-fill').style.width = `${hpPercentage}%`;
             }
 
             function saveLocalStorage() {
@@ -735,3 +721,4 @@
     </script>
 </body>
 </html>
+
