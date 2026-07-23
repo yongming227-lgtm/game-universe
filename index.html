@@ -393,7 +393,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const SUPABASE_URL = 'https://yongming227-lgtm.supabase.co';
+            // 已修正為對應你 Anon Key 內含的正確專案網址
+            const SUPABASE_URL = 'https://xjuspusyimjgditsbaku.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8';
             
             let supabase = null;
@@ -443,7 +444,6 @@
                 document.getElementById('intro-screen').style.display = 'block';
             });
 
-            // 強化版：註冊按鈕事件（含詳細錯誤彈窗）
             bind('btn-register', 'click', async () => {
                 if (!supabase) {
                     alert('Supabase 未初始化成功！');
@@ -471,15 +471,12 @@
                         alert('註冊失敗：\n' + error.message);
                     } else {
                         alert('註冊要求已送出！若後台未關閉 Email 驗證，請至信箱點擊驗證連結後再登入；若已關閉，可直接點擊登入。');
-                        console.log('Register success data:', data);
                     }
                 } catch (err) {
                     alert('註冊過程發生非預期錯誤：\n' + err.message);
-                    console.error(err);
                 }
             });
 
-            // 強化版：登入按鈕事件（含詳細錯誤彈窗）
             bind('btn-login', 'click', async () => {
                 if (!supabase) {
                     alert('Supabase 未初始化成功！');
@@ -502,7 +499,6 @@
                     }
                 } catch (err) {
                     alert('登入過程發生非預期錯誤：\n' + err.message);
-                    console.error(err);
                 }
             });
 
@@ -608,7 +604,7 @@
                 document.getElementById('welcome-msg').innerText = `歡迎回來，${currentUser.email}`;
                 document.getElementById('user-display-email').innerText = currentUser.email;
 
-                const { data, error } = await supabase.from('player_saves').select('save_data').eq('id', currentUser.id).single();
+                const { data } = await supabase.from('player_saves').select('save_data').eq('id', currentUser.id).single();
                 if (data && data.save_data) {
                     playerGameData = data.save_data;
                     if (!playerGameData.profile) playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, setupCompleted: false };
@@ -658,3 +654,4 @@
     </script>
 </body>
 </html>
+
