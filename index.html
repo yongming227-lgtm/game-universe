@@ -116,7 +116,7 @@
             font-weight: bold;
             cursor: pointer;
             transition: transform 0.05s ease, opacity 0.2s;
-            touch-action: manipulation; /* 💡 消除手機點擊 300ms 延遲 */
+            touch-action: manipulation;
         }
 
         button:hover {
@@ -170,7 +170,6 @@
             margin-right: 4px;
         }
 
-        /* 玩家個人資訊預覽列 */
         .player-info-card {
             display: flex;
             align-items: center;
@@ -582,27 +581,38 @@
         </div>
     </div>
 
+    <!-- 專屬子頁面共用彈窗模板 (各自獨立，供後續自由設計內容) -->
+    <div id="subpage-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="subpage-title">子頁面標題</h3>
+            <div id="subpage-body" style="font-size: 13px; color: var(--sub-text); margin: 16px 0; min-height: 100px;">
+                <!-- 這裡的內容之後可由您自由設計 -->
+                此頁面內容建構中...
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn-secondary" id="btn-close-subpage">返回上一頁</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==========================================================
         // 🛠️ 遊戲提示詞專用分區設定區 (可直接在 GitHub 修改)
         // ==========================================================
 
-        // 1. 戰鬥相關提示詞與機制
         const PROMPT_COMBAT = `
 【戰鬥系統規範】
-- 採《崩壞：星穹鐵道》回合制模式。
+- 採《崩壞：星鐵道》回合制模式。
 - 回合劃分為：劇情推進階段與戰鬥回合。
 - 基礎數值參照：生命值 1000 | 攻擊力 200 | 防禦力 800 | 速度 100。
         `.trim();
 
-        // 2. 劇情相關與世界觀設定
         const PROMPT_LORE = `
 【世界觀與背景設定】
 - 遊戲名稱：臨界軸：萬界修正錄
 - 維度核心：高級貨幣，極其稀有，用於修正多元宇宙錯誤時間軸。
         `.trim();
 
-        // 3. AI 行為與規則區
         const PROMPT_RULES = `
 【AI 行為規則】
 - 扮演主神空間的管理者與旁白。
@@ -651,6 +661,17 @@
                 await loadCloudData();
             }
 
+            // 開啟專屬子頁面函式 (各按鈕可自由設計內容)
+            function openSubPage(title, customHtmlContent) {
+                document.getElementById('subpage-title').innerText = title;
+                document.getElementById('subpage-body').innerHTML = customHtmlContent;
+                document.getElementById('subpage-modal').style.display = 'flex';
+            }
+
+            bind('btn-close-subpage', 'click', () => {
+                document.getElementById('subpage-modal').style.display = 'none';
+            });
+
             bind('btn-welcome-yes', 'click', async () => {
                 const { data: { session: activeSession } } = await supabaseClient.auth.getSession();
                 document.getElementById('welcome-modal').style.display = 'none';
@@ -664,8 +685,9 @@
                 }
             });
 
+            // 💡 將原本跳出 alert 的「No (拒絕)」改為導向專屬子頁面
             bind('btn-welcome-no', 'click', () => {
-                alert('連線已拒絕，主神終端保持休眠。');
+                openSubPage('連線拒絕終端', '連線已拒絕，主神終端保持休眠。<br><br><span style="color: var(--text-color);">[此處為專屬子頁面，您可以隨時在此擴充拒絕連線後的導向內容與選單]</span>');
             });
 
             bind('btn-supabase-login', 'click', async () => {
@@ -722,7 +744,6 @@
 
                 if (data && data.game_data) {
                     playerGameData = data.game_data;
-                    // 確保 profile 物件完整
                     if (!playerGameData.profile) {
                         playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "" };
                     }
@@ -755,7 +776,6 @@
                     throw new Error("尚未設定 API Key，請至遊戲設定中填寫。");
                 }
 
-                // 組合所有提示詞區塊給 AI，並帶入最新的執行者身份檔案
                 const combinedSystemPrompt = `
 ${PROMPT_RULES}
 
@@ -793,26 +813,44 @@ ${PROMPT_COMBAT}
             bind('btn-card-profile-quick', 'click', openProfileModal);
             bind('btn-open-settings-main', 'click', openSettings);
 
+            // 💡 將原本跳出提示的按鈕全面改為導向專屬子頁面
             bind('menu-card-combat', 'click', () => {
-                if (!playerGameData.inDungeon) return alert('請先進入副本以啟用戰力數據！');
-                alert('戰力面板：生命 1000 | 攻擊 200 | 防禦 800 | 速度 100');
+                if (!playerGameData.inDungeon) {
+                    return openSubPage('戰力系統未解鎖', '請先進入副本以啟用戰力數據！');
+                }
+                openSubPage('戰力面板', '戰力數據：生命 1000 | 攻擊 200 | 防禦 800 | 速度 100');
             });
-            bind('menu-card-inventory', 'click', () => alert('背包系統尚無道具。'));
-            bind('menu-card-history', 'click', () => alert('副本歷史紀錄目前為空。'));
-            bind('menu-card-protocol', 'click', () => alert('【主神規則 Protocol】\n1. 遵守任務指令，違者抹殺。\n2. 積極修正多元宇宙錯誤時間軸。\n3. 維度核心為極稀有高級貨幣。'));
+
+            bind('menu-card-inventory', 'click', () => {
+                openSubPage('背包系統', '目前背包尚無任何道具。');
+            });
+
+            bind('menu-card-history', 'click', () => {
+                openSubPage('副本歷史紀錄', '目前尚未有任何副本歷史紀錄。');
+            });
+
+            bind('menu-card-protocol', 'click', () => {
+                openSubPage('主神規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸。<br>3. 維度核心為極稀有高級貨幣。');
+            });
+
             bind('menu-card-exchange', 'click', () => {
-                if (!playerGameData.inDungeon) return alert('請先進入副本以啟用兌換系統！');
-                alert('兌換系統：可使用極其稀有的維度核心或餘燼兌換稀有道具。');
+                if (!playerGameData.inDungeon) {
+                    return openSubPage('兌換系統未解鎖', '請先進入副本以啟用兌換系統！');
+                }
+                openSubPage('兌換系統', '可使用極其稀有的維度核心或餘燼兌換稀有道具。');
             });
+
             bind('menu-card-medical', 'click', async () => {
-                if (!playerGameData.inDungeon) return alert('請先進入副本！');
+                if (!playerGameData.inDungeon) {
+                    return openSubPage('治療系統未解鎖', '請先進入副本！');
+                }
                 if (playerGameData.hp >= playerGameData.maxHp) {
-                    return alert('生命值已全滿，無需治療。');
+                    return openSubPage('治療系統', '生命值已全滿，無需治療。');
                 }
                 playerGameData.hp = playerGameData.maxHp;
                 updateMainUI();
                 await saveCloudData();
-                alert('治療系統啟動：生命值已恢復至上限！');
+                openSubPage('治療系統', '治療系統啟動：生命值已恢復至上限！');
             });
 
             bind('btn-enter-dungeon', 'click', async () => {
@@ -834,7 +872,7 @@ ${PROMPT_COMBAT}
                     updateMainUI();
                     await saveCloudData();
 
-                    alert('【副本開場成功】\n\n' + aiReply);
+                    openSubPage('副本開場', aiReply);
                 } catch (err) {
                     alert('AI 連線失敗：\n' + err.message);
                 }
@@ -927,7 +965,6 @@ ${PROMPT_COMBAT}
                 document.getElementById('display-hp-text').innerText = playerGameData.inDungeon ? `${hp}/${maxHp}` : `未同步`;
                 document.getElementById('hp-bar-fill').style.width = `${hpPercentage}%`;
 
-                // 更新主畫面上的頭像與名字
                 const p = playerGameData.profile || {};
                 document.getElementById('main-player-name').innerText = p.name || "執行者";
                 document.getElementById('main-player-avatar').src = p.avatar || DEFAULT_AVATAR;
