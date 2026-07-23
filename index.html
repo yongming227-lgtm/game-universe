@@ -164,6 +164,30 @@
             margin-right: 4px;
         }
 
+        /* 玩家個人資訊預覽列 */
+        .player-info-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+        .player-avatar-small {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+            background-color: #333;
+        }
+        .player-info-text {
+            display: flex;
+            flex-direction: column;
+        }
+
         .stats-overview {
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
@@ -362,6 +386,15 @@
                 <div id="user-serial-id">輪迴者</div>
             </div>
 
+            <!-- 玩家頭像與身份資訊卡片 -->
+            <div class="player-info-card" id="btn-card-profile-quick" style="cursor: pointer;">
+                <img id="main-player-avatar" src="" alt="頭像" class="player-avatar-small">
+                <div class="player-info-text">
+                    <div id="main-player-name" style="font-weight: bold; font-size: 15px;">執行者</div>
+                    <div style="font-size: 11px; color: var(--sub-text);">點擊檢視或編輯身份資訊</div>
+                </div>
+            </div>
+
             <div class="stats-overview">
                 <div class="stats-grid-top">
                     <div>
@@ -534,20 +567,36 @@
     </div>
 
     <script>
-        // ==========================================
-        // 🛠️ 專案設定與提示詞設定區 (可直接在此修改)
-        // ==========================================
+        // ==========================================================
+        // 🛠️ 遊戲提示詞專用分區設定區 (可直接在 GitHub 修改)
+        // ==========================================================
+
+        // 1. 戰鬥相關提示詞與機制
+        const PROMPT_COMBAT = `
+【戰鬥系統規範】
+- 採《崩壞：星穹鐵道》回合制模式。
+- 回合劃分為：劇情推進階段與戰鬥回合。
+- 基礎數值參照：生命值 1000 | 攻擊力 200 | 防禦力 800 | 速度 100。
+        `.trim();
+
+        // 2. 劇情相關與世界觀設定
+        const PROMPT_LORE = `
+【世界觀與背景設定】
+- 遊戲名稱：臨界軸：萬界修正錄
+- 維度核心：高級貨幣，極其稀有，用於修正多元宇宙錯誤時間軸。
+        `.trim();
+
+        // 3. AI 行為與規則區
+        const PROMPT_RULES = `
+【AI 行為規則】
+- 扮演主神空間的管理者與旁白。
+- 語氣需冷酷、神祕、具壓迫感。
+- 請以第一人稱或客觀旁白引導玩家進行副本體驗。
+        `.trim();
+
+        // ==========================================================
         const SUPABASE_URL = "https://xjuspusyimjdgitsbaku.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8";
-
-        // 可以在這裡隨時調整主神規則、世界觀與 AI 核心提示詞
-        const GAME_WORLD_RULES = `--- ［臨界軸：萬界修正錄］世界觀與核心規則 v1.0 ---
-【世界觀設定】
-- 維度核心：高級貨幣，非常稀有。
-【戰鬥-回合制】採《崩壞：星穹鐵道》模式。
-【回合】分劇情與戰鬥回合。
-【基礎數值】生命值：1000 | 攻擊力：200 | 防禦力：800 | 速度：100`.trim();
-        // ==========================================
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -657,6 +706,13 @@
 
                 if (data && data.game_data) {
                     playerGameData = data.game_data;
+                    // 確保 profile 物件完整
+                    if (!playerGameData.profile) {
+                        playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "" };
+                    }
+                    if (!playerGameData.profile.avatar) {
+                        playerGameData.profile.avatar = DEFAULT_AVATAR;
+                    }
                 } else {
                     await saveCloudData();
                 }
@@ -683,14 +739,26 @@
                     throw new Error("尚未設定 API Key，請至遊戲設定中填寫。");
                 }
 
-                const fullSystemPrompt = `${GAME_WORLD_RULES}\n\n【目前執行者檔案】\n名字：${playerGameData.profile.name}\n個性：${playerGameData.profile.personality}\n喜好：${playerGameData.profile.likes}`;
+                // 組合所有提示詞區塊給 AI，並帶入最新的執行者身份檔案
+                const combinedSystemPrompt = `
+${PROMPT_RULES}
+
+${PROMPT_LORE}
+
+${PROMPT_COMBAT}
+
+【目前執行者檔案】
+名字代號：${playerGameData.profile.name}
+個性描述：${playerGameData.profile.personality}
+喜好專長：${playerGameData.profile.likes}
+                `.trim();
 
                 const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ role: "user", parts: [{ text: `${fullSystemPrompt}\n\n玩家指令：${promptText}` }] }]
+                        contents: [{ role: "user", parts: [{ text: `${combinedSystemPrompt}\n\n玩家指令：${promptText}` }] }]
                     })
                 });
                 const data = await response.json();
@@ -706,6 +774,7 @@
             bind('menu-profile', 'click', () => { openProfileModal(); closeNav(); });
             bind('menu-settings', 'click', () => { openSettings(); closeNav(); });
             bind('menu-card-profile', 'click', openProfileModal);
+            bind('btn-card-profile-quick', 'click', openProfileModal);
             bind('btn-open-settings-main', 'click', openSettings);
 
             bind('menu-card-combat', 'click', () => {
@@ -776,9 +845,10 @@
                 playerGameData.aiModel = modelInput || "gemini-2.5-flash";
                 const theme = document.getElementById('theme-select').value;
                 playerGameData.theme = theme;
+                
                 applyTheme(theme);
                 await saveCloudData();
-                alert('設定已同步至雲端！');
+                alert('設定與常駐參數已同步至雲端！');
                 closeSettings();
             });
             bind('btn-close-settings', 'click', closeSettings);
@@ -804,9 +874,11 @@
                 playerGameData.profile.name = name;
                 playerGameData.profile.personality = document.getElementById('profile-personality-input').value.trim();
                 playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
+                
+                updateMainUI();
                 await saveCloudData();
                 closeProfileModal();
-                alert('身份資訊已同步至雲端！');
+                alert('身份資訊與頭像已同步至雲端！');
             });
             bind('profile-close-btn', 'click', closeProfileModal);
 
@@ -819,7 +891,7 @@
             function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
             
             function openProfileModal() {
-                const p = playerGameData.profile;
+                const p = playerGameData.profile || {};
                 document.getElementById('profile-name-input').value = p.name || "";
                 document.getElementById('profile-personality-input').value = p.personality || "";
                 document.getElementById('profile-likes-input').value = p.likes || "";
@@ -838,9 +910,13 @@
                 
                 document.getElementById('display-hp-text').innerText = playerGameData.inDungeon ? `${hp}/${maxHp}` : `未同步`;
                 document.getElementById('hp-bar-fill').style.width = `${hpPercentage}%`;
+
+                // 更新主畫面上的頭像與名字
+                const p = playerGameData.profile || {};
+                document.getElementById('main-player-name').innerText = p.name || "執行者";
+                document.getElementById('main-player-avatar').src = p.avatar || DEFAULT_AVATAR;
             }
         });
     </script>
 </body>
 </html>
-
