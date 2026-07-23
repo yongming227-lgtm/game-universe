@@ -485,7 +485,7 @@
                     <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
                     <span>主神空間 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">GOD'S DOMAIN TERMINAL</span></span>
                 </div>
-                <!-- 💡 這裡將設定按鈕改為符合標準的內嵌 SVG 圖示 -->
+                <!-- 設定按鈕 -->
                 <button type="button" id="btn-open-settings-main" style="background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:unset; padding:0;">
                     <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color); transition: fill 0.3s;"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                 </button>
@@ -600,9 +600,51 @@
                 <button type="button" class="btn-secondary" id="btn-close-settings">返回首頁</button>
             </div>
         </div>
+
+        <!-- 執行者身份資訊全螢幕頁面 -->
+        <div id="profile-page" class="full-page-view">
+            <h3>👤 執行者身份資訊</h3>
+            <p style="font-size: 12px; color: var(--sub-text); margin-bottom: 20px;">檢視或編輯您的個人化身份設定：</p>
+            
+            <div class="input-group" style="text-align: center; margin-top: 10px;">
+                <img id="modal-avatar-preview" src="" alt="頭像預覽" class="avatar-preview" style="margin: 0 auto 10px auto; display: block; width: 80px; height: 80px;">
+                <label for="avatar-file-input" style="display: inline-block; background-color: var(--badge-bg); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; border: 1px solid var(--border-color); touch-action: manipulation;">
+                    📁 上傳自訂頭像
+                </label>
+                <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
+                <button type="button" class="btn-secondary" style="margin-top: 8px; font-size: 11px; padding: 6px;" id="btn-default-avatar">使用預設頭像</button>
+            </div>
+            <div class="input-group" style="margin-top: 16px;">
+                <label for="profile-name-input">執行者代號 / 名字：</label>
+                <input type="text" id="profile-name-input" placeholder="請輸入名字">
+            </div>
+            <div class="input-group">
+                <label for="profile-personality-input">個性描述：</label>
+                <input type="text" id="profile-personality-input" placeholder="例如：冷靜、果斷...">
+            </div>
+            <div class="input-group">
+                <label for="profile-likes-input">喜好 / 專長：</label>
+                <textarea id="profile-likes-input" placeholder="例如：戰術分析、格鬥..."></textarea>
+            </div>
+            <div class="btn-group" style="margin-top: 24px;">
+                <button type="button" id="btn-save-profile">儲存至雲端</button>
+                <button type="button" class="btn-secondary" id="profile-close-btn">返回首頁</button>
+            </div>
+        </div>
+
+        <!-- 專屬子頁面共用全螢幕頁面 -->
+        <div id="subpage-page" class="full-page-view">
+            <h3 id="subpage-title">子頁面標題</h3>
+            <div id="subpage-body" style="font-size: 14px; color: var(--text-color); margin: 20px 0; min-height: 180px; line-height: 1.6;">
+                此頁面內容建構中...
+            </div>
+            <div class="btn-group" style="margin-top: 24px;">
+                <button type="button" class="btn-secondary" id="btn-close-subpage" style="width: 100%;">返回首頁</button>
+            </div>
+        </div>
     </div>
 
-    <!-- 進入確認彈窗 (Yes / No 閘道) -->
+    <!-- 提示視窗：保留不變 (Welcome 閘道) -->
     <div id="welcome-modal" class="modal" style="display: flex;">
         <div class="modal-content" style="text-align: center;">
             <h3 style="margin-bottom: 10px;">⚡ 主神空間連線請求</h3>
@@ -614,7 +656,7 @@
         </div>
     </div>
 
-    <!-- Supabase 登入 / 註冊彈窗 -->
+    <!-- 提示視窗：保留不變 (Supabase 登入 / 註冊) -->
     <div id="auth-modal" class="modal">
         <div class="modal-content">
             <h3>🔐 雲端身份驗證</h3>
@@ -632,50 +674,6 @@
                 <button type="button" class="btn-secondary" id="btn-supabase-signup">註冊帳號</button>
             </div>
             <button type="button" class="btn-secondary" id="btn-auth-close" style="width: 100%; margin-top: 10px;">返回</button>
-        </div>
-    </div>
-
-    <!-- 個人檔案彈窗 -->
-    <div id="profile-modal" class="modal">
-        <div class="modal-content">
-            <h3>執行者身份資訊</h3>
-            <div class="input-group" style="text-align: center; margin-top: 10px;">
-                <img id="modal-avatar-preview" src="" alt="頭像預覽" class="avatar-preview" style="margin: 0 auto 10px auto; display: block;">
-                <label for="avatar-file-input" style="display: inline-block; background-color: var(--badge-bg); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; border: 1px solid var(--border-color); touch-action: manipulation;">
-                    📁 上傳自訂頭像
-                </label>
-                <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
-                <button type="button" class="btn-secondary" style="margin-top: 5px; font-size: 11px; padding: 4px;" id="btn-default-avatar">使用預設頭像</button>
-            </div>
-            <div class="input-group">
-                <label for="profile-name-input">執行者代號 / 名字：</label>
-                <input type="text" id="profile-name-input" placeholder="請輸入名字">
-            </div>
-            <div class="input-group">
-                <label for="profile-personality-input">個性描述：</label>
-                <input type="text" id="profile-personality-input" placeholder="例如：冷靜、果斷...">
-            </div>
-            <div class="input-group">
-                <label for="profile-likes-input">喜好 / 專長：</label>
-                <textarea id="profile-likes-input" placeholder="例如：戰術分析、格鬥..."></textarea>
-            </div>
-            <div class="btn-group">
-                <button type="button" id="btn-save-profile">儲存至雲端</button>
-                <button type="button" class="btn-secondary" id="profile-close-btn">關閉</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 專屬子頁面共用彈窗模板 -->
-    <div id="subpage-modal" class="modal">
-        <div class="modal-content">
-            <h3 id="subpage-title">子頁面標題</h3>
-            <div id="subpage-body" style="font-size: 13px; color: var(--sub-text); margin: 16px 0; min-height: 100px;">
-                此頁面內容建構中...
-            </div>
-            <div class="btn-group">
-                <button type="button" class="btn-secondary" id="btn-close-subpage">返回上一頁</button>
-            </div>
         </div>
     </div>
 
@@ -756,11 +754,11 @@
             function openSubPage(title, customHtmlContent) {
                 document.getElementById('subpage-title').innerText = title;
                 document.getElementById('subpage-body').innerHTML = customHtmlContent;
-                document.getElementById('subpage-modal').style.display = 'flex';
+                document.getElementById('subpage-page').style.display = 'block';
             }
 
             bind('btn-close-subpage', 'click', () => {
-                document.getElementById('subpage-modal').style.display = 'none';
+                document.getElementById('subpage-page').style.display = 'none';
             });
 
             bind('btn-welcome-yes', 'click', async () => {
@@ -910,9 +908,9 @@ ${PROMPT_COMBAT}
             bind('btn-open-nav', 'click', openNav);
             bind('btn-close-nav', 'click', closeNav);
             bind('menu-home', 'click', () => closeNav());
-            bind('menu-profile', 'click', () => { openProfileModal(); closeNav(); });
+            bind('menu-profile', 'click', () => { openProfilePage(); closeNav(); });
             bind('menu-settings', 'click', () => { openSettingsPage(); closeNav(); });
-            bind('btn-card-profile-quick', 'click', openProfileModal);
+            bind('btn-card-profile-quick', 'click', openProfilePage);
             bind('btn-open-settings-main', 'click', openSettingsPage);
 
             bind('menu-card-combat', 'click', () => {
@@ -1042,10 +1040,10 @@ ${PROMPT_COMBAT}
                 
                 updateMainUI();
                 await saveCloudData();
-                closeProfileModal();
+                closeProfilePage();
                 showToast('身份資訊與頭像已同步至雲端！');
             });
-            bind('profile-close-btn', 'click', closeProfileModal);
+            bind('profile-close-btn', 'click', closeProfilePage);
 
             function openSettingsPage() { 
                 document.getElementById('settings-email-display').value = currentUserEmail || "未綁定信箱";
@@ -1058,15 +1056,15 @@ ${PROMPT_COMBAT}
                 document.getElementById('settings-page').style.display = 'none'; 
             }
             
-            function openProfileModal() {
+            function openProfilePage() {
                 const p = playerGameData.profile || {};
                 document.getElementById('profile-name-input').value = p.name || "";
                 document.getElementById('profile-personality-input').value = p.personality || "";
                 document.getElementById('profile-likes-input').value = p.likes || "";
                 document.getElementById('modal-avatar-preview').src = p.avatar || DEFAULT_AVATAR;
-                document.getElementById('profile-modal').style.display = 'flex';
+                document.getElementById('profile-page').style.display = 'block';
             }
-            function closeProfileModal() { document.getElementById('profile-modal').style.display = 'none'; }
+            function closeProfilePage() { document.getElementById('profile-page').style.display = 'none'; }
 
             function updateMainUI() {
                 document.getElementById('display-ember').innerText = (playerGameData.ember ?? 0).toLocaleString();
@@ -1087,3 +1085,4 @@ ${PROMPT_COMBAT}
     </script>
 </body>
 </html>
+
