@@ -55,6 +55,8 @@
             border: 1px solid var(--border-color);
             box-sizing: border-box;
             transition: background-color 0.3s, border-color 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
         h2, h3 {
@@ -260,7 +262,6 @@
             margin: 18px 0 8px 4px;
         }
 
-        /* 💡 放大「進入副本」按鈕 */
         .action-main-btn {
             background-color: var(--accent-color);
             color: var(--card-bg);
@@ -364,6 +365,19 @@
             border: 1px solid var(--border-color);
             max-height: 90vh; overflow-y: auto;
         }
+        
+        /* 💡 全螢幕頁面設定樣式 */
+        .full-page-view {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--card-bg);
+            z-index: 1500;
+            padding: 24px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
         .sidebar {
             height: 100%; width: 0; position: fixed; z-index: 2500; top: 0; left: 0;
             background-color: var(--card-bg); overflow-x: hidden; transition: 0.3s;
@@ -425,10 +439,10 @@
 </head>
 <body>
 
-    <!-- 💡 動態提示容器 -->
+    <!-- 動態提示容器 -->
     <div id="toast-container"></div>
 
-    <!-- 側邊選單 (已移入三大系統並更換簡約 SVG Icon) -->
+    <!-- 側邊選單 -->
     <div id="mySidebar" class="sidebar">
         <button class="close-btn" id="btn-close-nav">&times;</button>
         <a href="#" id="menu-home">
@@ -456,7 +470,7 @@
         <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">系統管理</div>
         <a href="#" id="menu-settings">
             <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-            遊戲與 API 設定
+            遊戲與帳號設定
         </a>
         <a href="#" id="menu-logout" style="color: #ef4444;">
             <svg viewBox="0 0 24 24" style="fill: #ef4444 !important;"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
@@ -472,12 +486,13 @@
                     <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
                     <span>主神空間 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">GOD'S DOMAIN TERMINAL</span></span>
                 </div>
-                <button type="button" id="btn-open-settings-main" style="background:none; border:none; color:var(--sub-text); cursor:pointer; font-size:16px; flex:unset; padding:0;">?</button>
+                <!-- 💡 移除右上角圈起來的 Email 區塊，僅保留設定按鈕 -->
+                <button type="button" id="btn-open-settings-main" style="background:none; border:none; color:var(--sub-text); cursor:pointer; font-size:16px; flex:unset; padding:0;">⚙️</button>
             </div>
 
             <div class="terminal-status-bar">
                 <div><span class="status-dot"></span>雲端連線 · CLOUD SYNCED</div>
-                <div id="user-serial-id">輪迴者</div>
+                <div></div>
             </div>
 
             <!-- 玩家頭像與身份資訊卡片 -->
@@ -510,7 +525,6 @@
             </div>
 
             <div class="section-label">核心行動 PRIMARY</div>
-            <!-- 💡 放大後的進入副本按鈕 -->
             <button type="button" class="action-main-btn" id="btn-enter-dungeon">
                 <div>
                     <div style="font-size: 20px; font-weight: bold; margin-bottom: 4px;">進入副本</div>
@@ -520,7 +534,6 @@
             </button>
 
             <div class="section-label">準備 PREPARE</div>
-            <!-- 戰力 (佔 2 格) 與背包 (佔 1 格) -->
             <div class="menu-grid-prepare">
                 <div class="grid-card" id="menu-card-combat">
                     <div class="grid-card-icon">
@@ -550,6 +563,41 @@
             </div>
 
             <div class="footer-credit">MADE BY 成都尖頭們</div>
+        </div>
+
+        <!-- 💡 整合後的「遊戲與帳號設定」全螢幕頁面 -->
+        <div id="settings-page" class="full-page-view">
+            <h3>⚙️ 遊戲與帳號設定</h3>
+            <p style="font-size: 12px; color: var(--sub-text); margin-bottom: 20px;">在此管理您的雲端帳號資料與 AI 核心參數：</p>
+            
+            <div style="font-size: 11px; color: var(--sub-text); font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">帳號資料 ACCOUNT</div>
+            <div class="input-group">
+                <label for="settings-email-display">目前登入信箱：</label>
+                <input type="text" id="settings-email-display" readonly style="opacity: 0.8; cursor: not-allowed;">
+            </div>
+            
+            <div style="font-size: 11px; color: var(--sub-text); font-weight: bold; margin: 20px 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">API 與核心設定 CORE & API</div>
+            <div class="input-group">
+                <label for="api-key-input">API Key：</label>
+                <input type="password" id="api-key-input" placeholder="請輸入您的 API Key">
+            </div>
+            <div class="input-group">
+                <label for="ai-model-input">AI 模型名稱：</label>
+                <input type="text" id="ai-model-input" placeholder="例如：gemini-2.5-flash">
+            </div>
+            <div class="input-group">
+                <label for="theme-select">介面主題：</label>
+                <select id="theme-select">
+                    <option value="dark">黑夜模式 (Dark)</option>
+                    <option value="light">白晝模式 (Light)</option>
+                </select>
+            </div>
+            
+            <div class="btn-group" style="margin-top: 24px;">
+                <button type="button" id="btn-save-api">儲存設定</button>
+                <button type="button" class="btn-secondary" id="btn-test-api">測試連線</button>
+                <button type="button" class="btn-secondary" id="btn-close-settings">返回首頁</button>
+            </div>
         </div>
     </div>
 
@@ -583,33 +631,6 @@
                 <button type="button" class="btn-secondary" id="btn-supabase-signup">註冊帳號</button>
             </div>
             <button type="button" class="btn-secondary" id="btn-auth-close" style="width: 100%; margin-top: 10px;">返回</button>
-        </div>
-    </div>
-
-    <!-- 設定彈窗 -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <h3>遊戲設定與 AI 核心</h3>
-            <div class="input-group" style="margin-top:12px;">
-                <label for="api-key-input">API Key：</label>
-                <input type="password" id="api-key-input" placeholder="請輸入您的 API Key">
-            </div>
-            <div class="input-group">
-                <label for="ai-model-input">AI 模型名稱：</label>
-                <input type="text" id="ai-model-input" placeholder="例如：gemini-2.5-flash">
-            </div>
-            <div class="input-group">
-                <label for="theme-select">介面主題：</label>
-                <select id="theme-select">
-                    <option value="dark">黑夜模式 (Dark)</option>
-                    <option value="light">白晝模式 (Light)</option>
-                </select>
-            </div>
-            <div class="btn-group">
-                <button type="button" id="btn-save-api">儲存至雲端</button>
-                <button type="button" class="btn-secondary" id="btn-test-api">測試連線</button>
-                <button type="button" class="btn-secondary" id="btn-close-settings">關閉</button>
-            </div>
         </div>
     </div>
 
@@ -711,6 +732,7 @@
             };
 
             let currentUserId = null;
+            let currentUserEmail = "";
 
             const applyTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
@@ -726,7 +748,7 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 currentUserId = session.user.id;
-                document.getElementById('user-serial-id').innerText = session.user.email;
+                currentUserEmail = session.user.email;
                 await loadCloudData();
             }
 
@@ -748,6 +770,7 @@
                     document.getElementById('auth-modal').style.display = 'flex';
                 } else {
                     currentUserId = activeSession.user.id;
+                    currentUserEmail = activeSession.user.email;
                     document.getElementById('game-screen').style.display = 'block';
                     updateMainUI();
                 }
@@ -772,7 +795,7 @@
                 }
 
                 currentUserId = data.user.id;
-                document.getElementById('user-serial-id').innerText = data.user.email;
+                currentUserEmail = data.user.email;
                 document.getElementById('auth-modal').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'block';
                 await loadCloudData();
@@ -795,7 +818,7 @@
 
                 if (data.user) {
                     currentUserId = data.user.id;
-                    document.getElementById('user-serial-id').innerText = data.user.email;
+                    currentUserEmail = data.user.email;
                     document.getElementById('auth-modal').style.display = 'none';
                     document.getElementById('game-screen').style.display = 'block';
                     await saveCloudData();
@@ -852,7 +875,7 @@
                 const model = playerGameData.aiModel || "gemini-2.5-flash";
 
                 if (!apiKey) {
-                    throw new Error("尚未設定 API Key，請至遊戲設定中填寫。");
+                    throw new Error("尚未設定 API Key，請至設定頁面中填寫。");
                 }
 
                 const combinedSystemPrompt = `
@@ -887,9 +910,9 @@ ${PROMPT_COMBAT}
             bind('btn-close-nav', 'click', closeNav);
             bind('menu-home', 'click', () => closeNav());
             bind('menu-profile', 'click', () => { openProfileModal(); closeNav(); });
-            bind('menu-settings', 'click', () => { openSettings(); closeNav(); });
+            bind('menu-settings', 'click', () => { openSettingsPage(); closeNav(); });
             bind('btn-card-profile-quick', 'click', openProfileModal);
-            bind('btn-open-settings-main', 'click', openSettings);
+            bind('btn-open-settings-main', 'click', openSettingsPage);
 
             bind('menu-card-combat', 'click', () => {
                 if (!playerGameData.inDungeon) {
@@ -906,7 +929,6 @@ ${PROMPT_COMBAT}
                 openSubPage('副本歷史紀錄', '目前尚未有任何副本歷史紀錄。');
             });
 
-            // 側欄三大系統綁定
             bind('menu-protocol-sidebar', 'click', () => {
                 closeNav();
                 openSubPage('主神規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸。<br>3. 維度核心為極稀有高級貨幣。');
@@ -936,8 +958,8 @@ ${PROMPT_COMBAT}
 
             bind('btn-enter-dungeon', 'click', async () => {
                 if (!playerGameData.apiKey) {
-                    showToast('尚未設定 API Key！請先至設定中填寫。');
-                    openSettings();
+                    showToast('尚未設定 API Key！請先至設定頁面中填寫。');
+                    openSettingsPage();
                     return;
                 }
                 try {
@@ -986,10 +1008,11 @@ ${PROMPT_COMBAT}
                 
                 applyTheme(theme);
                 await saveCloudData();
-                showToast('設定與常駐參數已同步至雲端！');
-                closeSettings();
+                showToast('設定與帳號資料已同步至雲端！');
+                closeSettingsPage();
             });
-            bind('btn-close-settings', 'click', closeSettings);
+
+            bind('btn-close-settings', 'click', closeSettingsPage);
             bind('theme-select', 'change', (e) => applyTheme(e.target.value));
 
             bind('avatar-file-input', 'change', (e) => {
@@ -1023,13 +1046,17 @@ ${PROMPT_COMBAT}
             });
             bind('profile-close-btn', 'click', closeProfileModal);
 
-            function openSettings() { 
+            // 💡 開啟與關閉全螢幕設定頁面
+            function openSettingsPage() { 
+                document.getElementById('settings-email-display').value = currentUserEmail || "未綁定信箱";
                 document.getElementById('api-key-input').value = playerGameData.apiKey || "";
                 document.getElementById('ai-model-input').value = playerGameData.aiModel || "gemini-2.5-flash";
                 document.getElementById('theme-select').value = playerGameData.theme || "dark";
-                document.getElementById('settings-modal').style.display = 'flex'; 
+                document.getElementById('settings-page').style.display = 'block'; 
             }
-            function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+            function closeSettingsPage() { 
+                document.getElementById('settings-page').style.display = 'none'; 
+            }
             
             function openProfileModal() {
                 const p = playerGameData.profile || {};
