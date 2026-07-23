@@ -220,21 +220,28 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background-color: #222;
-            padding: 8px 14px;
+            background-color: #262626;
+            padding: 10px 14px;
             border-radius: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             border: 1px solid var(--border-color);
+            gap: 8px;
         }
 
         .hamburger-btn {
-            background: none;
+            background: #374151;
             border: none;
-            color: #818cf8;
-            font-size: 20px;
+            color: #fff;
+            font-size: 13px;
             cursor: pointer;
             width: auto;
             flex: unset;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .hamburger-btn:hover {
+            background-color: #4b5563;
         }
 
         .profile-card {
@@ -304,12 +311,12 @@
         <div id="game-screen" style="display: none;">
             <div class="menu-bar">
                 <button type="button" class="hamburger-btn" id="btn-open-nav">☰ 選單</button>
-                <span id="user-display-email" style="font-size: 13px; color: #aaa;">載入中...</span>
-                <a href="#" id="link-logout" style="font-size: 13px; color: #ef4444; text-decoration: none;">離開系統</a>
+                <span id="user-display-email" style="font-size: 12px; color: #bbb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">載入中...</span>
+                <a href="#" id="link-logout" style="font-size: 12px; color: #ef4444; text-decoration: none; font-weight: bold; white-space: nowrap;">離開系統</a>
             </div>
             <div id="section-home">
                 <h2>主神空間大廳</h2>
-                <p id="welcome-msg" style="color: #4f46e5; font-weight: bold; text-align: center;"></p>
+                <p id="welcome-msg" style="color: #818cf8; font-weight: bold; text-align: center; margin-bottom: 16px;"></p>
                 <div class="profile-card">
                     <img id="display-avatar" src="" alt="頭像" class="avatar-preview">
                     <div style="flex: 1; overflow: hidden;">
@@ -318,14 +325,12 @@
                     </div>
                     <button type="button" class="btn-secondary" style="padding: 6px 10px; font-size: 12px; flex: unset;" id="btn-open-profile-inline">編輯</button>
                 </div>
-                <div style="background-color: #262626; padding: 12px; border-radius: 8px; margin: 16px 0;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>API 金鑰狀態：</span>
-                        <span id="api-status" class="status-badge unset">未設定</span>
-                    </div>
+                <div style="background-color: #262626; padding: 12px 16px; border-radius: 8px; margin: 16px 0; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 14px; color: #ccc;">API 金鑰狀態：</span>
+                    <span id="api-status" class="status-badge unset">未設定</span>
                 </div>
-                <div>
-                    <label>目前遊戲載入之版本規則：</label>
+                <div style="margin-top: 16px;">
+                    <label style="margin-bottom: 8px;">目前遊戲載入之版本規則：</label>
                     <div id="rule-display" class="rule-preview"></div>
                 </div>
                 <div class="btn-group" style="margin-top: 20px;">
@@ -393,7 +398,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // 已修正為對應你 Anon Key 內含的正確專案網址
             const SUPABASE_URL = 'https://xjuspusyimjdgitsbaku.supabase.co';
             const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8';
             
@@ -654,4 +658,3 @@
     </script>
 </body>
 </html>
-
