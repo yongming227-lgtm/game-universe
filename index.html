@@ -370,9 +370,47 @@
         .avatar-preview {
             width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); background-color: #333;
         }
+
+        /* 💡 新增：全螢幕非阻塞式動態提示 Toast 樣式 */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+            width: 90%;
+            max-width: 400px;
+        }
+        .toast-message {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInOut 2.5s ease forwards;
+            pointer-events: auto;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-10px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
     </style>
 </head>
 <body>
+
+    <!-- 💡 動態提示容器 (取代傳統阻斷式 alert) -->
+    <div id="toast-container"></div>
 
     <!-- 側邊選單 -->
     <div id="mySidebar" class="sidebar">
@@ -581,12 +619,11 @@
         </div>
     </div>
 
-    <!-- 專屬子頁面共用彈窗模板 (各自獨立，供後續自由設計內容) -->
+    <!-- 專屬子頁面共用彈窗模板 -->
     <div id="subpage-modal" class="modal">
         <div class="modal-content">
             <h3 id="subpage-title">子頁面標題</h3>
             <div id="subpage-body" style="font-size: 13px; color: var(--sub-text); margin: 16px 0; min-height: 100px;">
-                <!-- 這裡的內容之後可由您自由設計 -->
                 此頁面內容建構中...
             </div>
             <div class="btn-group">
@@ -626,6 +663,19 @@
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // 💡 取代原生 alert 的非阻塞式動態提示 Toast 函式
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.innerHTML = `<span>⚡</span> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 2500);
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23818cf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
 
@@ -661,7 +711,6 @@
                 await loadCloudData();
             }
 
-            // 開啟專屬子頁面函式 (各按鈕可自由設計內容)
             function openSubPage(title, customHtmlContent) {
                 document.getElementById('subpage-title').innerText = title;
                 document.getElementById('subpage-body').innerHTML = customHtmlContent;
@@ -685,7 +734,6 @@
                 }
             });
 
-            // 💡 將原本跳出 alert 的「No (拒絕)」改為導向專屬子頁面
             bind('btn-welcome-no', 'click', () => {
                 openSubPage('連線拒絕終端', '連線已拒絕，主神終端保持休眠。<br><br><span style="color: var(--text-color);">[此處為專屬子頁面，您可以隨時在此擴充拒絕連線後的導向內容與選單]</span>');
             });
@@ -693,26 +741,38 @@
             bind('btn-supabase-login', 'click', async () => {
                 const email = document.getElementById('auth-email').value.trim();
                 const password = document.getElementById('auth-password').value.trim();
-                if (!email || !password) return alert('請填寫完整信箱與密碼！');
+                if (!email || !password) {
+                    showToast('請填寫完整信箱與密碼！');
+                    return;
+                }
 
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) return alert('登入失敗：' + error.message);
+                if (error) {
+                    showToast('登入失敗：' + error.message);
+                    return;
+                }
 
                 currentUserId = data.user.id;
                 document.getElementById('user-serial-id').innerText = data.user.email;
                 document.getElementById('auth-modal').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'block';
                 await loadCloudData();
-                alert('登入成功，雲端資料同步完成！');
+                showToast('登入成功，雲端資料同步完成！');
             });
 
             bind('btn-supabase-signup', 'click', async () => {
                 const email = document.getElementById('auth-email').value.trim();
                 const password = document.getElementById('auth-password').value.trim();
-                if (!email || !password) return alert('請填寫完整信箱與密碼！');
+                if (!email || !password) {
+                    showToast('請填寫完整信箱與密碼！');
+                    return;
+                }
 
                 const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) return alert('註冊失敗：' + error.message);
+                if (error) {
+                    showToast('註冊失敗：' + error.message);
+                    return;
+                }
 
                 if (data.user) {
                     currentUserId = data.user.id;
@@ -720,7 +780,7 @@
                     document.getElementById('auth-modal').style.display = 'none';
                     document.getElementById('game-screen').style.display = 'block';
                     await saveCloudData();
-                    alert('註冊並建立雲端存檔成功！');
+                    showToast('註冊並建立雲端存檔成功！');
                 }
             });
 
@@ -813,7 +873,6 @@ ${PROMPT_COMBAT}
             bind('btn-card-profile-quick', 'click', openProfileModal);
             bind('btn-open-settings-main', 'click', openSettings);
 
-            // 💡 將原本跳出提示的按鈕全面改為導向專屬子頁面
             bind('menu-card-combat', 'click', () => {
                 if (!playerGameData.inDungeon) {
                     return openSubPage('戰力系統未解鎖', '請先進入副本以啟用戰力數據！');
@@ -855,12 +914,12 @@ ${PROMPT_COMBAT}
 
             bind('btn-enter-dungeon', 'click', async () => {
                 if (!playerGameData.apiKey) {
-                    alert('尚未設定 API Key！請先至設定中填寫。');
+                    showToast('尚未設定 API Key！請先至設定中填寫。');
                     openSettings();
                     return;
                 }
                 try {
-                    alert('正在連接主神空間與 AI 核心，生成副本...');
+                    showToast('正在連接主神空間與 AI 核心，生成副本...');
                     const aiReply = await callAI("執行者已進入副本，請生成一段第一人稱的開場劇情。");
                     
                     playerGameData.inDungeon = true;
@@ -874,22 +933,25 @@ ${PROMPT_COMBAT}
 
                     openSubPage('副本開場', aiReply);
                 } catch (err) {
-                    alert('AI 連線失敗：\n' + err.message);
+                    showToast('AI 連線失敗：' + err.message);
                 }
             });
 
             bind('btn-test-api', 'click', async () => {
                 const key = document.getElementById('api-key-input').value.trim();
                 const modelInput = document.getElementById('ai-model-input').value.trim();
-                if (!key) return alert('請先輸入 API Key！');
+                if (!key) {
+                    showToast('請先輸入 API Key！');
+                    return;
+                }
                 playerGameData.apiKey = key;
                 playerGameData.aiModel = modelInput || "gemini-2.5-flash";
                 try {
-                    alert('測試連線中...');
+                    showToast('測試連線中...');
                     const testReply = await callAI("系統連線測試，請回覆：連線正常。");
-                    alert('測試成功！回應：\n' + testReply);
+                    showToast('測試成功！');
                 } catch (err) {
-                    alert('測試失敗：\n' + err.message);
+                    showToast('測試失敗：' + err.message);
                 }
             });
 
@@ -902,7 +964,7 @@ ${PROMPT_COMBAT}
                 
                 applyTheme(theme);
                 await saveCloudData();
-                alert('設定與常駐參數已同步至雲端！');
+                showToast('設定與常駐參數已同步至雲端！');
                 closeSettings();
             });
             bind('btn-close-settings', 'click', closeSettings);
@@ -924,7 +986,10 @@ ${PROMPT_COMBAT}
             });
             bind('btn-save-profile', 'click', async () => {
                 const name = document.getElementById('profile-name-input').value.trim();
-                if (!name) return alert('請輸入名字！');
+                if (!name) {
+                    showToast('請輸入名字！');
+                    return;
+                }
                 playerGameData.profile.name = name;
                 playerGameData.profile.personality = document.getElementById('profile-personality-input').value.trim();
                 playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
@@ -932,7 +997,7 @@ ${PROMPT_COMBAT}
                 updateMainUI();
                 await saveCloudData();
                 closeProfileModal();
-                alert('身份資訊與頭像已同步至雲端！');
+                showToast('身份資訊與頭像已同步至雲端！');
             });
             bind('profile-close-btn', 'click', closeProfileModal);
 
