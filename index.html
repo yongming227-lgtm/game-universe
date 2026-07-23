@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,19 @@
             --accent-color: #4f46e5;
             --accent-hover: #4338ca;
             --border-color: #333;
+            --input-bg: #2a2a2a;
+            --sub-text: #aaa;
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --accent-color: #4f46e5;
+            --accent-hover: #4338ca;
+            --border-color: #e5e7eb;
+            --input-bg: #f9fafb;
+            --sub-text: #6b7280;
         }
 
         body {
@@ -25,6 +38,7 @@
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
@@ -33,14 +47,15 @@
             background-color: var(--card-bg);
             padding: 24px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border: 1px solid var(--border-color);
             box-sizing: border-box;
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         h2, h3 {
             margin-top: 0;
-            color: #ffffff;
+            color: var(--text-color);
             text-align: center;
             font-size: 1.5rem;
         }
@@ -53,24 +68,25 @@
             display: block;
             margin-bottom: 6px;
             font-size: 14px;
-            color: #aaa;
+            color: var(--sub-text);
         }
 
         input[type="email"],
         input[type="password"],
         input[type="text"],
+        select,
         textarea {
             width: 100%;
             padding: 10px 12px;
             border-radius: 6px;
             border: 1px solid var(--border-color);
-            background-color: #2a2a2a;
-            color: #fff;
+            background-color: var(--input-bg);
+            color: var(--text-color);
             box-sizing: border-box;
             font-size: 14px;
         }
 
-        input:focus, textarea:focus {
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--accent-color);
         }
@@ -105,30 +121,11 @@
 
         button.btn-secondary {
             background-color: #374151;
+            color: #ffffff;
         }
 
         button.btn-secondary:hover {
             background-color: #4b5563;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-badge.unset {
-            background-color: #ef444422;
-            color: #ef4444;
-            border: 1px solid #ef4444;
-        }
-
-        .status-badge.set {
-            background-color: #10b98122;
-            color: #10b981;
-            border: 1px solid #10b981;
         }
 
         .modal {
@@ -155,19 +152,6 @@
             overflow-y: auto;
         }
 
-        .rule-preview {
-            background-color: #181818;
-            padding: 12px;
-            border-radius: 6px;
-            max-height: 150px;
-            overflow-y: auto;
-            font-size: 12px;
-            color: #bbb;
-            white-space: pre-wrap;
-            border: 1px solid #282828;
-            margin-top: 10px;
-        }
-
         .sidebar {
             height: 100%;
             width: 0;
@@ -175,7 +159,7 @@
             z-index: 2500;
             top: 0;
             left: 0;
-            background-color: #1a1a1a;
+            background-color: var(--card-bg);
             overflow-x: hidden;
             transition: 0.3s;
             padding-top: 60px;
@@ -186,18 +170,17 @@
             padding: 12px 20px;
             text-decoration: none;
             font-size: 15px;
-            color: #ccc;
+            color: var(--text-color);
             display: block;
-            border-bottom: 1px solid #252525;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .sidebar a:hover {
-            color: #fff;
-            background-color: #333;
+            background-color: var(--input-bg);
         }
 
         .sidebar .menu-header {
-            background-color: #0d9488;
+            background-color: var(--accent-color);
             color: white;
             padding: 10px 20px;
             font-size: 14px;
@@ -212,7 +195,7 @@
             font-size: 24px;
             background: none;
             border: none;
-            color: #aaa;
+            color: var(--text-color);
             cursor: pointer;
         }
 
@@ -220,7 +203,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background-color: #262626;
+            background-color: var(--input-bg);
             padding: 10px 14px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -240,15 +223,11 @@
             border-radius: 6px;
         }
 
-        .hamburger-btn:hover {
-            background-color: #4b5563;
-        }
-
         .profile-card {
-            background-color: #262626;
+            background-color: var(--input-bg);
             padding: 16px;
             border-radius: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 16px;
@@ -256,8 +235,8 @@
         }
 
         .avatar-preview {
-            width: 64px;
-            height: 64px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--accent-color);
@@ -273,16 +252,16 @@
         <div class="menu-header">執行者設定</div>
         <a href="#" id="menu-profile">👤 玩家個人檔案設定</a>
         <div class="menu-header">系統管理</div>
-        <a href="#" id="menu-settings">⚙️ 設定 (修改 API)</a>
+        <a href="#" id="menu-settings">⚙️ 遊戲設定 (API / 模型 / 主題)</a>
         <a href="#" id="menu-logout" style="color: #ef4444;">🚪 離開系統 / 登出</a>
     </div>
 
     <div class="container">
         <div id="intro-screen">
             <h2>[臨界軸：萬界修正錄]</h2>
-            <div style="background-color: #262626; padding: 18px; border-radius: 8px; margin: 16px 0; font-size: 15px; line-height: 1.6; color: #e0e0e0; text-align: center;">
-                <p style="margin-top: 0; font-size: 18px; color: #818cf8; font-weight: bold;">想明白生命的意義嗎？想真正的……活著嗎？</p>
-                <p style="color: #aaa; font-size: 13px; margin-bottom: 0;">當你做出選擇的那一刻起，多元宇宙的命脈與修正錄便已將你鎖定。</p>
+            <div style="background-color: var(--input-bg); padding: 18px; border-radius: 8px; margin: 16px 0; font-size: 15px; line-height: 1.6; text-align: center; border: 1px solid var(--border-color);">
+                <p style="margin-top: 0; font-size: 18px; color: var(--accent-color); font-weight: bold;">想明白生命的意義嗎？想真正的……活著嗎？</p>
+                <p style="color: var(--sub-text); font-size: 13px; margin-bottom: 0;">當你做出選擇的那一刻起，多元宇宙的命脈與修正錄便已將你鎖定。</p>
             </div>
             <div class="btn-group">
                 <button type="button" id="btn-yes">YES</button>
@@ -292,7 +271,7 @@
 
         <div id="auth-screen" style="display: none;">
             <h2>[臨界軸：萬界修正錄]</h2>
-            <p style="text-align: center; color: #888; font-size: 14px; margin-bottom: 20px;">請登入以同步您的雲端遊戲存檔</p>
+            <p style="text-align: center; color: var(--sub-text); font-size: 14px; margin-bottom: 20px;">請登入以同步您的雲端遊戲存檔</p>
             <div class="input-group">
                 <label for="email-input">電子信箱 (Email)</label>
                 <input type="email" id="email-input" placeholder="example@email.com">
@@ -311,49 +290,64 @@
         <div id="game-screen" style="display: none;">
             <div class="menu-bar">
                 <button type="button" class="hamburger-btn" id="btn-open-nav">☰ 選單</button>
-                <span id="user-display-email" style="font-size: 12px; color: #bbb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">載入中...</span>
+                <span id="user-display-email" style="font-size: 12px; color: var(--sub-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">載入中...</span>
                 <a href="#" id="link-logout" style="font-size: 12px; color: #ef4444; text-decoration: none; font-weight: bold; white-space: nowrap;">離開系統</a>
             </div>
+
             <div id="section-home">
                 <h2>主神空間大廳</h2>
-                <p id="welcome-msg" style="color: #818cf8; font-weight: bold; text-align: center; margin-bottom: 16px;"></p>
+                
                 <div class="profile-card">
                     <img id="display-avatar" src="" alt="頭像" class="avatar-preview">
                     <div style="flex: 1; overflow: hidden;">
-                        <div id="display-profile-name" style="font-weight: bold; font-size: 16px; color: #fff; margin-bottom: 4px;">執行者</div>
-                        <div id="display-profile-info" style="font-size: 12px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">個性 / 喜好：尚未設定</div>
+                        <div id="display-profile-name" style="font-weight: bold; font-size: 16px; margin-bottom: 4px;">執行者</div>
+                        <div id="display-profile-info" style="font-size: 12px; color: var(--sub-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">個性 / 喜好：尚未設定</div>
                     </div>
                     <button type="button" class="btn-secondary" style="padding: 6px 10px; font-size: 12px; flex: unset;" id="btn-open-profile-inline">編輯</button>
                 </div>
-                <div style="background-color: #262626; padding: 12px 16px; border-radius: 8px; margin: 16px 0; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 14px; color: #ccc;">API 金鑰狀態：</span>
-                    <span id="api-status" class="status-badge unset">未設定</span>
-                </div>
-                <div style="margin-top: 16px;">
-                    <label style="margin-bottom: 8px;">目前遊戲載入之版本規則：</label>
-                    <div id="rule-display" class="rule-preview"></div>
-                </div>
-                <div class="btn-group" style="margin-top: 20px;">
-                    <button type="button" class="btn-secondary" id="btn-open-settings-main">⚙️ 設定 (修改 API)</button>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
+                    <button type="button" id="btn-enter-dungeon" style="padding: 16px; font-size: 16px; background-color: #0d9488;">⚔️ 進入副本 (開始遊戲與 AI 測試)</button>
+                    <button type="button" class="btn-secondary" id="btn-open-settings-main">⚙️ 遊戲設定 (API / 模型 / 主題)</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 設定彈窗 -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
             <h3>遊戲設定</h3>
             <div class="input-group">
-                <label for="api-key-input">你的 API Key：</label>
-                <input type="password" id="api-key-input" placeholder="請貼上您的 API Key (例如 sk-...)">
+                <label for="api-key-input">API Key：</label>
+                <input type="password" id="api-key-input" placeholder="請輸入您的 API Key">
+            </div>
+            <div class="input-group">
+                <label for="ai-model-select">選擇 AI 模型：</label>
+                <select id="ai-model-select">
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4o-mini">GPT-4o-mini</option>
+                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="theme-select">介面主題：</label>
+                <select id="theme-select">
+                    <option value="dark">黑夜模式 (Dark)</option>
+                    <option value="light">白晝模式 (Light)</option>
+                </select>
             </div>
             <div class="btn-group">
                 <button type="button" id="btn-save-api">儲存設定</button>
+                <button type="button" class="btn-secondary" id="btn-test-api">測試 AI 連線</button>
                 <button type="button" class="btn-secondary" id="btn-close-settings">關閉</button>
             </div>
         </div>
     </div>
 
+    <!-- 個人檔案彈窗 -->
     <div id="profile-modal" class="modal">
         <div class="modal-content">
             <h3>執行者檔案設定</h3>
@@ -384,31 +378,20 @@
         </div>
     </div>
 
-    <div id="tutorial-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h3>新手引導</h3>
-            <div id="tutorial-text" style="font-size: 14px; line-height: 1.6; color: #ccc; margin: 15px 0;"></div>
-            <div class="btn-group">
-                <button type="button" id="tutorial-next-btn">下一步</button>
-                <button type="button" class="btn-secondary" id="tutorial-skip-btn">跳過引導</button>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const SUPABASE_URL = 'https://xjuspusyimjdgitsbaku.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8';
             
             let supabase = null;
             try {
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             } catch (e) {
                 console.error("Supabase 初始化失敗", e);
-                alert("Supabase 初始化失敗：" + e.message);
             }
 
+            // 遊戲世界觀與提示詞設定
             const GAME_WORLD_RULES = `--- ［臨界軸：萬界修正錄］世界觀與核心規則 v1.0 ---
 【戰鬥-回合制】採《崩壞：星穹鐵道》模式。
 【回合】分劇情與戰鬥回合。
@@ -419,25 +402,80 @@
             let currentUser = null;
             let playerGameData = { 
                 apiKey: "", 
+                aiModel: "gemini-2.5-flash",
+                theme: "dark",
                 progress: {}, 
-                tutorialCompleted: false,
                 profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: false }
             };
-            let currentTutorialStep = 0;
-            const tutorialSteps = [
-                "歡迎來到《臨界軸：萬界修正錄》！首先請為自己設定一份【個人檔案】。",
-                "點擊左上角的【☰ 選單】可以隨時展開功能抽屜。",
-                "別忘了透過選單前往設定輸入你的 API Key。祝你武運昌隆！"
-            ];
 
-            const ruleDisplay = document.getElementById('rule-display');
-            if (ruleDisplay) ruleDisplay.innerText = GAME_WORLD_RULES;
+            const applyTheme = (theme) => {
+                document.documentElement.setAttribute('data-theme', theme);
+                const themeSelect = document.getElementById('theme-select');
+                if (themeSelect) themeSelect.value = theme;
+            };
 
             const bind = (id, event, fn) => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener(event, fn);
             };
 
+            // --- AI 呼叫封裝核心 (支援 Gemini 與通用 API 接口) ---
+            async function callAI(promptText) {
+                const apiKey = playerGameData.apiKey;
+                const model = playerGameData.aiModel || "gemini-2.5-flash";
+
+                if (!apiKey) {
+                    throw new Error("尚未設定 API Key，請至遊戲設定中填寫。");
+                }
+
+                // 組合系統提示詞與玩家資訊
+                const fullSystemPrompt = `${GAME_WORLD_RULES}\n\n【目前執行者檔案】\n名字：${playerGameData.profile.name}\n個性：${playerGameData.profile.personality}\n喜好：${playerGameData.profile.likes}`;
+
+                // 範例：串接 Google Gemini 官方 API 格式
+                if (model.includes("gemini")) {
+                    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [
+                                { role: "user", parts: [{ text: `${fullSystemPrompt}\n\n玩家指令：${promptText}` }] }
+                            ]
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error?.message || "Gemini API 請求失敗");
+                    }
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    // 若選擇其他 OpenAI 格式模型 (如 GPT / Claude 轉接)
+                    const endpoint = `https://api.openai.com/v1/chat/completions`;
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [
+                                { role: "system", content: fullSystemPrompt },
+                                { role: "user", content: promptText }
+                            ]
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error?.message || "AI API 請求失敗");
+                    }
+                    return data.choices[0].message.content;
+                }
+            }
+
+            // --- 畫面互動繫結 ---
             bind('btn-yes', 'click', () => {
                 document.getElementById('intro-screen').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'block';
@@ -449,61 +487,23 @@
             });
 
             bind('btn-register', 'click', async () => {
-                if (!supabase) {
-                    alert('Supabase 未初始化成功！');
-                    return;
-                }
+                if (!supabase) return alert('Supabase 未初始化');
                 const email = document.getElementById('email-input').value.trim();
                 const password = document.getElementById('password-input').value;
-                if (!email || !password) {
-                    alert('請輸入完整的信箱與密碼！');
-                    return;
-                }
-                if (password.length < 6) {
-                    alert('Supabase 預設密碼長度至少需要 6 個字元！');
-                    return;
-                }
-
-                try {
-                    const { data, error } = await supabase.auth.signUp({ 
-                        email, 
-                        password, 
-                        options: { emailRedirectTo: window.location.href } 
-                    });
-
-                    if (error) {
-                        alert('註冊失敗：\n' + error.message);
-                    } else {
-                        alert('註冊要求已送出！若後台未關閉 Email 驗證，請至信箱點擊驗證連結後再登入；若已關閉，可直接點擊登入。');
-                    }
-                } catch (err) {
-                    alert('註冊過程發生非預期錯誤：\n' + err.message);
-                }
+                if (!email || !password) return alert('請輸入完整的信箱與密碼！');
+                const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href } });
+                if (error) alert('註冊失敗：\n' + error.message);
+                else alert('註冊要求已送出！請至信箱驗證或直接登入。');
             });
 
             bind('btn-login', 'click', async () => {
-                if (!supabase) {
-                    alert('Supabase 未初始化成功！');
-                    return;
-                }
+                if (!supabase) return alert('Supabase 未初始化');
                 const email = document.getElementById('email-input').value.trim();
                 const password = document.getElementById('password-input').value;
-                if (!email || !password) {
-                    alert('請輸入信箱與密碼！');
-                    return;
-                }
-
-                try {
-                    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                    if (error) {
-                        alert('登入失敗：\n' + error.message);
-                    } else {
-                        currentUser = data.user;
-                        enterGameSession();
-                    }
-                } catch (err) {
-                    alert('登入過程發生非預期錯誤：\n' + err.message);
-                }
+                if (!email || !password) return alert('請輸入信箱與密碼！');
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) alert('登入失敗：\n' + error.message);
+                else { currentUser = data.user; enterGameSession(); }
             });
 
             const handleLogout = async () => {
@@ -517,22 +517,66 @@
             const closeNav = () => document.getElementById("mySidebar").style.width = "0";
             bind('btn-open-nav', 'click', openNav);
             bind('btn-close-nav', 'click', closeNav);
-            bind('menu-home', 'click', () => { closeNav(); });
+            bind('menu-home', 'click', () => closeNav());
             bind('menu-profile', 'click', () => { openProfileModal(); closeNav(); });
             bind('menu-settings', 'click', () => { openSettings(); closeNav(); });
             bind('btn-open-profile-inline', 'click', openProfileModal);
             bind('btn-open-settings-main', 'click', openSettings);
 
+            // 進入副本按鈕：自動透過 AI 進行初始化開場測試
+            bind('btn-enter-dungeon', 'click', async () => {
+                if (!playerGameData.apiKey) {
+                    alert('尚未設定 API Key！請先至設定中填寫並儲存。');
+                    openSettings();
+                    return;
+                }
+                
+                try {
+                    alert('正在連接主神空間與 AI 核心，產生副本開場...');
+                    const aiReply = await callAI("執行者已進入副本，請生成一段第一人稱的開場劇情，並等待玩家下一步指令。");
+                    alert('【AI 回應測試成功】\n\n' + aiReply);
+                } catch (err) {
+                    alert('AI 連線失敗：\n' + err.message);
+                }
+            });
+
+            // 測試 AI 連線按鈕
+            bind('btn-test-api', 'click', async () => {
+                const key = document.getElementById('api-key-input').value.trim();
+                if (!key) return alert('請先輸入 API Key 才能測試！');
+                
+                // 暫存至暫時變數進行測試
+                playerGameData.apiKey = key;
+                playerGameData.aiModel = document.getElementById('ai-model-select').value;
+
+                try {
+                    alert('正在測試與 AI 模型的連線...');
+                    const testReply = await callAI("系統連線測試，請回覆：連線正常。");
+                    alert('測試成功！AI 回應：\n' + testReply);
+                } catch (err) {
+                    alert('測試失敗，請檢查金鑰或模型是否正確：\n' + err.message);
+                }
+            });
+
             bind('btn-save-api', 'click', async () => {
                 const key = document.getElementById('api-key-input').value.trim();
-                if (!key) return alert('請輸入有效的 API Key！');
+                const model = document.getElementById('ai-model-select').value;
+                const theme = document.getElementById('theme-select').value;
+
                 playerGameData.apiKey = key;
+                playerGameData.aiModel = model;
+                playerGameData.theme = theme;
+                applyTheme(theme);
+
                 await saveToCloud();
-                updateApiStatusUI(true);
-                alert('API Key 已儲存！');
+                alert('設定已成功儲存！');
                 closeSettings();
             });
             bind('btn-close-settings', 'click', closeSettings);
+
+            bind('theme-select', 'change', (e) => {
+                applyTheme(e.target.value);
+            });
 
             bind('avatar-file-input', 'change', (e) => {
                 const file = e.target.files[0];
@@ -559,28 +603,8 @@
                 updateProfileUI();
                 closeProfileModal();
                 alert('執行者檔案儲存成功！');
-                if (!playerGameData.tutorialCompleted) startTutorial();
             });
             bind('profile-close-btn', 'click', closeProfileModal);
-
-            bind('tutorial-next-btn', 'click', async () => {
-                currentTutorialStep++;
-                if (currentTutorialStep < tutorialSteps.length) {
-                    document.getElementById('tutorial-text').innerText = tutorialSteps[currentTutorialStep];
-                    if (currentTutorialStep === tutorialSteps.length - 1) {
-                        document.getElementById('tutorial-next-btn').innerText = '完成引導';
-                    }
-                } else {
-                    playerGameData.tutorialCompleted = true;
-                    await saveToCloud();
-                    document.getElementById('tutorial-modal').style.display = 'none';
-                }
-            });
-            bind('tutorial-skip-btn', 'click', async () => {
-                playerGameData.tutorialCompleted = true;
-                await saveToCloud();
-                document.getElementById('tutorial-modal').style.display = 'none';
-            });
 
             if (supabase) {
                 supabase.auth.getSession().then(({ data: { session } }) => {
@@ -588,8 +612,14 @@
                 });
             }
 
-            function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
+            function openSettings() { 
+                document.getElementById('api-key-input').value = playerGameData.apiKey || "";
+                document.getElementById('ai-model-select').value = playerGameData.aiModel || "gemini-2.5-flash";
+                document.getElementById('theme-select').value = playerGameData.theme || "dark";
+                document.getElementById('settings-modal').style.display = 'flex'; 
+            }
             function closeSettings() { document.getElementById('settings-modal').style.display = 'none'; }
+            
             function openProfileModal() {
                 const p = playerGameData.profile;
                 document.getElementById('profile-name-input').value = p.name || "";
@@ -605,19 +635,21 @@
                 document.getElementById('intro-screen').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'block';
-                document.getElementById('welcome-msg').innerText = `歡迎回來，${currentUser.email}`;
                 document.getElementById('user-display-email').innerText = currentUser.email;
 
                 const { data } = await supabase.from('player_saves').select('save_data').eq('id', currentUser.id).single();
                 if (data && data.save_data) {
                     playerGameData = data.save_data;
                     if (!playerGameData.profile) playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, setupCompleted: false };
-                    if (playerGameData.apiKey) {
-                        updateApiStatusUI(true);
-                        document.getElementById('api-key-input').value = playerGameData.apiKey;
-                    }
+                    if (playerGameData.theme) applyTheme(playerGameData.theme);
                 } else {
-                    playerGameData = { apiKey: "", progress: {}, tutorialCompleted: false, profile: { name: currentUser.email.split('@')[0], avatar: DEFAULT_AVATAR, setupCompleted: false } };
+                    playerGameData = { 
+                        apiKey: "", 
+                        aiModel: "gemini-2.5-flash",
+                        theme: "dark",
+                        progress: {}, 
+                        profile: { name: currentUser.email.split('@')[0], avatar: DEFAULT_AVATAR, setupCompleted: false } 
+                    };
                     saveToCloud();
                 }
 
@@ -625,8 +657,6 @@
                 if (!playerGameData.profile.setupCompleted) {
                     openProfileModal();
                     document.getElementById('profile-close-btn').style.display = 'none';
-                } else if (!playerGameData.tutorialCompleted) {
-                    startTutorial();
                 }
             }
 
@@ -637,24 +667,12 @@
                 document.getElementById('display-profile-info').innerText = `個性：${p.personality || '未填寫'} | 喜好：${p.likes || '未填寫'}`;
             }
 
-            function updateApiStatusUI(isSet) {
-                const badge = document.getElementById('api-status');
-                if (!badge) return;
-                badge.innerText = isSet ? '已設定 (已雲端記憶)' : '未設定';
-                badge.className = isSet ? 'status-badge set' : 'status-badge unset';
-            }
-
             async function saveToCloud() {
                 if (!currentUser || !supabase) return;
                 await supabase.from('player_saves').upsert({ id: currentUser.id, save_data: playerGameData, updated_at: new Date() });
-            }
-
-            function startTutorial() {
-                currentTutorialStep = 0;
-                document.getElementById('tutorial-text').innerText = tutorialSteps[0];
-                document.getElementById('tutorial-modal').style.display = 'flex';
             }
         });
     </script>
 </body>
 </html>
+
