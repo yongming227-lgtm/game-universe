@@ -6,25 +6,27 @@
     <title>臨界軸：萬界修正錄</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --accent-color: #4f46e5;
-            --accent-hover: #4338ca;
-            --border-color: #333;
-            --input-bg: #2a2a2a;
-            --sub-text: #aaa;
-        }
-
-        [data-theme="light"] {
-            --bg-color: #f3f4f6;
+            --bg-color: #f8f9fa;
             --card-bg: #ffffff;
             --text-color: #1f2937;
-            --accent-color: #4f46e5;
-            --accent-hover: #4338ca;
+            --accent-color: #111827;
+            --accent-hover: #374151;
             --border-color: #e5e7eb;
-            --input-bg: #f9fafb;
+            --input-bg: #f3f4f6;
             --sub-text: #6b7280;
+            --badge-bg: #f3f4f6;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --text-color: #f3f4f6;
+            --accent-color: #ffffff;
+            --accent-hover: #e5e7eb;
+            --border-color: #1e293b;
+            --input-bg: #0f172a;
+            --sub-text: #94a3b8;
+            --badge-bg: #1e293b;
         }
 
         body {
@@ -43,11 +45,11 @@
 
         .container {
             width: 100%;
-            max-width: 600px;
+            max-width: 480px;
             background-color: var(--card-bg);
             padding: 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
             box-sizing: border-box;
             transition: background-color 0.3s, border-color 0.3s;
@@ -56,8 +58,7 @@
         h2, h3 {
             margin-top: 0;
             color: var(--text-color);
-            text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
         }
 
         .input-group {
@@ -67,7 +68,7 @@
         label {
             display: block;
             margin-bottom: 6px;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--sub-text);
         }
 
@@ -77,8 +78,8 @@
         select,
         textarea {
             width: 100%;
-            padding: 10px 12px;
-            border-radius: 6px;
+            padding: 12px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
             background-color: var(--input-bg);
             color: var(--text-color);
@@ -88,7 +89,7 @@
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: var(--accent-color);
+            border-color: var(--sub-text);
         }
 
         textarea {
@@ -104,164 +105,253 @@
 
         button {
             flex: 1;
-            padding: 12px 10px;
+            padding: 12px;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             background-color: var(--accent-color);
-            color: white;
+            color: var(--card-bg);
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: opacity 0.2s;
         }
 
         button:hover {
-            background-color: var(--accent-hover);
+            opacity: 0.9;
         }
 
         button.btn-secondary {
-            background-color: #374151;
-            color: #ffffff;
+            background-color: var(--badge-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
         }
 
-        button.btn-secondary:hover {
-            background-color: #4b5563;
+        /* --- 仿指定圖 UI 樣式 --- */
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 14px;
+            margin-bottom: 16px;
         }
 
+        .terminal-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .terminal-status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--sub-text);
+            margin-bottom: 16px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .stats-overview {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .stats-grid-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .stat-item-label {
+            font-size: 11px;
+            color: var(--sub-text);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-item-val {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .bars-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .bar-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .progress-bar-bg {
+            flex: 1;
+            height: 6px;
+            background-color: var(--border-color);
+            border-radius: 3px;
+            margin-left: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--text-color);
+            border-radius: 3px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            color: var(--sub-text);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 18px 0 8px 4px;
+        }
+
+        .action-main-btn {
+            background-color: var(--accent-color);
+            color: var(--card-bg);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: transform 0.1s;
+        }
+
+        .action-main-btn:active {
+            transform: scale(0.98);
+        }
+
+        .menu-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .menu-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .grid-card {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .grid-card:hover {
+            border-color: var(--sub-text);
+        }
+
+        .grid-card-icon {
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .grid-card-title {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .grid-card-sub {
+            font-size: 10px;
+            color: var(--sub-text);
+            text-transform: uppercase;
+        }
+
+        .footer-credit {
+            text-align: center;
+            font-size: 10px;
+            color: var(--sub-text);
+            margin-top: 24px;
+            letter-spacing: 1px;
+        }
+
+        /* Modal & Sidebar */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center; align-items: center;
             z-index: 2000;
         }
-
         .modal-content {
             background-color: var(--card-bg);
             padding: 24px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 450px;
+            border-radius: 16px;
+            width: 90%; max-width: 420px;
             border: 1px solid var(--border-color);
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: 90vh; overflow-y: auto;
         }
-
         .sidebar {
-            height: 100%;
-            width: 0;
-            position: fixed;
-            z-index: 2500;
-            top: 0;
-            left: 0;
-            background-color: var(--card-bg);
-            overflow-x: hidden;
-            transition: 0.3s;
-            padding-top: 60px;
-            border-right: 1px solid var(--border-color);
+            height: 100%; width: 0; position: fixed; z-index: 2500; top: 0; left: 0;
+            background-color: var(--card-bg); overflow-x: hidden; transition: 0.3s;
+            padding-top: 60px; border-right: 1px solid var(--border-color);
         }
-
         .sidebar a {
-            padding: 12px 20px;
-            text-decoration: none;
-            font-size: 15px;
-            color: var(--text-color);
-            display: block;
+            padding: 12px 20px; text-decoration: none; font-size: 14px; color: var(--text-color); display: block;
             border-bottom: 1px solid var(--border-color);
         }
-
-        .sidebar a:hover {
-            background-color: var(--input-bg);
-        }
-
-        .sidebar .menu-header {
-            background-color: var(--accent-color);
-            color: white;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
+        .sidebar a:hover { background-color: var(--input-bg); }
         .sidebar .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 24px;
-            background: none;
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
+            position: absolute; top: 10px; right: 15px; font-size: 22px; background: none; border: none; color: var(--text-color); cursor: pointer;
         }
-
-        .menu-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--input-bg);
-            padding: 10px 14px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            gap: 8px;
-        }
-
-        .hamburger-btn {
-            background: #374151;
-            border: none;
-            color: #fff;
-            font-size: 13px;
-            cursor: pointer;
-            width: auto;
-            flex: unset;
-            padding: 6px 12px;
-            border-radius: 6px;
-        }
-
-        .profile-card {
-            background-color: var(--input-bg);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            border: 1px solid var(--border-color);
-        }
-
         .avatar-preview {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent-color);
-            background-color: #333;
+            width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); background-color: #333;
         }
     </style>
 </head>
 <body>
 
+    <!-- 側邊選單 -->
     <div id="mySidebar" class="sidebar">
         <button class="close-btn" id="btn-close-nav">&times;</button>
         <a href="#" id="menu-home">🏠 系統首頁</a>
-        <div class="menu-header">執行者設定</div>
-        <a href="#" id="menu-profile">👤 玩家個人檔案設定</a>
-        <div class="menu-header">系統管理</div>
-        <a href="#" id="menu-settings">⚙️ 遊戲設定 (API / 模型 / 主題)</a>
+        <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">執行者設定</div>
+        <a href="#" id="menu-profile">👤 身份資訊設定</a>
+        <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">系統管理</div>
+        <a href="#" id="menu-settings">⚙️ 遊戲與 API 設定</a>
         <a href="#" id="menu-logout" style="color: #ef4444;">🚪 離開系統 / 登出</a>
     </div>
 
     <div class="container">
+        <!-- 介紹頁面 -->
         <div id="intro-screen">
-            <h2>[臨界軸：萬界修正錄]</h2>
-            <div style="background-color: var(--input-bg); padding: 18px; border-radius: 8px; margin: 16px 0; font-size: 15px; line-height: 1.6; text-align: center; border: 1px solid var(--border-color);">
-                <p style="margin-top: 0; font-size: 18px; color: var(--accent-color); font-weight: bold;">想明白生命的意義嗎？想真正的……活著嗎？</p>
-                <p style="color: var(--sub-text); font-size: 13px; margin-bottom: 0;">當你做出選擇的那一刻起，多元宇宙的命脈與修正錄便已將你鎖定。</p>
+            <h2 style="text-align: center;">[臨界軸：萬界修正錄]</h2>
+            <div style="background-color: var(--input-bg); padding: 18px; border-radius: 12px; margin: 16px 0; font-size: 14px; line-height: 1.6; text-align: center; border: 1px solid var(--border-color);">
+                <p style="margin-top: 0; font-size: 16px; font-weight: bold;">想明白生命的意義嗎？想真正的……活著嗎？</p>
+                <p style="color: var(--sub-text); font-size: 12px; margin-bottom: 0;">當你做出選擇的那一刻起，多元宇宙的命脈與修正錄便已將你鎖定。</p>
             </div>
             <div class="btn-group">
                 <button type="button" id="btn-yes">YES</button>
@@ -269,56 +359,142 @@
             </div>
         </div>
 
+        <!-- 登入頁面 -->
         <div id="auth-screen" style="display: none;">
-            <h2>[臨界軸：萬界修正錄]</h2>
-            <p style="text-align: center; color: var(--sub-text); font-size: 14px; margin-bottom: 20px;">請登入以同步您的雲端遊戲存檔</p>
+            <h2 style="text-align: center;">[身份認證]</h2>
+            <p style="text-align: center; color: var(--sub-text); font-size: 13px; margin-bottom: 20px;">請登入以同步您的雲端遊戲存檔</p>
             <div class="input-group">
                 <label for="email-input">電子信箱 (Email)</label>
                 <input type="email" id="email-input" placeholder="example@email.com">
             </div>
             <div class="input-group">
                 <label for="password-input">密碼</label>
-                <input type="password" id="password-input" placeholder="請輸入密碼 (至少 6 位數)">
+                <input type="password" id="password-input" placeholder="請輸入密碼">
             </div>
             <div class="btn-group">
                 <button type="button" id="btn-login">登入</button>
-                <button type="button" class="btn-secondary" id="btn-register">註冊新帳號</button>
+                <button type="button" class="btn-secondary" id="btn-register">註冊帳號</button>
             </div>
-            <button type="button" class="btn-secondary" id="btn-back-intro" style="width: 100%; margin-top: 10px;">返回遊戲介紹</button>
+            <button type="button" class="btn-secondary" id="btn-back-intro" style="width: 100%; margin-top: 10px;">返回介紹</button>
         </div>
 
+        <!-- 遊戲主介面 (仿造圖片全新 UI) -->
         <div id="game-screen" style="display: none;">
-            <div class="menu-bar">
-                <button type="button" class="hamburger-btn" id="btn-open-nav">☰ 選單</button>
-                <span id="user-display-email" style="font-size: 12px; color: var(--sub-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px;">載入中...</span>
-                <a href="#" id="link-logout" style="font-size: 12px; color: #ef4444; text-decoration: none; font-weight: bold; white-space: nowrap;">離開系統</a>
+            <!-- 頂部列 -->
+            <div class="terminal-header">
+                <div class="terminal-title">
+                    <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
+                    <span>主神空間 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">GOD'S DOMAIN TERMINAL</span></span>
+                </div>
+                <button type="button" id="btn-open-settings-main" style="background:none; border:none; color:var(--sub-text); cursor:pointer; font-size:16px; flex:unset; padding:0;">?</button>
             </div>
 
-            <div id="section-home">
-                <h2>主神空間大廳</h2>
-                
-                <div class="profile-card">
-                    <img id="display-avatar" src="" alt="頭像" class="avatar-preview">
-                    <div style="flex: 1; overflow: hidden;">
-                        <div id="display-profile-name" style="font-weight: bold; font-size: 16px; margin-bottom: 4px;">執行者</div>
-                        <div id="display-profile-info" style="font-size: 12px; color: var(--sub-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">個性 / 喜好：尚未設定</div>
+            <!-- 線上狀態與編號 -->
+            <div class="terminal-status-bar">
+                <div><span class="status-dot"></span>主神線上 · ONLINE</div>
+                <div id="user-serial-id">輪迴者 No.0427</div>
+            </div>
+
+            <!-- 數據看板 -->
+            <div class="stats-overview">
+                <div class="stats-grid-top">
+                    <div>
+                        <div class="stat-item-label">獎勵點數 · POINTS</div>
+                        <div class="stat-item-val" id="display-points">1,280</div>
                     </div>
-                    <button type="button" class="btn-secondary" style="padding: 6px 10px; font-size: 12px; flex: unset;" id="btn-open-profile-inline">編輯</button>
+                    <div>
+                        <div class="stat-item-label">支線劇情 · SIDE</div>
+                        <div class="stat-item-val" id="display-side-quests" style="font-size: 16px; padding-top: 4px;">3 條進行中</div>
+                    </div>
                 </div>
-
-                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
-                    <button type="button" id="btn-enter-dungeon" style="padding: 16px; font-size: 16px; background-color: #0d9488;">⚔️ 進入副本 (開始遊戲與 AI 測試)</button>
-                    <button type="button" class="btn-secondary" id="btn-open-settings-main">⚙️ 遊戲設定 (API / 模型 / 主題)</button>
+                <div class="bars-container">
+                    <div class="bar-row">
+                        <span>生命值 HP</span>
+                        <span id="display-hp-text" style="font-size:11px; color:var(--sub-text);">86/100</span>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="hp-bar-fill" style="width: 86%;"></div></div>
+                    </div>
+                    <div class="bar-row">
+                        <span>能量值 EN</span>
+                        <span id="display-en-text" style="font-size:11px; color:var(--sub-text);">72/100</span>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="en-bar-fill" style="width: 72%;"></div></div>
+                    </div>
                 </div>
             </div>
+
+            <!-- 核心行動 -->
+            <div class="section-label">核心行動 PRIMARY</div>
+            <button type="button" class="action-main-btn" id="btn-enter-dungeon">
+                <div>
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 2px;">進入副本</div>
+                    <div style="font-size: 11px; color: var(--sub-text);">STAGE ENTRY · 隨機輪迴世界</div>
+                </div>
+                <span style="font-size: 18px;">→</span>
+            </button>
+
+            <!-- 準備 -->
+            <div class="section-label">準備 PREPARE</div>
+            <div class="menu-grid-3">
+                <div class="grid-card" id="menu-card-profile">
+                    <div class="grid-card-icon">👤</div>
+                    <div class="grid-card-title">身份資訊</div>
+                    <div class="grid-card-sub">IDENTITY</div>
+                </div>
+                <div class="grid-card" id="menu-card-combat">
+                    <div class="grid-card-icon">🛡️</div>
+                    <div class="grid-card-title">戰力</div>
+                    <div class="grid-card-sub">COMBAT</div>
+                </div>
+                <div class="grid-card" id="menu-card-inventory">
+                    <div class="grid-card-icon">📦</div>
+                    <div class="grid-card-title">背包</div>
+                    <div class="grid-card-sub">INVENTORY</div>
+                </div>
+            </div>
+
+            <!-- 行動 -->
+            <div class="section-label">行動 ACTION</div>
+            <div class="menu-grid-2">
+                <div class="grid-card" id="menu-card-cultivate">
+                    <div class="grid-card-icon">🌀</div>
+                    <div class="grid-card-title">修煉</div>
+                    <div class="grid-card-sub">CULTIVATE</div>
+                </div>
+                <div class="grid-card" id="menu-card-history">
+                    <div class="grid-card-icon">📜</div>
+                    <div class="grid-card-title">副本歷史</div>
+                    <div class="grid-card-sub">STAGE LOG</div>
+                </div>
+            </div>
+
+            <!-- 系統 -->
+            <div class="section-label">系統 SYSTEM</div>
+            <div class="menu-grid-3">
+                <div class="grid-card" id="menu-card-protocol">
+                    <div class="grid-card-icon">📋</div>
+                    <div class="grid-card-title">主神規則</div>
+                    <div class="grid-card-sub">PROTOCOL</div>
+                </div>
+                <div class="grid-card" id="menu-card-exchange">
+                    <div class="grid-card-icon">⇄</div>
+                    <div class="grid-card-title">兌換系統</div>
+                    <div class="grid-card-sub">EXCHANGE</div>
+                </div>
+                <div class="grid-card" id="menu-card-medical">
+                    <div class="grid-card-icon">➕</div>
+                    <div class="grid-card-title">治療系統</div>
+                    <div class="grid-card-sub">MEDICAL</div>
+                </div>
+            </div>
+
+            <div class="footer-credit">MADE BY CHAOCHAODA · 巧達</div>
         </div>
     </div>
 
-    <!-- 設定彈窗 -->
+    <!-- 設定彈窗 (含 API 串接核心) -->
     <div id="settings-modal" class="modal">
         <div class="modal-content">
-            <h3>遊戲設定</h3>
-            <div class="input-group">
+            <h3>遊戲設定與 AI 核心</h3>
+            <div class="input-group" style="margin-top:12px;">
                 <label for="api-key-input">API Key：</label>
                 <input type="password" id="api-key-input" placeholder="請輸入您的 API Key">
             </div>
@@ -341,7 +517,7 @@
             </div>
             <div class="btn-group">
                 <button type="button" id="btn-save-api">儲存設定</button>
-                <button type="button" class="btn-secondary" id="btn-test-api">測試 AI 連線</button>
+                <button type="button" class="btn-secondary" id="btn-test-api">測試連線</button>
                 <button type="button" class="btn-secondary" id="btn-close-settings">關閉</button>
             </div>
         </div>
@@ -350,26 +526,26 @@
     <!-- 個人檔案彈窗 -->
     <div id="profile-modal" class="modal">
         <div class="modal-content">
-            <h3>執行者檔案設定</h3>
+            <h3>執行者身份資訊</h3>
             <div class="input-group" style="text-align: center; margin-top: 10px;">
                 <img id="modal-avatar-preview" src="" alt="頭像預覽" class="avatar-preview" style="margin: 0 auto 10px auto; display: block;">
-                <label for="avatar-file-input" style="display: inline-block; background-color: #374151; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #fff;">
+                <label for="avatar-file-input" style="display: inline-block; background-color: var(--badge-bg); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; border: 1px solid var(--border-color);">
                     📁 上傳自訂頭像
                 </label>
                 <input type="file" id="avatar-file-input" accept="image/*" style="display: none;">
-                <button type="button" class="btn-secondary" style="margin-top: 5px; font-size: 12px; padding: 4px;" id="btn-default-avatar">使用預設頭像</button>
+                <button type="button" class="btn-secondary" style="margin-top: 5px; font-size: 11px; padding: 4px;" id="btn-default-avatar">使用預設頭像</button>
             </div>
             <div class="input-group">
                 <label for="profile-name-input">執行者代號 / 名字：</label>
-                <input type="text" id="profile-name-input" placeholder="請輸入您的名字">
+                <input type="text" id="profile-name-input" placeholder="請輸入名字">
             </div>
             <div class="input-group">
                 <label for="profile-personality-input">個性描述：</label>
                 <input type="text" id="profile-personality-input" placeholder="例如：冷靜、果斷...">
             </div>
             <div class="input-group">
-                <label for="profile-likes-input">喜歡的事物 / 興趣：</label>
-                <textarea id="profile-likes-input" placeholder="例如：策略遊戲..."></textarea>
+                <label for="profile-likes-input">喜好 / 專長：</label>
+                <textarea id="profile-likes-input" placeholder="例如：戰術分析、格鬥..."></textarea>
             </div>
             <div class="btn-group">
                 <button type="button" id="btn-save-profile">儲存檔案</button>
@@ -391,7 +567,7 @@
                 console.error("Supabase 初始化失敗", e);
             }
 
-            // 遊戲世界觀與提示詞設定
+            // 世界觀與核心規則
             const GAME_WORLD_RULES = `--- ［臨界軸：萬界修正錄］世界觀與核心規則 v1.0 ---
 【戰鬥-回合制】採《崩壞：星穹鐵道》模式。
 【回合】分劇情與戰鬥回合。
@@ -404,6 +580,12 @@
                 apiKey: "", 
                 aiModel: "gemini-2.5-flash",
                 theme: "dark",
+                points: 1280,
+                sideQuests: 3,
+                hp: 86,
+                maxHp: 100,
+                en: 72,
+                maxEn: 100,
                 progress: {}, 
                 profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: false }
             };
@@ -419,7 +601,7 @@
                 if (el) el.addEventListener(event, fn);
             };
 
-            // --- AI 呼叫封裝核心 (支援 Gemini 與通用 API 接口) ---
+            // AI 呼叫核心
             async function callAI(promptText) {
                 const apiKey = playerGameData.apiKey;
                 const model = playerGameData.aiModel || "gemini-2.5-flash";
@@ -428,36 +610,25 @@
                     throw new Error("尚未設定 API Key，請至遊戲設定中填寫。");
                 }
 
-                // 組合系統提示詞與玩家資訊
                 const fullSystemPrompt = `${GAME_WORLD_RULES}\n\n【目前執行者檔案】\n名字：${playerGameData.profile.name}\n個性：${playerGameData.profile.personality}\n喜好：${playerGameData.profile.likes}`;
 
-                // 範例：串接 Google Gemini 官方 API 格式
                 if (model.includes("gemini")) {
                     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
                     const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            contents: [
-                                { role: "user", parts: [{ text: `${fullSystemPrompt}\n\n玩家指令：${promptText}` }] }
-                            ]
+                            contents: [{ role: "user", parts: [{ text: `${fullSystemPrompt}\n\n玩家指令：${promptText}` }] }]
                         })
                     });
-
                     const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.error?.message || "Gemini API 請求失敗");
-                    }
+                    if (!response.ok) throw new Error(data.error?.message || "Gemini API 請求失敗");
                     return data.candidates[0].content.parts[0].text;
                 } else {
-                    // 若選擇其他 OpenAI 格式模型 (如 GPT / Claude 轉接)
                     const endpoint = `https://api.openai.com/v1/chat/completions`;
                     const response = await fetch(endpoint, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${apiKey}`
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
                         body: JSON.stringify({
                             model: model,
                             messages: [
@@ -466,16 +637,13 @@
                             ]
                         })
                     });
-
                     const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.error?.message || "AI API 請求失敗");
-                    }
+                    if (!response.ok) throw new Error(data.error?.message || "AI API 請求失敗");
                     return data.choices[0].message.content;
                 }
             }
 
-            // --- 畫面互動繫結 ---
+            // 事件繫結
             bind('btn-yes', 'click', () => {
                 document.getElementById('intro-screen').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'block';
@@ -490,7 +658,7 @@
                 if (!supabase) return alert('Supabase 未初始化');
                 const email = document.getElementById('email-input').value.trim();
                 const password = document.getElementById('password-input').value;
-                if (!email || !password) return alert('請輸入完整的信箱與密碼！');
+                if (!email || !password) return alert('請輸入完整信箱與密碼！');
                 const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.href } });
                 if (error) alert('註冊失敗：\n' + error.message);
                 else alert('註冊要求已送出！請至信箱驗證或直接登入。');
@@ -510,7 +678,6 @@
                 if (supabase) await supabase.auth.signOut();
                 location.reload();
             };
-            bind('link-logout', 'click', handleLogout);
             bind('menu-logout', 'click', handleLogout);
 
             const openNav = () => document.getElementById("mySidebar").style.width = "250px";
@@ -520,63 +687,63 @@
             bind('menu-home', 'click', () => closeNav());
             bind('menu-profile', 'click', () => { openProfileModal(); closeNav(); });
             bind('menu-settings', 'click', () => { openSettings(); closeNav(); });
-            bind('btn-open-profile-inline', 'click', openProfileModal);
+            bind('menu-card-profile', 'click', openProfileModal);
             bind('btn-open-settings-main', 'click', openSettings);
 
-            // 進入副本按鈕：自動透過 AI 進行初始化開場測試
+            // 功能按鈕點擊事件
+            bind('menu-card-combat', 'click', () => alert('戰力面板：生命 1000 | 攻擊 200 | 防禦 800 | 速度 100'));
+            bind('menu-card-inventory', 'click', () => alert('背包系統尚無道具。'));
+            bind('menu-card-cultivate', 'click', () => alert('修煉功能：消耗能量提升基底屬性。'));
+            bind('menu-card-history', 'click', () => alert('副本歷史紀錄目前為空。'));
+            bind('menu-card-protocol', 'click', alertProtocol);
+            bind('menu-card-exchange', 'click', () => alert('兌換系統：可用獎勵點數兌換稀有道具。'));
+            bind('menu-card-medical', 'click', () => alert('治療系統：使用點數恢復生命值。'));
+
+            function alertProtocol() {
+                alert('【主神規則 Protocol】\n1. 遵守任務指令，違者抹殺。\n2. 積極修正多元宇宙錯誤時間軸。\n3. 保持理性與冷靜。');
+            }
+
             bind('btn-enter-dungeon', 'click', async () => {
                 if (!playerGameData.apiKey) {
-                    alert('尚未設定 API Key！請先至設定中填寫並儲存。');
+                    alert('尚未設定 API Key！請先至設定中填寫。');
                     openSettings();
                     return;
                 }
-                
                 try {
-                    alert('正在連接主神空間與 AI 核心，產生副本開場...');
-                    const aiReply = await callAI("執行者已進入副本，請生成一段第一人稱的開場劇情，並等待玩家下一步指令。");
-                    alert('【AI 回應測試成功】\n\n' + aiReply);
+                    alert('正在連接主神空間與 AI 核心，生成副本...');
+                    const aiReply = await callAI("執行者已進入副本，請生成一段第一人稱的開場劇情。");
+                    alert('【副本開場成功】\n\n' + aiReply);
                 } catch (err) {
                     alert('AI 連線失敗：\n' + err.message);
                 }
             });
 
-            // 測試 AI 連線按鈕
             bind('btn-test-api', 'click', async () => {
                 const key = document.getElementById('api-key-input').value.trim();
-                if (!key) return alert('請先輸入 API Key 才能測試！');
-                
-                // 暫存至暫時變數進行測試
+                if (!key) return alert('請先輸入 API Key！');
                 playerGameData.apiKey = key;
                 playerGameData.aiModel = document.getElementById('ai-model-select').value;
-
                 try {
-                    alert('正在測試與 AI 模型的連線...');
+                    alert('測試連線中...');
                     const testReply = await callAI("系統連線測試，請回覆：連線正常。");
-                    alert('測試成功！AI 回應：\n' + testReply);
+                    alert('測試成功！回應：\n' + testReply);
                 } catch (err) {
-                    alert('測試失敗，請檢查金鑰或模型是否正確：\n' + err.message);
+                    alert('測試失敗：\n' + err.message);
                 }
             });
 
             bind('btn-save-api', 'click', async () => {
-                const key = document.getElementById('api-key-input').value.trim();
-                const model = document.getElementById('ai-model-select').value;
+                playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
+                playerGameData.aiModel = document.getElementById('ai-model-select').value;
                 const theme = document.getElementById('theme-select').value;
-
-                playerGameData.apiKey = key;
-                playerGameData.aiModel = model;
                 playerGameData.theme = theme;
                 applyTheme(theme);
-
                 await saveToCloud();
-                alert('設定已成功儲存！');
+                alert('設定已儲存！');
                 closeSettings();
             });
             bind('btn-close-settings', 'click', closeSettings);
-
-            bind('theme-select', 'change', (e) => {
-                applyTheme(e.target.value);
-            });
+            bind('theme-select', 'change', (e) => applyTheme(e.target.value));
 
             bind('avatar-file-input', 'change', (e) => {
                 const file = e.target.files[0];
@@ -600,9 +767,8 @@
                 playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
                 playerGameData.profile.setupCompleted = true;
                 await saveToCloud();
-                updateProfileUI();
                 closeProfileModal();
-                alert('執行者檔案儲存成功！');
+                alert('身份資訊儲存成功！');
             });
             bind('profile-close-btn', 'click', closeProfileModal);
 
@@ -635,7 +801,7 @@
                 document.getElementById('intro-screen').style.display = 'none';
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('game-screen').style.display = 'block';
-                document.getElementById('user-display-email').innerText = currentUser.email;
+                document.getElementById('user-serial-id').innerText = `輪迴者 No.${currentUser.id.substring(0, 4).toUpperCase()}`;
 
                 const { data } = await supabase.from('player_saves').select('save_data').eq('id', currentUser.id).single();
                 if (data && data.save_data) {
@@ -643,28 +809,32 @@
                     if (!playerGameData.profile) playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, setupCompleted: false };
                     if (playerGameData.theme) applyTheme(playerGameData.theme);
                 } else {
-                    playerGameData = { 
-                        apiKey: "", 
-                        aiModel: "gemini-2.5-flash",
+                    playerGameData.save_data = { 
                         theme: "dark",
-                        progress: {}, 
+                        points: 1280, sideQuests: 3, hp: 86, maxHp: 100, en: 72, maxEn: 100,
                         profile: { name: currentUser.email.split('@')[0], avatar: DEFAULT_AVATAR, setupCompleted: false } 
                     };
                     saveToCloud();
                 }
 
-                updateProfileUI();
+                updateMainUI();
                 if (!playerGameData.profile.setupCompleted) {
                     openProfileModal();
                     document.getElementById('profile-close-btn').style.display = 'none';
                 }
             }
 
-            function updateProfileUI() {
-                const p = playerGameData.profile;
-                document.getElementById('display-avatar').src = p.avatar || DEFAULT_AVATAR;
-                document.getElementById('display-profile-name').innerText = p.name || "執行者";
-                document.getElementById('display-profile-info').innerText = `個性：${p.personality || '未填寫'} | 喜好：${p.likes || '未填寫'}`;
+            function updateMainUI() {
+                document.getElementById('display-points').innerText = playerGameData.points ?? 1280;
+                document.getElementById('display-side-quests').innerText = `${playerGameData.sideQuests ?? 3} 條進行中`;
+                const hp = playerGameData.hp ?? 86;
+                const maxHp = playerGameData.maxHp ?? 100;
+                const en = playerGameData.en ?? 72;
+                const maxEn = playerGameData.maxEn ?? 100;
+                document.getElementById('display-hp-text').innerText = `${hp}/${maxHp}`;
+                document.getElementById('hp-bar-fill').style.width = `${(hp/maxHp)*100}%`;
+                document.getElementById('display-en-text').innerText = `${en}/${maxEn}`;
+                document.getElementById('en-bar-fill').style.width = `${(en/maxEn)*100}%`;
             }
 
             async function saveToCloud() {
@@ -675,3 +845,4 @@
     </script>
 </body>
 </html>
+
