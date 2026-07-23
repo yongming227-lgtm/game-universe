@@ -46,8 +46,8 @@
             max-width: 600px;
             background-color: var(--card-bg);
             padding: 24px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             border: 1px solid var(--border-color);
             box-sizing: border-box;
             transition: background-color 0.3s, border-color 0.3s;
@@ -112,15 +112,11 @@
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s ease-in-out;
+            transition: background-color 0.2s;
         }
 
         button:hover {
             background-color: var(--accent-hover);
-        }
-
-        button:active {
-            transform: scale(0.98);
         }
 
         button.btn-secondary {
@@ -302,19 +298,12 @@
                 <h2>主神空間大廳</h2>
                 
                 <div class="profile-card">
-                    <img id="display-avatar" src="" alt="頭像" class="avatar-preview" style="cursor: pointer;" title="點擊更換頭像與檔案">
-                    <div style="flex: 1; overflow: hidden; cursor: pointer;" id="btn-open-profile-text">
+                    <img id="display-avatar" src="" alt="頭像" class="avatar-preview">
+                    <div style="flex: 1; overflow: hidden;">
                         <div id="display-profile-name" style="font-weight: bold; font-size: 16px; margin-bottom: 4px;">執行者</div>
                         <div id="display-profile-info" style="font-size: 12px; color: var(--sub-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">個性 / 喜好：尚未設定</div>
                     </div>
                     <button type="button" class="btn-secondary" style="padding: 6px 10px; font-size: 12px; flex: unset;" id="btn-open-profile-inline">編輯</button>
-                </div>
-
-                <!-- 常駐狀態欄 -->
-                <div id="status-bar" style="display: flex; justify-content: space-between; background: var(--border-color); padding: 10px; border-radius: 8px; margin-top: 16px; font-size: 14px; font-weight: bold;">
-                    <span>❤️ HP: <span id="player-hp">1000</span></span>
-                    <span>💰 餘燼: <span id="player-gold">1000</span></span>
-                    <span>⭐ 等級: <span id="player-level">1</span></span>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
@@ -334,15 +323,14 @@
                 <input type="password" id="api-key-input" placeholder="請輸入您的 API Key">
             </div>
             <div class="input-group">
-                <label for="ai-model-input">選擇或手動輸入 AI 模型：</label>
-                <input type="text" id="ai-model-input" list="ai-model-list" placeholder="例如：gemini-2.5-flash 或自訂模型">
-                <datalist id="ai-model-list">
-                    <option value="gemini-2.5-flash">
-                    <option value="gemini-2.5-pro">
-                    <option value="gpt-4o">
-                    <option value="gpt-4o-mini">
-                    <option value="claude-3-5-sonnet">
-                </datalist>
+                <label for="ai-model-select">選擇 AI 模型：</label>
+                <select id="ai-model-select">
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
+                    <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4o-mini">GPT-4o-mini</option>
+                    <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                </select>
             </div>
             <div class="input-group">
                 <label for="theme-select">介面主題：</label>
@@ -417,32 +405,7 @@
                 aiModel: "gemini-2.5-flash",
                 theme: "dark",
                 progress: {}, 
-                profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: false },
-                dungeonMemory: {
-                    currentWorld: "賽博朋克 2077",
-                    timeline: "序章",
-                    hp: 1000,
-                    maxHp: 1000,
-                    gold: 1000,
-                    level: 1,
-                    exp: 0,
-                    statPoints: 10,
-                    str: 10,
-                    agi: 10,
-                    con: 10,
-                    int: 10,
-                    cha: 10,
-                    inventory: [],
-                    skills: [],
-                    customWeapons: [],
-                    customSkills: [],
-                    teamMembers: [],
-                    quantumAvatar: null,
-                    npcStatus: {},
-                    sideMissions: "暫無",
-                    missionTimer: 20,
-                    actionHistory: []
-                }
+                profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: false }
             };
 
             const applyTheme = (theme) => {
@@ -465,20 +428,10 @@
                     throw new Error("尚未設定 API Key，請至遊戲設定中填寫。");
                 }
 
-                // 組合系統提示詞、玩家資訊與副本記憶
-                const mem = playerGameData.dungeonMemory;
-                mem.actionHistory.push(promptText);
+                // 組合系統提示詞與玩家資訊
+                const fullSystemPrompt = `${GAME_WORLD_RULES}\n\n【目前執行者檔案】\n名字：${playerGameData.profile.name}\n個性：${playerGameData.profile.personality}\n喜好：${playerGameData.profile.likes}`;
 
-                const memoryContext = `
-【系統狀態記憶】
-- 當前世界：${mem.currentWorld} (完全由AI隨機動態生成)
-- 角色血統/等級：Lv.${mem.level} (HP: ${mem.hp}/${mem.maxHp} | 餘燼: ${mem.gold})
-- 玩家近期行動歷史：${JSON.stringify(mem.actionHistory.slice(-5))}
-- 隊友與NPC狀態：${JSON.stringify(mem.npcStatus)}
-`.trim();
-
-                const fullSystemPrompt = `${GAME_WORLD_RULES}\n\n${memoryContext}\n\n【目前執行者檔案】\n名字：${playerGameData.profile.name}\n個性：${playerGameData.profile.personality}\n喜好：${playerGameData.profile.likes}`;
-
+                // 範例：串接 Google Gemini 官方 API 格式
                 if (model.includes("gemini")) {
                     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
                     const response = await fetch(endpoint, {
@@ -497,6 +450,7 @@
                     }
                     return data.candidates[0].content.parts[0].text;
                 } else {
+                    // 若選擇其他 OpenAI 格式模型 (如 GPT / Claude 轉接)
                     const endpoint = `https://api.openai.com/v1/chat/completions`;
                     const response = await fetch(endpoint, {
                         method: 'POST',
@@ -567,8 +521,6 @@
             bind('menu-profile', 'click', () => { openProfileModal(); closeNav(); });
             bind('menu-settings', 'click', () => { openSettings(); closeNav(); });
             bind('btn-open-profile-inline', 'click', openProfileModal);
-            bind('display-avatar', 'click', openProfileModal);
-            bind('btn-open-profile-text', 'click', openProfileModal);
             bind('btn-open-settings-main', 'click', openSettings);
 
             // 進入副本按鈕：自動透過 AI 進行初始化開場測試
@@ -580,8 +532,8 @@
                 }
                 
                 try {
-                    alert('正在連接主神空間與 AI 核心，產生隨機世界開場...');
-                    const aiReply = await callAI("執行者已進入遊戲，請隨機生成一段開場世界觀與第一人稱劇情，並等待玩家下一步指令。");
+                    alert('正在連接主神空間與 AI 核心，產生副本開場...');
+                    const aiReply = await callAI("執行者已進入副本，請生成一段第一人稱的開場劇情，並等待玩家下一步指令。");
                     alert('【AI 回應測試成功】\n\n' + aiReply);
                 } catch (err) {
                     alert('AI 連線失敗：\n' + err.message);
@@ -591,11 +543,11 @@
             // 測試 AI 連線按鈕
             bind('btn-test-api', 'click', async () => {
                 const key = document.getElementById('api-key-input').value.trim();
-                const model = document.getElementById('ai-model-input').value.trim();
                 if (!key) return alert('請先輸入 API Key 才能測試！');
                 
+                // 暫存至暫時變數進行測試
                 playerGameData.apiKey = key;
-                playerGameData.aiModel = model || "gemini-2.5-flash";
+                playerGameData.aiModel = document.getElementById('ai-model-select').value;
 
                 try {
                     alert('正在測試與 AI 模型的連線...');
@@ -608,11 +560,11 @@
 
             bind('btn-save-api', 'click', async () => {
                 const key = document.getElementById('api-key-input').value.trim();
-                const model = document.getElementById('ai-model-input').value.trim();
+                const model = document.getElementById('ai-model-select').value;
                 const theme = document.getElementById('theme-select').value;
 
                 playerGameData.apiKey = key;
-                playerGameData.aiModel = model || "gemini-2.5-flash";
+                playerGameData.aiModel = model;
                 playerGameData.theme = theme;
                 applyTheme(theme);
 
@@ -633,14 +585,12 @@
                 reader.onload = (evt) => {
                     playerGameData.profile.avatar = evt.target.result;
                     document.getElementById('modal-avatar-preview').src = evt.target.result;
-                    document.getElementById('display-avatar').src = evt.target.result;
                 };
                 reader.readAsDataURL(file);
             });
             bind('btn-default-avatar', 'click', () => {
                 playerGameData.profile.avatar = DEFAULT_AVATAR;
                 document.getElementById('modal-avatar-preview').src = DEFAULT_AVATAR;
-                document.getElementById('display-avatar').src = DEFAULT_AVATAR;
             });
             bind('btn-save-profile', 'click', async () => {
                 const name = document.getElementById('profile-name-input').value.trim();
@@ -664,7 +614,7 @@
 
             function openSettings() { 
                 document.getElementById('api-key-input').value = playerGameData.apiKey || "";
-                document.getElementById('ai-model-input').value = playerGameData.aiModel || "gemini-2.5-flash";
+                document.getElementById('ai-model-select').value = playerGameData.aiModel || "gemini-2.5-flash";
                 document.getElementById('theme-select').value = playerGameData.theme || "dark";
                 document.getElementById('settings-modal').style.display = 'flex'; 
             }
@@ -691,14 +641,6 @@
                 if (data && data.save_data) {
                     playerGameData = data.save_data;
                     if (!playerGameData.profile) playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, setupCompleted: false };
-                    if (!playerGameData.dungeonMemory) {
-                        playerGameData.dungeonMemory = {
-                            currentWorld: "賽博朋克 2077",
-                            timeline: "序章",
-                            hp: 1000, maxHp: 1000, gold: 1000, level: 1, exp: 0,
-                            actionHistory: []
-                        };
-                    }
                     if (playerGameData.theme) applyTheme(playerGameData.theme);
                 } else {
                     playerGameData = { 
@@ -706,19 +648,12 @@
                         aiModel: "gemini-2.5-flash",
                         theme: "dark",
                         progress: {}, 
-                        profile: { name: currentUser.email.split('@')[0], avatar: DEFAULT_AVATAR, setupCompleted: false },
-                        dungeonMemory: {
-                            currentWorld: "賽博朋克 2077",
-                            timeline: "序章",
-                            hp: 1000, maxHp: 1000, gold: 1000, level: 1, exp: 0,
-                            actionHistory: []
-                        }
+                        profile: { name: currentUser.email.split('@')[0], avatar: DEFAULT_AVATAR, setupCompleted: false } 
                     };
                     saveToCloud();
                 }
 
                 updateProfileUI();
-                updateStatusBarUI();
                 if (!playerGameData.profile.setupCompleted) {
                     openProfileModal();
                     document.getElementById('profile-close-btn').style.display = 'none';
@@ -730,17 +665,6 @@
                 document.getElementById('display-avatar').src = p.avatar || DEFAULT_AVATAR;
                 document.getElementById('display-profile-name').innerText = p.name || "執行者";
                 document.getElementById('display-profile-info').innerText = `個性：${p.personality || '未填寫'} | 喜好：${p.likes || '未填寫'}`;
-            }
-
-            function updateStatusBarUI() {
-                const mem = playerGameData.dungeonMemory;
-                if (!mem) return;
-                const hpEl = document.getElementById('player-hp');
-                const goldEl = document.getElementById('player-gold');
-                const levelEl = document.getElementById('player-level');
-                if (hpEl) hpEl.innerText = mem.hp;
-                if (goldEl) goldEl.innerText = mem.gold;
-                if (levelEl) levelEl.innerText = mem.level;
             }
 
             async function saveToCloud() {
