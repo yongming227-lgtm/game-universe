@@ -528,20 +528,21 @@
                 </div>
             </div>
 
+            <!-- 核心行動：步入輪迴 -->
             <div class="section-label">核心行動 PRIMARY</div>
             <button type="button" class="action-main-btn" id="btn-enter-dungeon">
                 <div>
-                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 4px;">進入副本</div>
-                    <div style="font-size: 12px; color: var(--sub-text);">STAGE ENTRY · 隨機輪迴世界</div>
+                    <div style="font-size: 20px; font-weight: bold; margin-bottom: 4px;">步入輪迴</div>
+                    <div style="font-size: 12px; color: var(--sub-text);">SAMSARA ENTRY · 隨機因果世界</div>
                 </div>
                 <span style="font-size: 22px;">→</span>
             </button>
 
+            <!-- 準備：因果與行囊 -->
             <div class="section-label">準備 PREPARE</div>
             <div class="menu-grid-prepare">
                 <div class="grid-card" id="menu-card-combat">
                     <div class="grid-card-icon">
-                        <!-- 改為因果對應的脈絡/節點/命運流動圖標 -->
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                     </div>
                     <div class="grid-card-title">因果</div>
@@ -551,19 +552,20 @@
                     <div class="grid-card-icon">
                         <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 15H4V8h16v11z"/></svg>
                     </div>
-                    <div class="grid-card-title">背包</div>
-                    <div class="grid-card-sub">INVENTORY</div>
+                    <div class="grid-card-title">行囊</div>
+                    <div class="grid-card-sub">SAMSARA BAG</div>
                 </div>
             </div>
 
+            <!-- 行動：往日之影 -->
             <div class="section-label">行動 ACTION</div>
             <div class="menu-grid-2">
                 <div class="grid-card" id="menu-card-history" style="grid-column: span 2;">
                     <div class="grid-card-icon">
                         <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                     </div>
-                    <div class="grid-card-title">副本歷史</div>
-                    <div class="grid-card-sub">STAGE LOG</div>
+                    <div class="grid-card-title">往日之影</div>
+                    <div class="grid-card-sub">SHADOWS OF THE PAST</div>
                 </div>
             </div>
 
@@ -703,7 +705,7 @@
 【AI 行為規則】
 - 扮演主神空間的管理者與旁白。
 - 語氣需冷酷、神祕、具壓迫感。
-- 請以第一人稱或客觀旁白引導玩家進行副本體驗。
+- 請以第一人稱或客觀旁白引導玩家進行輪迴體驗。
         `.trim();
 
         const SUPABASE_URL = "https://xjuspusyimjdgitsbaku.supabase.co";
@@ -923,17 +925,17 @@ ${PROMPT_COMBAT}
 
             bind('menu-card-combat', 'click', () => {
                 if (!playerGameData.inDungeon) {
-                    return openSubPage('因果系統未解鎖', '請先進入副本以啟用因果數據！');
+                    return openSubPage('因果系統未解鎖', '請先步入輪迴以啟用因果數據！');
                 }
                 openSubPage('因果面板', '因果律數據：生命 1000 | 攻擊 200 | 防禦 800 | 速度 100');
             });
 
             bind('menu-card-inventory', 'click', () => {
-                openSubPage('背包系統', '目前背包尚無任何道具。');
+                openSubPage('行囊系統', '目前行囊尚無任何因果物資。');
             });
 
             bind('menu-card-history', 'click', () => {
-                openSubPage('副本歷史紀錄', '目前尚未有任何副本歷史紀錄。');
+                openSubPage('往日之影', '目前尚未浮現任何往日之影紀錄。');
             });
 
             bind('menu-protocol-sidebar', 'click', () => {
@@ -944,7 +946,7 @@ ${PROMPT_COMBAT}
             bind('menu-exchange-sidebar', 'click', async () => {
                 closeNav();
                 if (!playerGameData.inDungeon) {
-                    return openSubPage('兌換系統未解鎖', '請先進入副本以啟用兌換系統！');
+                    return openSubPage('兌換系統未解鎖', '請先步入輪迴以啟用兌換系統！');
                 }
                 openSubPage('兌換系統', '可使用極其稀有的維度核心或餘燼兌換稀有道具。');
             });
@@ -952,7 +954,7 @@ ${PROMPT_COMBAT}
             bind('menu-medical-sidebar', 'click', async () => {
                 closeNav();
                 if (!playerGameData.inDungeon) {
-                    return openSubPage('治療系統未解鎖', '請先進入副本！');
+                    return openSubPage('治療系統未解鎖', '請先步入輪迴！');
                 }
                 if (playerGameData.hp >= playerGameData.maxHp) {
                     return openSubPage('治療系統', '生命值已全滿，無需治療。');
@@ -970,8 +972,8 @@ ${PROMPT_COMBAT}
                     return;
                 }
                 try {
-                    showToast('正在連接主神空間與 AI 核心，生成副本...');
-                    const aiReply = await callAI("執行者已進入副本，請生成一段第一人稱的開場劇情。");
+                    showToast('正在連接主神空間與 AI 核心，步入輪迴...');
+                    const aiReply = await callAI("執行者已步入輪迴，請生成一段第一人稱的開場劇情。");
                     
                     playerGameData.inDungeon = true;
                     playerGameData.ember = 1280;
@@ -982,7 +984,7 @@ ${PROMPT_COMBAT}
                     updateMainUI();
                     await saveCloudData();
 
-                    openSubPage('副本開場', aiReply);
+                    openSubPage('輪迴開場', aiReply);
                 } catch (err) {
                     showToast('AI 連線失敗：' + err.message);
                 }
