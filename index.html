@@ -22,6 +22,8 @@
             --rarity-rare: #3b82f6;
             --rarity-epic: #a855f7;
             --rarity-quest: #f59e0b;
+            --slot-center-bg: #faf5ff;
+            --slot-center-border: #805ad5;
         }
         [data-theme="dark"] {
             --bg-color: #0b0f19;
@@ -34,18 +36,23 @@
             --sub-text: #94a3b8;
             --badge-bg: #1e293b;
             --overlay-bg: rgba(0, 0, 0, 0.7);
+            --slot-center-bg: #1f1235;
+            --slot-center-border: #a855f7;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
             padding: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            box-sizing: border-box;
             transition: background-color 0.3s, color 0.3s;
         }
         .container {
@@ -56,8 +63,6 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border-color);
-            box-sizing: border-box;
-            transition: background-color 0.3s, border-color 0.3s;
             position: relative;
             overflow: hidden;
             min-height: 600px;
@@ -84,7 +89,6 @@
             border: 1px solid var(--border-color);
             background-color: var(--input-bg);
             color: var(--text-color);
-            box-sizing: border-box;
             font-size: 14px;
         }
         input:focus, select:focus, textarea:focus {
@@ -287,7 +291,6 @@
             background-color: var(--card-bg);
             z-index: 1500;
             padding: 24px;
-            box-sizing: border-box;
             overflow-y: auto;
         }
         /* 輪迴全螢幕介面 */
@@ -298,7 +301,6 @@
             background-color: var(--card-bg);
             z-index: 1600;
             padding: 20px;
-            box-sizing: border-box;
             flex-direction: column;
             justify-content: space-between;
         }
@@ -341,7 +343,6 @@
             line-height: 1.7;
             color: var(--text-color);
             white-space: pre-wrap;
-            box-sizing: border-box;
         }
         .samsara-switch-bar {
             display: flex;
@@ -391,7 +392,6 @@
             gap: 6px;
             transition: transform 0.05s ease, border-color 0.2s;
             touch-action: manipulation;
-            box-sizing: border-box;
         }
         .samsara-btn:active { transform: scale(0.96); border-color: var(--sub-text); }
         .samsara-btn svg { width: 18px; height: 18px; fill: var(--text-color); }
@@ -513,54 +513,150 @@
         .slot-rarity-epic { border-color: var(--rarity-epic); box-shadow: inset 0 0 8px rgba(168, 85, 247, 0.2); }
         .slot-rarity-quest { border-color: var(--rarity-quest); box-shadow: inset 0 0 8px rgba(245, 158, 11, 0.2); }
         
-        /* --- 全新：裝備系統視覺樣式 --- */
-        .equip-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .equip-slot-card {
-            background-color: var(--input-bg);
-            border: 1px dashed var(--border-color);
-            border-radius: 12px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        /* ---------------- 嵌入式：因果面板 X 型陣型樣式 ---------------- */
+        .equip-formation {
             position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 0 auto 24px auto;
         }
-        .equip-slot-card.equipped {
-            border-style: solid;
-            background-color: var(--card-bg);
-        }
-        .equip-slot-card.rarity-rare { border-color: var(--rarity-rare); }
-        .equip-slot-card.rarity-epic { border-color: var(--rarity-epic); }
-        .equip-slot-icon-box {
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
-            background: var(--badge-bg);
+        .equip-slot {
+            position: absolute;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--input-bg);
+            border: 2px dashed var(--border-color);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
         }
-        .equip-slot-icon-box svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--sub-text);
-            opacity: 0.5;
+        .equip-slot:hover {
+            border-color: #4a90e2;
+            background: var(--badge-bg);
+            transform: scale(1.05);
         }
-        .equip-slot-card.equipped .equip-slot-icon-box svg {
+        .equip-slot.has-item {
+            border-style: solid;
+            border-color: #2b6cb0;
+            background: var(--badge-bg);
+        }
+        .slot-icon-text { font-size: 20px; margin-bottom: 2px; }
+        .slot-name-text { font-size: 10px; color: var(--sub-text); font-weight: 600; }
+        
+        /* X 型方位定位 */
+        .slot-center { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 84px; height: 84px; border-color: var(--slot-center-border); background: var(--slot-center-bg); }
+        .slot-top-left { top: 0; left: 0; }
+        .slot-top-right { top: 0; right: 0; }
+        .slot-bottom-left { bottom: 0; left: 0; }
+        .slot-bottom-right { bottom: 0; right: 0; }
+
+        /* 屬性數據區塊 */
+        .causal-stats-container {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .causal-stats-title {
+            font-size: 13px;
+            color: var(--sub-text);
+            margin-bottom: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .causal-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .causal-stat-item {
+            background: var(--card-bg);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            border: 1px solid var(--border-color);
+        }
+        .causal-stat-label { color: var(--sub-text); }
+        .causal-stat-value { font-weight: 700; color: var(--text-color); }
+
+        /* 因果背包 Modal 彈窗 */
+        .causal-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--overlay-bg);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 2200;
+        }
+        .causal-modal-overlay.active {
             opacity: 1;
-            fill: var(--text-color);
+            pointer-events: auto;
         }
-        .equip-slot-info { display: flex; flex-direction: column; overflow: hidden; }
-        .equip-slot-type { font-size: 10px; color: var(--sub-text); text-transform: uppercase; }
-        .equip-slot-name { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .causal-modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 420px;
+            border-radius: 24px 24px 0 0;
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .causal-modal-overlay.active .causal-modal-content {
+            transform: translateY(0);
+        }
+        .causal-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .causal-modal-title { font-size: 16px; font-weight: 700; color: var(--text-color); }
+        .causal-modal-close { cursor: pointer; font-size: 20px; color: var(--sub-text); border: none; background: none; }
+
+        .causal-bag-list {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .causal-bag-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--input-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .causal-bag-item:hover { background: var(--badge-bg); }
+        .causal-item-info { display: flex; align-items: center; gap: 12px; }
+        .causal-item-icon { font-size: 24px; }
+        .causal-item-name { font-size: 14px; font-weight: 600; color: var(--text-color); }
+        .causal-item-desc { font-size: 11px; color: var(--sub-text); margin-top: 2px; }
+
         /* 道具詳情彈窗 */
         #item-detail-modal {
             display: none;
@@ -615,7 +711,7 @@
         .custom-dialog-input {
             width: 100%; padding: 12px; background-color: var(--input-bg);
             border: 1px solid var(--border-color); border-radius: 10px;
-            color: var(--text-color); font-size: 14px; outline: none; box-sizing: border-box;
+            color: var(--text-color); font-size: 14px; outline: none;
             transition: border-color 0.2s, background-color 0.3s;
         }
         .custom-dialog-input:focus { border-color: var(--sub-text); }
@@ -625,6 +721,7 @@
 </head>
 <body>
     <div id="toast-container"></div>
+    
     <!-- 道具詳情彈窗 -->
     <div id="item-detail-modal">
         <div class="item-detail-card">
@@ -632,12 +729,12 @@
             <div id="detail-name" class="item-detail-name">道具名稱</div>
             <div id="detail-type" class="item-detail-type">種類 / 品質</div>
             <div id="detail-desc" class="item-detail-desc">道具效果詳細說明...</div>
-            <div class="btn-group" id="detail-action-buttons">
-                <!-- 動態生成的按鈕 -->
-            </div>
+            <div class="btn-group" id="detail-action-buttons"></div>
             <button type="button" class="btn-secondary" id="btn-close-item-detail" style="width: 100%; margin-top: 8px;">關閉</button>
         </div>
     </div>
+
+    <!-- 自訂決策輸入彈窗 -->
     <div id="custom-prompt-modal" class="custom-dialog-overlay hidden">
         <div class="custom-dialog-card">
             <h3 id="custom-prompt-title" class="custom-dialog-title">請輸入您的抉擇：</h3>
@@ -650,6 +747,7 @@
             </div>
         </div>
     </div>
+
     <!-- 側邊選單 -->
     <div id="mySidebar" class="sidebar">
         <button class="close-btn" id="btn-close-nav">&times;</button>
@@ -685,6 +783,7 @@
             登出雲端帳號
         </a>
     </div>
+
     <div class="container">
         <!-- 遊戲主介面 (main-screen) -->
         <div id="main-screen" class="screen-view" style="display: none;">
@@ -739,11 +838,10 @@
             <div class="menu-grid-prepare">
                 <div class="grid-card" id="menu-card-combat" style="grid-column: span 2;">
                     <div class="grid-card-icon">
-                        <!-- 已更換為「漩渦」SVG 圖示 -->
                         <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6 0 2.21 1.2 4.15 3 5.19 1.16.67 2.06.31 2.58-.21.46-.46.34-1.25-.18-1.63C10.5 14.71 10 13.42 10 12c0-1.1.9-2 2-2s2 .9 2 2c0 .55.45 1 1 1s1-.45 1-1c0-2.21-1.79-4-4-4z"/></svg>
                     </div>
-                    <div class="grid-card-title">因果</div>
-                    <div class="grid-card-sub">KARMA</div>
+                    <div class="grid-card-title">因果面板</div>
+                    <div class="grid-card-sub">KARMA PANEL</div>
                 </div>
                 <div class="grid-card" id="menu-card-inventory">
                     <div class="grid-card-icon">
@@ -765,6 +863,7 @@
             </div>
             <div class="footer-credit">MADE BY 成都尖頭們</div>
         </div>
+
         <!-- 輪迴全螢幕介面 (samsara-screen) -->
         <div id="samsara-screen" class="full-page-view screen-view" style="padding:20px; flex-direction:column; justify-content:space-between;">
             <div class="samsara-header">
@@ -775,9 +874,8 @@
             </div>
             
             <!-- AI 劇情文字區塊 -->
-            <div id="samsara-text-log" class="samsara-story-box">
-                正在接入輪迴因果數據流...
-            </div>
+            <div id="samsara-text-log" class="samsara-story-box">正在接入輪迴因果數據流...</div>
+            
             <!-- 切換面板按鈕 -->
             <div class="samsara-switch-bar">
                 <button type="button" class="samsara-switch-btn" id="btn-toggle-samsara-panel">
@@ -788,6 +886,7 @@
             <!-- 常駐控制按鈕面板 -->
             <div class="samsara-controls" id="samsara-controls-grid"></div>
         </div>
+
         <!-- 格狀行囊介面 (inventory-screen) -->
         <div id="inventory-screen" class="full-page-view screen-view">
             <h3>
@@ -813,32 +912,59 @@
             </div>
         </div>
         
-        <!-- 角色裝備介面 (equipment-screen) -->
-        <div id="equipment-screen" class="full-page-view screen-view">
-            <h3>
-                <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-                    <path d="M6.92 5c-1.2 0-2.26.77-2.6 1.92l-2.2 7.4c-.15.52.17 1.05.7 1.18.1.03.21.04.31.04.42 0 .81-.27.94-.69L5.8 9h12.4l1.73 5.85c.13.42.52.69.94.69.1 0 .21-.01.31-.04.53-.13.85-.66.7-1.18l-2.2-7.4C19.34 5.77 18.28 5 17.08 5H6.92zM12 11c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/>
-                </svg>
-                執行者裝備矩陣
-            </h3>
-            <p style="font-size: 12px; color: var(--sub-text); margin-bottom: 16px;">檢視或替換當前穿戴的因果武裝：</p>
-            <div class="equip-grid" id="equip-slots-container">
-                <!-- 動態生成的 6 大裝備欄位 -->
-            </div>
-            <!-- 當前裝備總屬性面板 -->
-            <div class="stats-overview" style="margin-bottom: 0;">
-                <div class="stat-item-label" style="margin-bottom: 8px;">武裝總屬性加成 ATTR BONUS</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
-                    <div>攻擊加成：<span id="equip-atk-bonus" style="color:#3b82f6; font-weight:bold;">+0</span></div>
-                    <div>防禦加成：<span id="equip-def-bonus" style="color:#10b981; font-weight:bold;">+0</span></div>
-                    <div>生命加成：<span id="equip-hp-bonus" style="color:#ef4444; font-weight:bold;">+0</span></div>
-                    <div>速度加成：<span id="equip-spd-bonus" style="color:#f59e0b; font-weight:bold;">+0</span></div>
+        <!-- 全新替換：因果面板介面 (causal-screen) -->
+        <div id="causal-screen" class="full-page-view screen-view">
+            <h3 style="margin-bottom: 20px; justify-content: center;">🔮 因果面板</h3>
+
+            <!-- X 型陣型區塊 -->
+            <div class="equip-formation">
+                <!-- 中央：因果裝備 -->
+                <div class="equip-slot slot-center" onclick="openBag('causal')">
+                    <span class="slot-icon-text" id="icon-causal">🔮</span>
+                    <span class="slot-name-text" id="name-causal">因果裝備</span>
+                </div>
+
+                <!-- 左上：頭部護具 -->
+                <div class="equip-slot slot-top-left" onclick="openBag('head')">
+                    <span class="slot-icon-text" id="icon-head">🪖</span>
+                    <span class="slot-name-text" id="name-head">頭部護具</span>
+                </div>
+
+                <!-- 右上：主手武器 -->
+                <div class="equip-slot slot-top-right" onclick="openBag('weapon')">
+                    <span class="slot-icon-text" id="icon-weapon">⚔️</span>
+                    <span class="slot-name-text" id="name-weapon">主手武器</span>
+                </div>
+
+                <!-- 左下：戰術戰靴 -->
+                <div class="equip-slot slot-bottom-left" onclick="openBag('boots')">
+                    <span class="slot-icon-text" id="icon-boots">👢</span>
+                    <span class="slot-name-text" id="name-boots">戰術戰靴</span>
+                </div>
+
+                <!-- 右下：身體胸甲 -->
+                <div class="equip-slot slot-bottom-right" onclick="openBag('chest')">
+                    <span class="slot-icon-text" id="icon-chest">🛡️</span>
+                    <span class="slot-name-text" id="name-chest">身體胸甲</span>
                 </div>
             </div>
-            <div class="btn-group" style="margin-top: 24px;">
+
+            <!-- 因果律數據區塊 -->
+            <div class="causal-stats-container">
+                <div class="causal-stats-title">因果律數據 / 屬性總加成</div>
+                <div class="causal-stats-grid">
+                    <div class="causal-stat-item"><span class="causal-stat-label">❤️ 生命</span><span class="causal-stat-value" id="stat-hp">1000</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label">⚔️ 攻擊</span><span class="causal-stat-value" id="stat-atk">200</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label">🛡️ 防禦</span><span class="causal-stat-value" id="stat-def">800</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label">⚡ 速度</span><span class="causal-stat-value" id="stat-spd">100</span></div>
+                </div>
+            </div>
+
+            <div class="btn-group">
                 <button type="button" class="btn-secondary btn-back-smart" style="width: 100%;">返回上一頁</button>
             </div>
         </div>
+
         <!-- 遊戲與帳號設定頁面 (settings-screen) -->
         <div id="settings-screen" class="full-page-view screen-view">
             <h3>
@@ -876,6 +1002,7 @@
                 <button type="button" class="btn-secondary btn-back-smart">返回上一頁</button>
             </div>
         </div>
+
         <!-- 執行者身份資訊頁面 (profile-screen) -->
         <div id="profile-screen" class="full-page-view screen-view">
             <h3>👤 執行者身份資訊</h3>
@@ -907,6 +1034,7 @@
                 <button type="button" class="btn-secondary btn-back-smart">返回上一頁</button>
             </div>
         </div>
+
         <!-- 專屬子頁面共用頁面 (subpage-screen) -->
         <div id="subpage-screen" class="full-page-view screen-view">
             <h3 id="subpage-title">子頁面標題</h3>
@@ -918,6 +1046,20 @@
             </div>
         </div>
     </div>
+
+    <!-- 因果面板裝備選單 Modal 彈窗 -->
+    <div class="causal-modal-overlay" id="bagModal" onclick="closeBag(event)">
+        <div class="causal-modal-content" onclick="event.stopPropagation()">
+            <div class="causal-modal-header">
+                <span class="causal-modal-title" id="modalTitle">選擇裝備</span>
+                <button class="causal-modal-close" onclick="closeBag()">✕</button>
+            </div>
+            <div class="causal-bag-list" id="bagList">
+                <!-- JS 動態渲染裝備清單 -->
+            </div>
+        </div>
+    </div>
+
     <!-- 提示視窗：Welcome 閘道 -->
     <div id="welcome-modal" class="modal" style="display: flex;">
         <div class="modal-content" style="text-align: center;">
@@ -929,6 +1071,7 @@
             </div>
         </div>
     </div>
+
     <!-- 提示視窗：Supabase 登入 / 註冊 -->
     <div id="auth-modal" class="modal">
         <div class="modal-content">
@@ -952,6 +1095,7 @@
             <button type="button" class="btn-secondary" id="btn-auth-close" style="width: 100%; margin-top: 10px;">返回</button>
         </div>
     </div>
+
     <script>
         const PROMPT_COMBAT = `
 【因果系統規範】
@@ -976,20 +1120,12 @@
   D. [選項D描述]
   E. [選項E描述]
         `.trim();
+
         const SUPABASE_URL = "https://xjuspusyimjdgitsbaku.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI62100340420f0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // --- 全局 SVG 裝備與物品圖示庫 ---
-        const SVG_ICONS = {
-            weapon: `<svg viewBox="0 0 24 24"><path d="M19.71 4.29a1 1 0 0 0-1.42 0L12 9.59l-1.3-1.3a1 1 0 0 0-1.42 0l-1.58 1.58a1 1 0 0 0 0 1.42l1.3 1.3L3.29 18.29a1 1 0 0 0 0 1.42l1 1a1 1 0 0 0 1.42 0L11.41 15l1.3 1.3a1 1 0 0 0 1.42 0l1.58-1.58a1 1 0 0 0 0-1.42l-1.3-1.3 5.3-5.29a1 1 0 0 0 0-1.42z"/></svg>`,
-            offhand: `<svg viewBox="0 0 24 24"><path d="M12 2L4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3zm0 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>`,
-            helmet: `<svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-9 9v7c0 .55.45 1 1 1h2.5c.55 0 1-.45 1-1v-4h9v4c0 .55.45 1 1 1H20c.55 0 1-.45 1-1v-7a9 9 0 0 0-9-9zm-5 7a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm10 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>`,
-            armor: `<svg viewBox="0 0 24 24"><path d="M12 2L4 5v5c0 5.25 3.75 10.15 8 11.5 4.25-1.35 8-6.25 8-11.5V5l-8-3zm-2 5h4v2h-4V7zm0 4h4v2h-4v-2z"/></svg>`,
-            boots: `<svg viewBox="0 0 24 24"><path d="M19 18h-4v-4l-3-2V4h6v10l2 2v2zM5 18h4v-4l3-2V4H6v10l-2 2v2z"/></svg>`,
-            accessory: `<svg viewBox="0 0 24 24"><path d="M12 2a6 6 0 0 0-6 6c0 2.22 1.21 4.15 3 5.19V17c0 1.1.9 2 2 2h2c1.1 0 2-.9 2-2v-3.81c1.79-1.04 3-2.97 3-5.19a6 6 0 0 0-6-6zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>`
-        };
-        // --- 歷史紀錄堆疊頁面導航系統 (Page Stack Navigation System) ---
+        // --- 頁面歷史紀錄導航 ---
         let pageHistory = ["main-screen"];
         function navigateTo(screenId) {
             const currentScreen = pageHistory[pageHistory.length - 1];
@@ -1007,16 +1143,13 @@
         function renderScreen(screenId) {
             document.querySelectorAll('.screen-view').forEach(el => {
                 if (el.id === screenId) {
-                    if (screenId === 'samsara-screen') {
-                        el.style.display = 'flex';
-                    } else {
-                        el.style.display = 'block';
-                    }
+                    el.style.display = screenId === 'samsara-screen' ? 'flex' : 'block';
                 } else {
                     el.style.display = 'none';
                 }
             });
         }
+
         function showToast(message) {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -1026,6 +1159,7 @@
             container.appendChild(toast);
             setTimeout(() => { toast.remove(); }, 2500);
         }
+
         function customPrompt(title = "請輸入您的抉擇：", defaultValue = "") {
             return new Promise((resolve) => {
                 const modal = document.getElementById("custom-prompt-modal");
@@ -1064,9 +1198,131 @@
                 inputEl.addEventListener("keydown", onKeyDown);
             });
         }
+
+        // --- 全局因果裝備背包資料庫 ---
+        const inventory = {
+            causal: [
+                { id: 'c1', name: '因果之眼', icon: '🧿', hp: 300, atk: 50, def: 50, spd: 20 },
+                { id: 'c2', name: '時空核心', icon: '⏳', hp: 100, atk: 120, def: 20, spd: 40 }
+            ],
+            head: [
+                { id: 'h1', name: '戰術頭盔', icon: '🪖', hp: 150, atk: 0, def: 100, spd: 0 },
+                { id: 'h2', name: '感知面具', icon: '🎭', hp: 80, atk: 20, def: 40, spd: 15 }
+            ],
+            weapon: [
+                { id: 'w1', name: '高振盪光刃', icon: '🗡️', hp: 0, atk: 150, def: 0, spd: 10 },
+                { id: 'w2', name: '電磁步槍', icon: '🔫', hp: 0, atk: 180, def: 0, spd: -5 }
+            ],
+            boots: [
+                { id: 'b1', name: '反重力戰靴', icon: '🥾', hp: 50, atk: 0, def: 30, spd: 50 },
+                { id: 'b2', name: '合金重靴', icon: '👢', hp: 100, atk: 0, def: 80, spd: -10 }
+            ],
+            chest: [
+                { id: 'a1', name: '奈米防護甲', icon: '🦺', hp: 400, atk: 0, def: 300, spd: 0 },
+                { id: 'a2', name: '動力裝甲', icon: '🛡️', hp: 600, atk: 30, def: 450, spd: -20 }
+            ]
+        };
+
+        const typeNames = {
+            causal: '因果專屬裝備',
+            head: '頭部護具',
+            weapon: '主手武器',
+            boots: '戰術戰靴',
+            chest: '身體胸甲'
+        };
+
+        let currentSlot = null;
+
+        // 打開裝備背包 (彈窗)
+        function openBag(slotType) {
+            currentSlot = slotType;
+            const modal = document.getElementById('bagModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const bagList = document.getElementById('bagList');
+
+            modalTitle.innerText = `選擇 ${typeNames[slotType]}`;
+            bagList.innerHTML = '';
+
+            const items = inventory[slotType] || [];
+
+            if(items.length === 0) {
+                bagList.innerHTML = '<div style="text-align:center; color:var(--sub-text); padding:20px;">無可用裝備</div>';
+            } else {
+                items.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'causal-bag-item';
+                    itemEl.onclick = () => equipCausalItem(item);
+                    itemEl.innerHTML = `
+                        <div class="causal-item-info">
+                            <span class="causal-item-icon">${item.icon}</span>
+                            <div>
+                                <div class="causal-item-name">${item.name}</div>
+                                <div class="causal-item-desc">HP+${item.hp} | 攻+${item.atk} | 防+${item.def} | 速+${item.spd}</div>
+                            </div>
+                        </div>
+                    `;
+                    bagList.appendChild(itemEl);
+                });
+            }
+
+            modal.classList.add('active');
+        }
+
+        // 關閉 Modal
+        function closeBag(e) {
+            if (!e || e.target.id === 'bagModal' || e.target.className === 'causal-modal-close') {
+                document.getElementById('bagModal').classList.remove('active');
+            }
+        }
+
+        // 穿戴裝備並更新 UI & 屬性總算
+        function equipCausalItem(item) {
+            document.getElementById(`icon-${currentSlot}`).innerText = item.icon;
+            document.getElementById(`name-${currentSlot}`).innerText = item.name;
+            
+            const slotEl = document.querySelector(`.slot-${currentSlot === 'causal' ? 'center' : currentSlot}`);
+            if(slotEl) slotEl.classList.add('has-item');
+
+            if (window.playerGameData) {
+                window.playerGameData.equippedCausal[currentSlot] = item;
+                updateCausalStats();
+                if (typeof window.saveCloudData === 'function') {
+                    window.saveCloudData();
+                }
+            }
+
+            closeBag();
+            showToast(`已成功裝備 ${item.name}！`);
+        }
+
+        // 重新計算因果總屬性加成
+        function updateCausalStats() {
+            if (!window.playerGameData || !window.playerGameData.equippedCausal) return;
+            
+            let baseHp = 1000;
+            let baseAtk = 200;
+            let baseDef = 800;
+            let baseSpd = 100;
+
+            Object.values(window.playerGameData.equippedCausal).forEach(item => {
+                if (item) {
+                    baseHp += item.hp || 0;
+                    baseAtk += item.atk || 0;
+                    baseDef += item.def || 0;
+                    baseSpd += item.spd || 0;
+                }
+            });
+
+            document.getElementById('stat-hp').innerText = baseHp;
+            document.getElementById('stat-atk').innerText = baseAtk;
+            document.getElementById('stat-def').innerText = baseDef;
+            document.getElementById('stat-spd').innerText = baseSpd;
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23818cf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
-            let playerGameData = { 
+            
+            window.playerGameData = { 
                 apiKey: "", 
                 aiModel: "gemini-2.5-flash",
                 theme: "dark",
@@ -1077,38 +1333,39 @@
                 maxHp: 100,
                 samsaraLog: "正在接入輪迴因果數據流...",
                 profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: true },
-                // 預設穿戴裝備
-                equipped: {
+                // 替換為全新因果 5 大槽位裝備
+                equippedCausal: {
+                    causal: null,
+                    head: null,
                     weapon: null,
-                    offhand: null,
-                    helmet: null,
-                    armor: null,
                     boots: null,
-                    accessory: null
+                    chest: null
                 },
-                // 預設物品資料庫 (含 SVG 元件支援)
-                inventory: [
+                inventoryBag: [
                     { id: "item_1", name: "低階復原藥水", type: "consumable", icon: "🧪", count: 3, rarity: "common", desc: "修復基礎意識損傷，使用後可恢復 30 點生命值 (HP)。" },
-                    { id: "item_2", name: "臨界戰術刀", type: "equipment", slotType: "weapon", iconSvg: SVG_ICONS.weapon, count: 1, rarity: "rare", atkBonus: 45, desc: "含有微量因果波動的高頻振盪刃，提升角色基礎攻擊力 (+45 ATK)。" },
-                    { id: "item_3", name: "因果結晶殘頁", type: "material", icon: "💎", count: 12, rarity: "common", desc: "淬鍊維度核心時不可或缺的基底材料。" },
-                    { id: "item_4", name: "維度錨點金鑰", type: "quest", icon: "🗝️", count: 1, rarity: "quest", desc: "鎖定萬界修正錄特定時間軸的重要鑰匙，不可丟棄。" }
+                    { id: "item_2", name: "因果結晶殘頁", type: "material", icon: "💎", count: 12, rarity: "common", desc: "淬鍊維度核心時不可或缺的基底材料。" },
+                    { id: "item_3", name: "維度錨點金鑰", type: "quest", icon: "🗝️", count: 1, rarity: "quest", desc: "鎖定萬界修正錄特定時間軸的重要鑰匙，不可丟棄。" }
                 ]
             };
+
             let currentUserId = null;
             let currentUserEmail = "";
             let currentPanelMode = 0;
             let currentTab = "all";
             let selectedItem = null;
+
             const applyTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
                 const themeSelect = document.getElementById('theme-select');
                 if (themeSelect) themeSelect.value = theme;
             };
+
             const bind = (id, event, fn) => {
                 const el = document.getElementById(id);
                 if (el) el.addEventListener(event, fn);
             };
-            // 綁定所有智慧返回按鈕
+
+            // 綁定智慧返回按鈕
             document.querySelectorAll('.btn-back-smart').forEach(btn => {
                 btn.addEventListener('click', navigateBack);
             });
@@ -1118,17 +1375,49 @@
                 document.getElementById('subpage-body').innerHTML = customHtmlContent;
                 navigateTo('subpage-screen');
             }
+
+            function updateMainUI() {
+                const nameEl = document.getElementById('main-player-name');
+                const avatarEl = document.getElementById('main-player-avatar');
+                const emberEl = document.getElementById('display-ember');
+                const coreEl = document.getElementById('display-dimension-core');
+                const hpText = document.getElementById('display-hp-text');
+                const hpBar = document.getElementById('hp-bar-fill');
+
+                if (nameEl) nameEl.innerText = window.playerGameData.profile.name || "執行者";
+                if (avatarEl) avatarEl.src = window.playerGameData.profile.avatar || DEFAULT_AVATAR;
+                if (emberEl) emberEl.innerText = window.playerGameData.ember || 0;
+                if (coreEl) coreEl.innerText = window.playerGameData.dimensionCore || "未同步";
+                
+                if (hpText && hpBar) {
+                    hpText.innerText = `${window.playerGameData.hp}/${window.playerGameData.maxHp}`;
+                    const pct = Math.min(100, Math.max(0, (window.playerGameData.hp / window.playerGameData.maxHp) * 100));
+                    hpBar.style.width = `${pct}%`;
+                }
+
+                // 載入當前因果面板裝備至介面
+                if (window.playerGameData.equippedCausal) {
+                    Object.keys(window.playerGameData.equippedCausal).forEach(slotKey => {
+                        const eqItem = window.playerGameData.equippedCausal[slotKey];
+                        if (eqItem) {
+                            const iconSlot = document.getElementById(`icon-${slotKey}`);
+                            const nameSlot = document.getElementById(`name-${slotKey}`);
+                            if (iconSlot) iconSlot.innerText = eqItem.icon;
+                            if (nameSlot) nameSlot.innerText = eqItem.name;
+                            const slotEl = document.querySelector(`.slot-${slotKey === 'causal' ? 'center' : slotKey}`);
+                            if (slotEl) slotEl.classList.add('has-item');
+                        }
+                    });
+                    updateCausalStats();
+                }
+            }
+
             bind('btn-welcome-yes', 'click', async () => {
                 document.getElementById('welcome-modal').style.display = 'none';
-                
-                // 檢查是否已登入 Supabase session
                 const { data: { session: activeSession } } = await supabaseClient.auth.getSession();
-                
                 if (!activeSession) {
-                    // 未登入：跳出登入視窗
                     document.getElementById('auth-modal').style.display = 'flex';
                 } else {
-                    // 已登入：直接進入主頁
                     currentUserId = activeSession.user.id;
                     currentUserEmail = activeSession.user.email;
                     renderScreen('main-screen');
@@ -1136,9 +1425,11 @@
                     updateMainUI();
                 }
             });
+
             bind('btn-welcome-no', 'click', () => {
                 openSubPage('連線拒絕終端', '連線已拒絕，臨界奇點終端保持休眠。');
             });
+
             bind('btn-supabase-login', 'click', async () => {
                 const email = document.getElementById('auth-email').value.trim();
                 const password = document.getElementById('auth-password').value.trim();
@@ -1158,6 +1449,7 @@
                 await loadCloudData();
                 showToast('登入成功，雲端資料同步完成！');
             });
+
             bind('btn-supabase-signup', 'click', async () => {
                 const email = document.getElementById('auth-email').value.trim();
                 const password = document.getElementById('auth-password').value.trim();
@@ -1179,59 +1471,61 @@
                     showToast('註冊並建立雲端存檔成功！');
                 }
             });
+
             bind('btn-auth-close', 'click', () => {
                 document.getElementById('auth-modal').style.display = 'none';
                 document.getElementById('welcome-modal').style.display = 'flex';
             });
+
             bind('menu-logout', 'click', async () => {
                 await supabaseClient.auth.signOut();
                 location.reload();
             });
+
             async function loadCloudData() {
                 if (!currentUserId) return;
-                const { data, error } = await supabaseClient
+                const { data } = await supabaseClient
                     .from('player_saves')
                     .select('game_data')
                     .eq('user_id', currentUserId)
                     .single();
+                
                 if (data && data.game_data) {
-                    playerGameData = { ...playerGameData, ...data.game_data };
-                    if (!playerGameData.profile) {
-                        playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "" };
+                    window.playerGameData = { ...window.playerGameData, ...data.game_data };
+                    if (!window.playerGameData.profile) {
+                        window.playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "" };
                     }
-                    if (!playerGameData.equipped) {
-                        playerGameData.equipped = { weapon: null, offhand: null, helmet: null, armor: null, boots: null, accessory: null };
+                    if (!window.playerGameData.equippedCausal) {
+                        window.playerGameData.equippedCausal = { causal: null, head: null, weapon: null, boots: null, chest: null };
                     }
-                    if (!playerGameData.inventory) {
-                        playerGameData.inventory = [
+                    if (!window.playerGameData.inventoryBag) {
+                        window.playerGameData.inventoryBag = [
                             { id: "item_1", name: "低階復原藥水", type: "consumable", icon: "🧪", count: 3, rarity: "common", desc: "修復基礎意識損傷，使用後可恢復 30 點生命值 (HP)。" },
-                            { id: "item_2", name: "臨界戰術刀", type: "equipment", slotType: "weapon", iconSvg: SVG_ICONS.weapon, count: 1, rarity: "rare", atkBonus: 45, desc: "含有微量因果波動的高頻振盪刃，提升角色基礎攻擊力 (+45 ATK)。" },
-                            { id: "item_3", name: "因果結晶殘頁", type: "material", icon: "💎", count: 12, rarity: "common", desc: "淬鍊維度核心時不可或缺的基底材料。" },
-                            { id: "item_4", name: "維度錨點金鑰", type: "quest", icon: "🗝️", count: 1, rarity: "quest", desc: "鎖定萬界修正錄特定時間軸的重要鑰匙，不可丟棄。" }
+                            { id: "item_2", name: "因果結晶殘頁", type: "material", icon: "💎", count: 12, rarity: "common", desc: "淬鍊維度核心時不可或缺的基底材料。" },
+                            { id: "item_3", name: "維度錨點金鑰", type: "quest", icon: "🗝️", count: 1, rarity: "quest", desc: "鎖定萬界修正錄特定時間軸的重要鑰匙，不可丟棄。" }
                         ];
                     }
-                    if (playerGameData.samsaraLog) {
+                    if (window.playerGameData.samsaraLog) {
                         const logBox = document.getElementById('samsara-text-log');
-                        if (logBox) logBox.innerText = playerGameData.samsaraLog;
+                        if (logBox) logBox.innerText = window.playerGameData.samsaraLog;
                     }
                 } else {
                     await saveCloudData();
                 }
-                applyTheme(playerGameData.theme || "dark");
+                applyTheme(window.playerGameData.theme || "dark");
                 updateMainUI();
             }
-            async function saveCloudData() {
+
+            window.saveCloudData = async function() {
                 if (!currentUserId) return;
-                const { error } = await supabaseClient
+                await supabaseClient
                     .from('player_saves')
-                    .upsert({ user_id: currentUserId, game_data: playerGameData, updated_at: new Date() });
-                if (error) {
-                    console.error('雲端儲存失敗', error);
-                }
-            }
+                    .upsert({ user_id: currentUserId, game_data: window.playerGameData, updated_at: new Date() });
+            };
+
             async function callAI(promptText) {
-                const apiKey = playerGameData.apiKey;
-                const model = playerGameData.aiModel || "gemini-2.5-flash";
+                const apiKey = window.playerGameData.apiKey;
+                const model = window.playerGameData.aiModel || "gemini-2.5-flash";
                 if (!apiKey) {
                     throw new Error("尚未設定 API Key，請至設定頁面中填寫。");
                 }
@@ -1240,10 +1534,11 @@ ${PROMPT_RULES}
 ${PROMPT_LORE}
 ${PROMPT_COMBAT}
 【目前執行者檔案】
-名字代號：${playerGameData.profile.name}
-個性描述：${playerGameData.profile.personality}
-喜好專長：${playerGameData.profile.likes}
+名字代號：${window.playerGameData.profile.name}
+個性描述：${window.playerGameData.profile.personality}
+喜好專長：${window.playerGameData.profile.likes}
                 `.trim();
+
                 const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
                 const response = await fetch(endpoint, {
                     method: 'POST',
@@ -1256,8 +1551,10 @@ ${PROMPT_COMBAT}
                 if (!response.ok) throw new Error(data.error?.message || "Gemini API 請求失敗");
                 return data.candidates[0].content.parts[0].text;
             }
+
             const openNav = () => document.getElementById("mySidebar").style.width = "250px";
             const closeNav = () => document.getElementById("mySidebar").style.width = "0";
+
             bind('btn-open-nav', 'click', openNav);
             bind('btn-close-nav', 'click', closeNav);
             bind('menu-home', 'click', () => { pageHistory = ["main-screen"]; renderScreen("main-screen"); closeNav(); });
@@ -1266,52 +1563,51 @@ ${PROMPT_COMBAT}
             bind('btn-card-profile-quick', 'click', openProfilePage);
             bind('btn-open-settings-main', 'click', openSettingsPage);
             bind('btn-samsara-settings', 'click', openSettingsPage);
+
+            // 直接跳轉開啟因果面板
             bind('menu-card-combat', 'click', () => {
-                if (!playerGameData.inDungeon) {
-                    return openSubPage('因果系統未解鎖', '請先步入輪迴以啟用因果數據！');
-                }
-                const atk = 200 + (playerGameData.equipped.weapon?.atkBonus || 0);
-                openSubPage('因果面板', `因果律數據：生命 1000 | 攻擊 ${atk} | 防禦 800 | 速度 100`);
+                updateCausalStats();
+                navigateTo('causal-screen');
             });
             
             const openInventoryScreen = () => {
                 renderInventoryGrid();
                 navigateTo('inventory-screen');
             };
-            const openEquipmentScreen = () => {
-                renderEquipmentGrid();
-                navigateTo('equipment-screen');
-            };
+
             bind('menu-card-inventory', 'click', openInventoryScreen);
             bind('menu-card-history', 'click', () => {
                 openSubPage('往日之影', '目前尚未浮現任何往日之影紀錄。');
             });
+
             bind('menu-protocol-sidebar', 'click', () => {
                 closeNav();
                 openSubPage('臨界規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸。<br>3. 維度核心為極稀有高級貨幣。');
             });
+
             bind('menu-exchange-sidebar', 'click', async () => {
                 closeNav();
-                if (!playerGameData.inDungeon) {
+                if (!window.playerGameData.inDungeon) {
                     return openSubPage('兌換系統未解鎖', '請先步入輪迴以啟用兌換系統！');
                 }
                 openSubPage('兌換系統', '可使用極其稀有的維度核心或餘燼兌換稀有道具。');
             });
+
             bind('menu-medical-sidebar', 'click', async () => {
                 closeNav();
-                if (!playerGameData.inDungeon) {
+                if (!window.playerGameData.inDungeon) {
                     return openSubPage('治療系統未解鎖', '請先步入輪迴！');
                 }
-                if (playerGameData.hp >= playerGameData.maxHp) {
+                if (window.playerGameData.hp >= window.playerGameData.maxHp) {
                     return openSubPage('治療系統', '生命值已全滿，無需治療。');
                 }
-                playerGameData.hp = playerGameData.maxHp;
+                window.playerGameData.hp = window.playerGameData.maxHp;
                 updateMainUI();
-                await saveCloudData();
+                await window.saveCloudData();
                 openSubPage('治療系統', '治療系統啟動：生命值已恢復至上限！');
             });
             
-            // --- 行囊 UI 與動態互動系統 ---
+            // 行囊頁籤切換
             document.querySelectorAll('.inventory-tab').forEach(tabBtn => {
                 tabBtn.addEventListener('click', () => {
                     document.querySelectorAll('.inventory-tab').forEach(b => b.classList.remove('active'));
@@ -1320,10 +1616,11 @@ ${PROMPT_COMBAT}
                     renderInventoryGrid();
                 });
             });
+
             function renderInventoryGrid() {
                 const container = document.getElementById('inventory-grid-container');
                 container.innerHTML = '';
-                const filteredItems = playerGameData.inventory.filter(item => {
+                const filteredItems = (window.playerGameData.inventoryBag || []).filter(item => {
                     if (currentTab === 'all') return true;
                     return item.type === currentTab;
                 });
@@ -1334,9 +1631,8 @@ ${PROMPT_COMBAT}
                     if (i < filteredItems.length) {
                         const item = filteredItems[i];
                         slot.classList.add(`slot-rarity-${item.rarity || 'common'}`);
-                        const iconHtml = item.iconSvg ? `<div style="width:24px;height:24px;fill:var(--text-color);">${item.iconSvg}</div>` : item.icon;
                         slot.innerHTML = `
-                            <div class="slot-icon">${iconHtml}</div>
+                            <div class="slot-icon">${item.icon}</div>
                             <div class="slot-count">x${item.count}</div>
                         `;
                         slot.addEventListener('click', () => openItemDetail(item));
@@ -1346,33 +1642,24 @@ ${PROMPT_COMBAT}
                     container.appendChild(slot);
                 }
             }
+
             function openItemDetail(item) {
                 selectedItem = item;
-                const detailIconContainer = document.getElementById('detail-icon');
-                if (item.iconSvg) {
-                    detailIconContainer.innerHTML = `<div style="width:40px;height:40px;fill:var(--text-color);">${item.iconSvg}</div>`;
-                } else {
-                    detailIconContainer.innerText = item.icon;
-                }
+                document.getElementById('detail-icon').innerText = item.icon;
                 document.getElementById('detail-name').innerText = item.name;
                 
-                const typeNames = { consumable: "消耗品", equipment: "裝備", material: "材料", quest: "劇情道具" };
-                document.getElementById('detail-type').innerText = `${typeNames[item.type] || "道具"} · 數量: ${item.count}`;
+                const typeNamesMap = { consumable: "消耗品", material: "材料", quest: "劇情道具" };
+                document.getElementById('detail-type').innerText = `${typeNamesMap[item.type] || "道具"} · 數量: ${item.count}`;
                 document.getElementById('detail-desc').innerText = item.desc;
                 const actionContainer = document.getElementById('detail-action-buttons');
                 actionContainer.innerHTML = '';
+
                 if (item.type === 'consumable') {
                     const useBtn = document.createElement('button');
                     useBtn.type = 'button';
                     useBtn.innerText = '使用藥水';
                     useBtn.addEventListener('click', () => useConsumableItem(item));
                     actionContainer.appendChild(useBtn);
-                } else if (item.type === 'equipment') {
-                    const equipBtn = document.createElement('button');
-                    equipBtn.type = 'button';
-                    equipBtn.innerText = '穿戴裝備';
-                    equipBtn.addEventListener('click', () => equipItem(item));
-                    actionContainer.appendChild(equipBtn);
                 }
                 if (item.type !== 'quest') {
                     const discardBtn = document.createElement('button');
@@ -1384,97 +1671,40 @@ ${PROMPT_COMBAT}
                 }
                 document.getElementById('item-detail-modal').style.display = 'flex';
             }
+
             function closeItemDetail() {
                 document.getElementById('item-detail-modal').style.display = 'none';
             }
             bind('btn-close-item-detail', 'click', closeItemDetail);
-            
-            // --- 裝備系統動態渲染邏輯 ---
-            function renderEquipmentGrid() {
-                const container = document.getElementById('equip-slots-container');
-                container.innerHTML = '';
-                
-                const slots = [
-                    { key: 'weapon', label: '主手武器', defaultSvg: SVG_ICONS.weapon },
-                    { key: 'offhand', label: '副手裝備', defaultSvg: SVG_ICONS.offhand },
-                    { key: 'helmet', label: '頭部護具', defaultSvg: SVG_ICONS.helmet },
-                    { key: 'armor', label: '身體胸甲', defaultSvg: SVG_ICONS.armor },
-                    { key: 'boots', label: '戰術戰靴', defaultSvg: SVG_ICONS.boots },
-                    { key: 'accessory', label: '因果飾品', defaultSvg: SVG_ICONS.accessory }
-                ];
-                let totalAtk = 0;
-                slots.forEach(s => {
-                    const equippedItem = playerGameData.equipped[s.key];
-                    const card = document.createElement('div');
-                    card.className = `equip-slot-card ${equippedItem ? 'equipped rarity-' + equippedItem.rarity : ''}`;
-                    
-                    const iconSvg = equippedItem ? (equippedItem.iconSvg || s.defaultSvg) : s.defaultSvg;
-                    card.innerHTML = `
-                        <div class="equip-slot-icon-box">
-                            <div style="width:24px;height:24px;fill:var(--text-color);">${iconSvg}</div>
-                        </div>
-                        <div class="equip-slot-info">
-                            <div class="equip-slot-type">${s.label}</div>
-                            <div class="equip-slot-name">${equippedItem ? equippedItem.name : '未裝備'}</div>
-                        </div>
-                    `;
-                    if (equippedItem) {
-                        if (equippedItem.atkBonus) totalAtk += equippedItem.atkBonus;
-                        card.addEventListener('click', () => unequipItem(s.key));
-                    }
-                    container.appendChild(card);
-                });
-                document.getElementById('equip-atk-bonus').innerText = `+${totalAtk}`;
-            }
-            async function equipItem(item) {
-                const targetSlot = item.slotType || 'weapon';
-                const currentEquipped = playerGameData.equipped[targetSlot];
-                if (currentEquipped) {
-                    playerGameData.inventory.push(currentEquipped);
-                }
-                playerGameData.equipped[targetSlot] = item;
-                playerGameData.inventory = playerGameData.inventory.filter(i => i.id !== item.id);
-                showToast(`已成功裝備 ${item.name}！`);
-                closeItemDetail();
-                renderInventoryGrid();
-                await saveCloudData();
-            }
-            async function unequipItem(slotKey) {
-                const item = playerGameData.equipped[slotKey];
-                if (!item) return;
-                
-                playerGameData.inventory.push(item);
-                playerGameData.equipped[slotKey] = null;
-                showToast(`已卸下 ${item.name}`);
-                renderEquipmentGrid();
-                await saveCloudData();
-            }
+
             async function useConsumableItem(item) {
                 if (item.id === 'item_1') {
-                    if (playerGameData.hp >= playerGameData.maxHp) {
+                    if (window.playerGameData.hp >= window.playerGameData.maxHp) {
                         showToast("生命值已經全滿，無需使用！");
                         return;
                     }
-                    playerGameData.hp = Math.min(playerGameData.maxHp, playerGameData.hp + 30);
+                    window.playerGameData.hp = Math.min(window.playerGameData.maxHp, window.playerGameData.hp + 30);
                     showToast(`使用了 ${item.name}，恢復了 30 點生命值！`);
                 }
                 item.count -= 1;
                 if (item.count <= 0) {
-                    playerGameData.inventory = playerGameData.inventory.filter(i => i.id !== item.id);
+                    window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
                 }
                 updateMainUI();
                 renderInventoryGrid();
                 closeItemDetail();
-                await saveCloudData();
+                await window.saveCloudData();
             }
+
             async function discardItem(item) {
-                playerGameData.inventory = playerGameData.inventory.filter(i => i.id !== item.id);
+                window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
                 showToast(`已丟棄 ${item.name}。`);
                 updateMainUI();
                 renderInventoryGrid();
                 closeItemDetail();
-                await saveCloudData();
+                await window.saveCloudData();
             }
+
             async function triggerSamsaraAction(promptText) {
                 const logBox = document.getElementById('samsara-text-log');
                 try {
@@ -1484,14 +1714,15 @@ ${PROMPT_COMBAT}
                     const aiReply = await callAI(`目前劇情推進：${promptText}`);
                     logBox.innerText += `\n\n${aiReply}`;
                     logBox.scrollTop = logBox.scrollHeight;
-                    playerGameData.samsaraLog = logBox.innerText;
-                    await saveCloudData();
+                    window.playerGameData.samsaraLog = logBox.innerText;
+                    await window.saveCloudData();
                 } catch (err) {
                     showToast('AI 響應失敗：' + err.message);
                 }
             }
+
             bind('btn-enter-dungeon', 'click', async () => {
-                if (!playerGameData.apiKey) {
+                if (!window.playerGameData.apiKey) {
                     showToast('尚未設定 API Key！請先至設定頁面中填寫。');
                     openSettingsPage();
                     return;
@@ -1501,8 +1732,8 @@ ${PROMPT_COMBAT}
                 currentPanelMode = 0;
                 renderSamsaraControls();
                 const logBox = document.getElementById('samsara-text-log');
-                if (playerGameData.inDungeon && playerGameData.samsaraLog) {
-                    logBox.innerText = playerGameData.samsaraLog;
+                if (window.playerGameData.inDungeon && window.playerGameData.samsaraLog) {
+                    logBox.innerText = window.playerGameData.samsaraLog;
                     logBox.scrollTop = logBox.scrollHeight;
                     return;
                 }
@@ -1510,21 +1741,22 @@ ${PROMPT_COMBAT}
                 try {
                     const aiReply = await callAI("執行者已步入輪迴，請生成開場劇情與5個抉擇選項。");
                     
-                    playerGameData.inDungeon = true;
-                    playerGameData.ember = 1280;
-                    playerGameData.dimensionCore = "1 顆 (稀有核心)";
-                    playerGameData.hp = 86;
-                    playerGameData.maxHp = 100;
-                    playerGameData.samsaraLog = aiReply;
+                    window.playerGameData.inDungeon = true;
+                    window.playerGameData.ember = 1280;
+                    window.playerGameData.dimensionCore = "1 顆 (稀有核心)";
+                    window.playerGameData.hp = 86;
+                    window.playerGameData.maxHp = 100;
+                    window.playerGameData.samsaraLog = aiReply;
                     
                     updateMainUI();
-                    await saveCloudData();
+                    await window.saveCloudData();
                     logBox.innerText = aiReply;
                 } catch (err) {
                     showToast('AI 連線失敗：' + err.message);
                     logBox.innerText = "連線失敗，請檢查 API Key 設定。";
                 }
             });
+
             const renderSamsaraControls = () => {
                 const grid = document.getElementById('samsara-controls-grid');
                 const label = document.getElementById('samsara-panel-label');
@@ -1571,9 +1803,9 @@ ${PROMPT_COMBAT}
                             <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
                             <span>地圖</span>
                         </button>
-                        <button type="button" class="samsara-btn" id="samsara-sys-equip">
-                            <svg viewBox="0 0 24 24"><path d="M6.92 5c-1.2 0-2.26.77-2.6 1.92l-2.2 7.4c-.15.52.17 1.05.7 1.18.1.03.21.04.31.04.42 0 .81-.27.94-.69L5.8 9h12.4l1.73 5.85c.13.42.52.69.94.69.1 0 .21-.01.31-.04.53-.13.85-.66.7-1.18l-2.2-7.4C19.34 5.77 18.28 5 17.08 5H6.92zM12 11c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
-                            <span>裝備</span>
+                        <button type="button" class="samsara-btn" id="samsara-sys-causal">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6 0 2.21 1.2 4.15 3 5.19 1.16.67 2.06.31 2.58-.21.46-.46.34-1.25-.18-1.63C10.5 14.71 10 13.42 10 12c0-1.1.9-2 2-2s2 .9 2 2c0 .55.45 1 1 1s1-.45 1-1c0-2.21-1.79-4-4-4z"/></svg>
+                            <span>因果面板</span>
                         </button>
                         <button type="button" class="samsara-btn" id="samsara-sys-skill">
                             <svg viewBox="0 0 24 24"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>
@@ -1586,107 +1818,82 @@ ${PROMPT_COMBAT}
                     `;
                     
                     bind('samsara-sys-bag', 'click', openInventoryScreen);
-                    bind('samsara-sys-status', 'click', () => showToast(`生命：${playerGameData.hp}/${playerGameData.maxHp}`));
+                    bind('samsara-sys-status', 'click', () => showToast(`生命：${window.playerGameData.hp}/${window.playerGameData.maxHp}`));
                     bind('samsara-sys-map', 'click', () => showToast("當前時間軸區域解析中..."));
-                    bind('samsara-sys-equip', 'click', openEquipmentScreen);
-                    bind('samsara-sys-skill', 'click', () => showToast("因果技能樹已載入"));
-                    bind('samsara-sys-exit', 'click', navigateBack);
+                    bind('samsara-sys-causal', 'click', () => { updateCausalStats(); navigateTo('causal-screen'); });
+                    bind('samsara-sys-skill', 'click', () => showToast("因果技能樹尚未突破..."));
+                    bind('samsara-sys-exit', 'click', () => { pageHistory = ["main-screen"]; renderScreen("main-screen"); });
                 }
             };
+
             bind('btn-toggle-samsara-panel', 'click', () => {
                 currentPanelMode = currentPanelMode === 0 ? 1 : 0;
                 renderSamsaraControls();
             });
-            renderSamsaraControls();
-            bind('btn-test-api', 'click', async () => {
-                const key = document.getElementById('api-key-input').value.trim();
-                const modelInput = document.getElementById('ai-model-input').value.trim();
-                if (!key) {
-                    showToast('請先輸入 API Key！');
-                    return;
-                }
-                playerGameData.apiKey = key;
-                playerGameData.aiModel = modelInput || "gemini-2.5-flash";
-                try {
-                    showToast('測試連線中...');
-                    await callAI("系統連線測試，請回覆：連線正常。");
-                    showToast('測試成功！');
-                } catch (err) {
-                    showToast('測試失敗：' + err.message);
-                }
-            });
-            bind('btn-save-api', 'click', async () => {
-                playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
-                const modelInput = document.getElementById('ai-model-input').value.trim();
-                playerGameData.aiModel = modelInput || "gemini-2.5-flash";
-                const theme = document.getElementById('theme-select').value;
-                playerGameData.theme = theme;
-                
-                applyTheme(theme);
-                await saveCloudData();
-                showToast('設定與帳號資料已同步至雲端！');
-                navigateBack();
-            });
-            bind('theme-select', 'change', (e) => applyTheme(e.target.value));
-            bind('avatar-file-input', 'change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (evt) => {
-                    playerGameData.profile.avatar = evt.target.result;
-                    document.getElementById('modal-avatar-preview').src = evt.target.result;
-                };
-                reader.readAsDataURL(file);
-            });
-            bind('btn-default-avatar', 'click', () => {
-                playerGameData.profile.avatar = DEFAULT_AVATAR;
-                document.getElementById('modal-avatar-preview').src = DEFAULT_AVATAR;
-            });
-            bind('btn-save-profile', 'click', async () => {
-                const name = document.getElementById('profile-name-input').value.trim();
-                if (!name) {
-                    showToast('請輸入名字！');
-                    return;
-                }
-                playerGameData.profile.name = name;
-                playerGameData.profile.personality = document.getElementById('profile-personality-input').value.trim();
-                playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
-                
-                updateMainUI();
-                await saveCloudData();
-                navigateBack();
-                showToast('身份資訊與頭像已同步至雲端！');
-            });
-            function openSettingsPage() { 
-                document.getElementById('settings-email-display').value = currentUserEmail || "未綁定信箱";
-                document.getElementById('api-key-input').value = playerGameData.apiKey || "";
-                document.getElementById('ai-model-input').value = playerGameData.aiModel || "gemini-2.5-flash";
-                document.getElementById('theme-select').value = playerGameData.theme || "dark";
-                navigateTo('settings-screen'); 
+
+            function openSettingsPage() {
+                document.getElementById('settings-email-display').value = currentUserEmail || "未登入";
+                document.getElementById('api-key-input').value = window.playerGameData.apiKey || "";
+                document.getElementById('ai-model-input').value = window.playerGameData.aiModel || "gemini-2.5-flash";
+                document.getElementById('theme-select').value = window.playerGameData.theme || "dark";
+                navigateTo('settings-screen');
             }
-            
+
+            bind('btn-save-api', 'click', async () => {
+                window.playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
+                window.playerGameData.aiModel = document.getElementById('ai-model-input').value.trim() || "gemini-2.5-flash";
+                window.playerGameData.theme = document.getElementById('theme-select').value;
+                
+                applyTheme(window.playerGameData.theme);
+                await window.saveCloudData();
+                showToast("設定已儲存至雲端存檔！");
+            });
+
+            bind('btn-test-api', 'click', async () => {
+                try {
+                    showToast("正在測試 AI 連線...");
+                    const res = await callAI("簡短回應：測試成功。");
+                    showToast("API 連線正常！");
+                } catch(e) {
+                    showToast("測試失敗：" + e.message);
+                }
+            });
+
             function openProfilePage() {
-                const p = playerGameData.profile || {};
-                document.getElementById('profile-name-input').value = p.name || "";
-                document.getElementById('profile-personality-input').value = p.personality || "";
-                document.getElementById('profile-likes-input').value = p.likes || "";
-                document.getElementById('modal-avatar-preview').src = p.avatar || DEFAULT_AVATAR;
+                const profile = window.playerGameData.profile || {};
+                document.getElementById('profile-name-input').value = profile.name || "";
+                document.getElementById('profile-personality-input').value = profile.personality || "";
+                document.getElementById('profile-likes-input').value = profile.likes || "";
+                document.getElementById('modal-avatar-preview').src = profile.avatar || DEFAULT_AVATAR;
                 navigateTo('profile-screen');
             }
-            function updateMainUI() {
-                document.getElementById('display-ember').innerText = (playerGameData.ember ?? 0).toLocaleString();
-                document.getElementById('display-dimension-core').innerText = playerGameData.dimensionCore ?? "未同步";
-                
-                const hp = playerGameData.hp ?? 0;
-                const maxHp = playerGameData.maxHp ?? 100;
-                const hpPercentage = playerGameData.inDungeon ? Math.max(0, Math.min(100, (hp / maxHp) * 100)) : 0;
-                
-                document.getElementById('display-hp-text').innerText = playerGameData.inDungeon ? `${hp}/${maxHp}` : `未同步`;
-                document.getElementById('hp-bar-fill').style.width = `${hpPercentage}%`;
-                const p = playerGameData.profile || {};
-                document.getElementById('main-player-name').innerText = p.name || "執行者";
-                document.getElementById('main-player-avatar').src = p.avatar || DEFAULT_AVATAR;
-            }
+
+            bind('avatar-file-input', 'change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        document.getElementById('modal-avatar-preview').src = evt.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            bind('btn-default-avatar', 'click', () => {
+                document.getElementById('modal-avatar-preview').src = DEFAULT_AVATAR;
+            });
+
+            bind('btn-save-profile', 'click', async () => {
+                const name = document.getElementById('profile-name-input').value.trim() || "執行者";
+                const personality = document.getElementById('profile-personality-input').value.trim();
+                const likes = document.getElementById('profile-likes-input').value.trim();
+                const avatar = document.getElementById('modal-avatar-preview').src;
+
+                window.playerGameData.profile = { name, personality, likes, avatar, setupCompleted: true };
+                updateMainUI();
+                await window.saveCloudData();
+                showToast("身份資料已更新！");
+            });
         });
     </script>
 </body>
