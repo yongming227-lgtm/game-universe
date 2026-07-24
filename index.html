@@ -380,6 +380,86 @@
             overflow-y: auto;
         }
 
+        /* 輪迴專屬全螢幕介面極簡樣式 */
+        #samsara-page {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--card-bg);
+            z-index: 1600;
+            padding: 20px;
+            box-sizing: border-box;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .samsara-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .samsara-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .samsara-story-box {
+            flex: 1;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--text-color);
+            white-space: pre-wrap;
+            box-sizing: border-box;
+        }
+
+        .samsara-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .samsara-btn {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 0;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.05s ease, border-color 0.2s;
+            touch-action: manipulation;
+        }
+
+        .samsara-btn:active {
+            transform: scale(0.96);
+            border-color: var(--sub-text);
+        }
+
+        .samsara-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-color);
+        }
+
         .sidebar {
             height: 100%; width: 0; position: fixed; z-index: 2500; top: 0; left: 0;
             background-color: var(--card-bg); overflow-x: hidden; transition: 0.3s;
@@ -572,6 +652,32 @@
             <div class="footer-credit">MADE BY 成都尖頭們</div>
         </div>
 
+        <!-- 輪迴全螢幕介面 (新增) -->
+        <div id="samsara-page">
+            <div class="samsara-header">
+                <div class="samsara-title">輪迴</div>
+                <button type="button" id="btn-samsara-settings" style="background:none; border:none; cursor:pointer; padding:0;">
+                    <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color);"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c-.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                </button>
+            </div>
+            
+            <div id="samsara-text-log" class="samsara-story-box">
+                正在接入輪迴因果數據流...
+            </div>
+
+            <div class="samsara-controls">
+                <button type="button" class="samsara-btn" data-choice="A">A</button>
+                <button type="button" class="samsara-btn" data-choice="B">B</button>
+                <button type="button" class="samsara-btn" data-choice="C">C</button>
+                <button type="button" class="samsara-btn" data-choice="D">D</button>
+                <button type="button" class="samsara-btn" data-choice="E">E</button>
+                <button type="button" class="samsara-btn" id="btn-choice-custom">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    <span style="font-size: 11px;">抉擇</span>
+                </button>
+            </div>
+        </div>
+
         <!-- 遊戲與帳號設定全螢幕頁面 -->
         <div id="settings-page" class="full-page-view">
             <h3>
@@ -706,6 +812,12 @@
 - 扮演臨界奇點的管理者與旁白。
 - 語氣需冷酷、神祕、具壓迫感。
 - 請以第一人稱或客觀旁白引導玩家進行輪迴體驗。
+- **重要限制**：每次輸出完劇情後，必須在文末明確提供 5 個行動選項，格式如下：
+  A. [選項A描述]
+  B. [選項B描述]
+  C. [選項C描述]
+  D. [選項D描述]
+  E. [選項E描述]
         `.trim();
 
         const SUPABASE_URL = "https://xjuspusyimjdgitsbaku.supabase.co";
@@ -922,6 +1034,7 @@ ${PROMPT_COMBAT}
             bind('menu-settings', 'click', () => { openSettingsPage(); closeNav(); });
             bind('btn-card-profile-quick', 'click', openProfilePage);
             bind('btn-open-settings-main', 'click', openSettingsPage);
+            bind('btn-samsara-settings', 'click', openSettingsPage);
 
             bind('menu-card-combat', 'click', () => {
                 if (!playerGameData.inDungeon) {
@@ -965,15 +1078,34 @@ ${PROMPT_COMBAT}
                 openSubPage('治療系統', '治療系統啟動：生命值已恢復至上限！');
             });
 
+            // 輪迴邏輯
+            async function triggerSamsaraAction(promptText) {
+                const logBox = document.getElementById('samsara-text-log');
+                try {
+                    logBox.innerText += `\n\n> 執行者抉擇：${promptText}\n\n[正在解析未來因果軌跡...]`;
+                    logBox.scrollTop = logBox.scrollHeight;
+                    
+                    const aiReply = await callAI(`目前劇情推進：${promptText}`);
+                    logBox.innerText += `\n\n${aiReply}`;
+                    logBox.scrollTop = logBox.scrollHeight;
+                } catch (err) {
+                    showToast('AI 響應失敗：' + err.message);
+                }
+            }
+
             bind('btn-enter-dungeon', 'click', async () => {
                 if (!playerGameData.apiKey) {
                     showToast('尚未設定 API Key！請先至設定頁面中填寫。');
                     openSettingsPage();
                     return;
                 }
+                
+                document.getElementById('samsara-page').style.display = 'flex';
+                const logBox = document.getElementById('samsara-text-log');
+                logBox.innerText = "正在連線至臨界奇點並生成輪迴因果場景...";
+
                 try {
-                    showToast('正在連接臨界奇點與 AI 核心，步入輪迴...');
-                    const aiReply = await callAI("執行者已步入輪迴，請生成一段第一人稱的開場劇情。");
+                    const aiReply = await callAI("執行者已步入輪迴，請生成開場劇情與5個抉擇選項。");
                     
                     playerGameData.inDungeon = true;
                     playerGameData.ember = 1280;
@@ -984,9 +1116,25 @@ ${PROMPT_COMBAT}
                     updateMainUI();
                     await saveCloudData();
 
-                    openSubPage('輪迴開場', aiReply);
+                    logBox.innerText = aiReply;
                 } catch (err) {
                     showToast('AI 連線失敗：' + err.message);
+                    logBox.innerText = "連線失敗，請檢查 API Key 設定。";
+                }
+            });
+
+            // 綁定 A~E 及抉擇按鈕
+            document.querySelectorAll('.samsara-btn[data-choice]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const choiceLetter = btn.getAttribute('data-choice');
+                    triggerSamsaraAction(`選擇選項 ${choiceLetter}`);
+                });
+            });
+
+            bind('btn-choice-custom', 'click', () => {
+                const customChoice = prompt("請輸入您的抉擇：");
+                if (customChoice && customChoice.trim()) {
+                    triggerSamsaraAction(customChoice.trim());
                 }
             });
 
