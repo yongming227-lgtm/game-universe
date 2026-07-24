@@ -459,7 +459,7 @@
         <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">系統模組</div>
         <a href="#" id="menu-protocol-sidebar">
             <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-            主神規則
+            臨界規則
         </a>
         <a href="#" id="menu-exchange-sidebar">
             <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
@@ -486,7 +486,7 @@
             <div class="terminal-header">
                 <div class="terminal-title">
                     <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
-                    <span>主神空間 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">GOD'S DOMAIN TERMINAL</span></span>
+                    <span>臨界奇點 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">SINGULARITY TERMINAL</span></span>
                 </div>
                 <!-- 設定按鈕 -->
                 <button type="button" id="btn-open-settings-main" style="background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:unset; padding:0;">
@@ -528,8 +528,8 @@
                 </div>
             </div>
 
-            <!-- 核心行動：步入輪迴 -->
-            <div class="section-label">核心命軌 SAMSARA</div>
+            <!-- 維度錨點：步入輪迴 -->
+            <div class="section-label">維度錨點 ANCHOR</div>
             <button type="button" class="action-main-btn" id="btn-enter-dungeon">
                 <div>
                     <div style="font-size: 20px; font-weight: bold; margin-bottom: 4px;">步入輪迴</div>
@@ -657,7 +657,7 @@
     <!-- 提示視窗：保留不見 (Welcome 閘道) -->
     <div id="welcome-modal" class="modal" style="display: flex;">
         <div class="modal-content" style="text-align: center;">
-            <h3 style="margin-bottom: 10px; justify-content: center;">⚡ 主神空間連線請求</h3>
+            <h3 style="margin-bottom: 10px; justify-content: center;">⚡ 臨界奇點連線請求</h3>
             <p style="font-size: 13px; color: var(--sub-text); margin-bottom: 20px;">偵測到未授權的意識波動，是否接入《臨界軸：萬界修正錄》終端？</p>
             <div class="btn-group">
                 <button type="button" id="btn-welcome-yes">Yes (接入)</button>
@@ -703,7 +703,7 @@
 
         const PROMPT_RULES = `
 【AI 行為規則】
-- 扮演主神空間的管理者與旁白。
+- 扮演臨界奇點的管理者與旁白。
 - 語氣需冷酷、神祕、具壓迫感。
 - 請以第一人稱或客觀旁白引導玩家進行輪迴體驗。
         `.trim();
@@ -786,7 +786,7 @@
             });
 
             bind('btn-welcome-no', 'click', () => {
-                openSubPage('連線拒絕終端', '連線已拒絕，主神終端保持休眠。');
+                openSubPage('連線拒絕終端', '連線已拒絕，臨界奇點終端保持休眠。');
             });
 
             bind('btn-supabase-login', 'click', async () => {
@@ -940,7 +940,7 @@ ${PROMPT_COMBAT}
 
             bind('menu-protocol-sidebar', 'click', () => {
                 closeNav();
-                openSubPage('主神規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸。<br>3. 維度核心為極稀有高級貨幣。');
+                openSubPage('臨界規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸。<br>3. 維度核心為極稀有高級貨幣。');
             });
 
             bind('menu-exchange-sidebar', 'click', async () => {
@@ -972,7 +972,7 @@ ${PROMPT_COMBAT}
                     return;
                 }
                 try {
-                    showToast('正在連接主神空間與 AI 核心，步入輪迴...');
+                    showToast('正在連接臨界奇點與 AI 核心，步入輪迴...');
                     const aiReply = await callAI("執行者已步入輪迴，請生成一段第一人稱的開場劇情。");
                     
                     playerGameData.inDungeon = true;
