@@ -141,13 +141,14 @@
             border: 1px solid var(--border-color);
         }
 
+        /* 標題欄位調整 */
         .terminal-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 14px;
             margin-bottom: 16px;
+            padding-right: 32px; /* 預留右上角齒輪按鈕空間 */
         }
 
         .terminal-title {
@@ -397,19 +398,37 @@
 
         .samsara-header {
             display: flex;
-            justify-content: space-between; /* 確保標題在左、齒輪在最右邊 */
             align-items: center;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 12px;
             margin-bottom: 12px;
             flex-shrink: 0;
             width: 100%;
+            padding-right: 32px; /* 預留右上角齒輪按鈕空間 */
         }
 
         .samsara-title {
             font-size: 18px;
             font-weight: bold;
             color: var(--text-color);
+        }
+
+        /* 強制將所有齒輪設定按鈕絕對定位在右上角 */
+        #btn-open-settings-main, #btn-samsara-settings {
+            position: absolute !important;
+            top: 20px !important;
+            right: 20px !important;
+            width: 24px !important;
+            height: 24px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: none !important;
+            border: none !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 10 !important;
         }
 
         .samsara-story-box {
@@ -672,9 +691,9 @@
                     <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
                     <span>臨界奇點 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">SINGULARITY TERMINAL</span></span>
                 </div>
-                <!-- 設定按鈕 -->
-                <button type="button" id="btn-open-settings-main" style="background:none; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex:unset; padding:0;">
-                    <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color); transition: fill 0.3s;"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c-.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                <!-- 設定按鈕（已強制絕對定位至右上角） -->
+                <button type="button" id="btn-open-settings-main">
+                    <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color); transition: fill 0.3s;"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c-.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6-3.6z"/></svg>
                 </button>
             </div>
 
@@ -760,8 +779,9 @@
         <div id="samsara-page">
             <div class="samsara-header">
                 <div class="samsara-title">輪迴</div>
-                <button type="button" id="btn-samsara-settings" style="background:none; border:none; cursor:pointer; padding:0; display:flex; align-items:center; justify-content:center;">
-                    <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color);"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c-.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                <!-- 輪迴頁面的設定按鈕（已強制絕對定位至右上角） -->
+                <button type="button" id="btn-samsara-settings">
+                    <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color);"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c-.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6-3.6z"/></svg>
                 </button>
             </div>
             
