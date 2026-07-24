@@ -694,7 +694,7 @@
 
     <div class="container">
         <!-- 遊戲主介面 (main-screen) -->
-        <div id="main-screen" class="screen-view">
+        <div id="main-screen" class="screen-view" style="display: none;">
             <div class="terminal-header">
                 <div class="terminal-title">
                     <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
@@ -950,13 +950,13 @@
 【因果系統規範】
 - 採《崩壞：星軌道》回合制模式。
 - 回合劃分為：劇情推進階段與因果對抗回合。
-- 基礎數值參照：生命值 1000 | 攻擊力 200 | 防禦力 800 | 速度 100。
+- 基礎數值參照：生命值 1000 | 攻擊力 200 | 防禦力 800 | 速度 100].
         `.trim();
 
         const PROMPT_LORE = `
 【世界觀與背景設定】
 - 遊戲名稱：臨界軸：萬界修正錄
-- 維度核心：高級貨幣，極其稀有，用於修正多元宇宙錯誤時間軸。
+- 維度核心：高級貨幣，極其稀有，用於修正多元宇宙錯誤時間軸].
         `.trim();
 
         const PROMPT_RULES = `
@@ -964,7 +964,7 @@
 - 扮演臨界奇點的管理者與旁白。
 - 語氣需冷酷、神祕、具壓迫感。
 - 請以第一人稱或客觀旁白引導玩家進行輪迴體驗。
-- **重要限制**：每次輸出完劇情後，必須在文末明確提供 5 個行動選項，格式如下：
+- **重要限制**：每次輸出完劇情後，必須 en 文末明確提供 5 個行動選項，格式如下：
   A. [選項A描述]
   B. [選項B描述]
   C. [選項C描述]
@@ -1113,12 +1113,7 @@
                 btn.addEventListener('click', navigateBack);
             });
 
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                currentUserId = session.user.id;
-                currentUserEmail = session.user.email;
-                await loadCloudData();
-            }
+            // 初始化時先不自動登入檢查，強制停在歡迎畫面 (Welcome modal 保持 display: flex，主畫面 display: none)
 
             function openSubPage(title, customHtmlContent) {
                 document.getElementById('subpage-title').innerText = title;
@@ -1127,15 +1122,20 @@
             }
 
             bind('btn-welcome-yes', 'click', async () => {
-                const { data: { session: activeSession } } = await supabaseClient.auth.getSession();
                 document.getElementById('welcome-modal').style.display = 'none';
                 
+                // 檢查是否已登入 Supabase session
+                const { data: { session: activeSession } } = await supabaseClient.auth.getSession();
+                
                 if (!activeSession) {
+                    // 未登入：跳出登入視窗
                     document.getElementById('auth-modal').style.display = 'flex';
                 } else {
+                    // 已登入：直接進入主頁
                     currentUserId = activeSession.user.id;
                     currentUserEmail = activeSession.user.email;
                     renderScreen('main-screen');
+                    await loadCloudData();
                     updateMainUI();
                 }
             });
@@ -1292,7 +1292,7 @@ ${PROMPT_COMBAT}
                 if (!playerGameData.inDungeon) {
                     return openSubPage('因果系統未解鎖', '請先步入輪迴以啟用因果數據！');
                 }
-                openSubPage('因果面板', '因果律數據：生命 1000 | 攻擊 200 | 防禦 800 | 速度 100');
+                openSubPage('因果面板', '因果律數據：生命 1000 | 攻擊 200 | 防禦 800 | 速度 100]');
             });
 
             // 行囊按鈕點擊事件：開啟行囊
@@ -1304,12 +1304,12 @@ ${PROMPT_COMBAT}
             bind('menu-card-inventory', 'click', openInventoryScreen);
 
             bind('menu-card-history', 'click', () => {
-                openSubPage('往日之影', '目前尚未浮現任何往日之影紀錄。');
+                openSubPage('往日之影', '目前尚未浮現任何往日之影紀錄]。');
             });
 
             bind('menu-protocol-sidebar', 'click', () => {
                 closeNav();
-                openSubPage('臨界規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸。<br>3. 維度核心為極稀有高級貨幣。');
+                openSubPage('臨界規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸]。<br>3. 維度核心為極稀有高級貨幣]。');
             });
 
             bind('menu-exchange-sidebar', 'click', async () => {
@@ -1317,7 +1317,7 @@ ${PROMPT_COMBAT}
                 if (!playerGameData.inDungeon) {
                     return openSubPage('兌換系統未解鎖', '請先步入輪迴以啟用兌換系統！');
                 }
-                openSubPage('兌換系統', '可使用極其稀有的維度核心或餘燼兌換稀有道具。');
+                openSubPage('兌換系統', '可使用極其稀有的維度核心或餘燼兌換稀有道具]。');
             });
 
             bind('menu-medical-sidebar', 'click', async () => {
