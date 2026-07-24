@@ -774,7 +774,7 @@
         </div>
     </div>
 
-    <!-- 提示視窗：Supabase 登入 / 註冊 (鎖頭圖示更換為 SVG) -->
+    <!-- 提示視窗：Supabase 登入 / 註冊 -->
     <div id="auth-modal" class="modal">
         <div class="modal-content">
             <h3 style="display: flex; align-items: center; gap: 8px;">
@@ -854,6 +854,7 @@
                 dimensionCore: "未同步",
                 hp: 0,
                 maxHp: 100,
+                samsaraLog: "正在接入輪迴因果數據流...", // 增加遊戲劇情文字記憶
                 profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: true }
             };
 
@@ -971,12 +972,16 @@
                     .single();
 
                 if (data && data.game_data) {
-                    playerGameData = data.game_data;
+                    playerGameData = { ...playerGameData, ...data.game_data };
                     if (!playerGameData.profile) {
                         playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "" };
                     }
                     if (!playerGameData.profile.avatar) {
                         playerGameData.profile.avatar = DEFAULT_AVATAR;
+                    }
+                    if (playerGameData.samsaraLog) {
+                        const logBox = document.getElementById('samsara-text-log');
+                        if (logBox) logBox.innerText = playerGameData.samsaraLog;
                     }
                 } else {
                     await saveCloudData();
@@ -1083,7 +1088,7 @@ ${PROMPT_COMBAT}
                 openSubPage('治療系統', '治療系統啟動：生命值已恢復至上限！');
             });
 
-            // 輪迴邏輯
+            // 輪迴邏輯（自動保存進度至 Supabase）
             async function triggerSamsaraAction(promptText) {
                 const logBox = document.getElementById('samsara-text-log');
                 try {
@@ -1093,6 +1098,10 @@ ${PROMPT_COMBAT}
                     const aiReply = await callAI(`目前劇情推進：${promptText}`);
                     logBox.innerText += `\n\n${aiReply}`;
                     logBox.scrollTop = logBox.scrollHeight;
+
+                    // 記錄並存檔至 Supabase
+                    playerGameData.samsaraLog = logBox.innerText;
+                    await saveCloudData();
                 } catch (err) {
                     showToast('AI 響應失敗：' + err.message);
                 }
@@ -1107,6 +1116,14 @@ ${PROMPT_COMBAT}
                 
                 document.getElementById('samsara-page').style.display = 'flex';
                 const logBox = document.getElementById('samsara-text-log');
+
+                // 若已有輪迴對話記憶則自動顯示舊進度
+                if (playerGameData.inDungeon && playerGameData.samsaraLog) {
+                    logBox.innerText = playerGameData.samsaraLog;
+                    logBox.scrollTop = logBox.scrollHeight;
+                    return;
+                }
+
                 logBox.innerText = "正在連線至臨界奇點並生成輪迴因果場景...";
 
                 try {
@@ -1117,6 +1134,7 @@ ${PROMPT_COMBAT}
                     playerGameData.dimensionCore = "1 顆 (稀有核心)";
                     playerGameData.hp = 86;
                     playerGameData.maxHp = 100;
+                    playerGameData.samsaraLog = aiReply;
                     
                     updateMainUI();
                     await saveCloudData();
