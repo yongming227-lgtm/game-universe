@@ -18,6 +18,10 @@
             --sub-text: #6b7280;
             --badge-bg: #f3f4f6;
             --overlay-bg: rgba(0, 0, 0, 0.4);
+            --rarity-common: #9ca3af;
+            --rarity-rare: #3b82f6;
+            --rarity-epic: #a855f7;
+            --rarity-quest: #f59e0b;
         }
 
         [data-theme="dark"] {
@@ -59,6 +63,7 @@
             transition: background-color 0.3s, border-color 0.3s;
             position: relative;
             overflow: hidden;
+            min-height: 600px;
         }
 
         h2, h3 {
@@ -70,9 +75,7 @@
             gap: 8px;
         }
 
-        .input-group {
-            margin-bottom: 16px;
-        }
+        .input-group { margin-bottom: 16px; }
 
         label {
             display: block;
@@ -81,11 +84,7 @@
             color: var(--sub-text);
         }
 
-        input[type="password"],
-        input[type="text"],
-        input[type="email"],
-        select,
-        textarea {
+        input[type="password"], input[type="text"], input[type="email"], select, textarea {
             width: 100%;
             padding: 12px;
             border-radius: 10px;
@@ -101,16 +100,9 @@
             border-color: var(--sub-text);
         }
 
-        textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
+        textarea { resize: vertical; min-height: 80px; }
 
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 16px;
-        }
+        .btn-group { display: flex; gap: 10px; margin-top: 16px; }
 
         button {
             flex: 1;
@@ -126,22 +118,14 @@
             touch-action: manipulation;
         }
 
-        button:hover {
-            opacity: 0.9;
-        }
-
-        button:active {
-            transform: scale(0.96);
-            opacity: 0.85;
-        }
-
+        button:hover { opacity: 0.9; }
+        button:active { transform: scale(0.96); opacity: 0.85; }
         button.btn-secondary {
             background-color: var(--badge-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
         }
 
-        /* 標題欄位調整 */
         .terminal-header {
             display: flex;
             align-items: center;
@@ -198,10 +182,7 @@
             border: 2px solid var(--border-color);
             background-color: #333;
         }
-        .player-info-text {
-            display: flex;
-            flex-direction: column;
-        }
+        .player-info-text { display: flex; flex-direction: column; }
 
         .stats-overview {
             background-color: var(--input-bg);
@@ -226,23 +207,10 @@
             letter-spacing: 0.5px;
         }
 
-        .stat-item-val {
-            font-size: 20px;
-            font-weight: bold;
-        }
+        .stat-item-val { font-size: 20px; font-weight: bold; }
 
-        .bars-container {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 12px;
-        }
-
-        .bar-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+        .bars-container { display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+        .bar-row { display: flex; justify-content: space-between; align-items: center; }
 
         .progress-bar-bg {
             flex: 1;
@@ -285,21 +253,10 @@
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
 
-        .action-main-btn:active {
-            transform: scale(0.96);
-        }
+        .action-main-btn:active { transform: scale(0.96); }
 
-        .menu-grid-prepare {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 10px;
-        }
-
-        .menu-grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
+        .menu-grid-prepare { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+        .menu-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
         .grid-card {
             background-color: var(--input-bg);
@@ -312,13 +269,8 @@
             touch-action: manipulation;
         }
 
-        .grid-card:hover {
-            border-color: var(--sub-text);
-        }
-
-        .grid-card:active {
-            transform: scale(0.96);
-        }
+        .grid-card:hover { border-color: var(--sub-text); }
+        .grid-card:active { transform: scale(0.96); }
 
         .grid-card-icon {
             font-size: 18px;
@@ -335,17 +287,8 @@
             transition: fill 0.3s;
         }
 
-        .grid-card-title {
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 2px;
-        }
-
-        .grid-card-sub {
-            font-size: 10px;
-            color: var(--sub-text);
-            text-transform: uppercase;
-        }
+        .grid-card-title { font-size: 13px; font-weight: bold; margin-bottom: 2px; }
+        .grid-card-sub { font-size: 10px; color: var(--sub-text); text-transform: uppercase; }
 
         .footer-credit {
             text-align: center;
@@ -407,11 +350,7 @@
             padding-right: 32px;
         }
 
-        .samsara-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--text-color);
-        }
+        .samsara-title { font-size: 18px; font-weight: bold; color: var(--text-color); }
 
         #btn-open-settings-main, #btn-samsara-settings {
             position: absolute !important;
@@ -471,16 +410,8 @@
             flex: unset;
         }
 
-        .samsara-switch-btn:hover {
-            color: var(--text-color);
-            border-color: var(--sub-text);
-        }
-
-        .samsara-switch-btn svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-        }
+        .samsara-switch-btn:hover { color: var(--text-color); border-color: var(--sub-text); }
+        .samsara-switch-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
         .samsara-controls {
             display: grid;
@@ -508,16 +439,8 @@
             box-sizing: border-box;
         }
 
-        .samsara-btn:active {
-            transform: scale(0.96);
-            border-color: var(--sub-text);
-        }
-
-        .samsara-btn svg {
-            width: 18px;
-            height: 18px;
-            fill: var(--text-color);
-        }
+        .samsara-btn:active { transform: scale(0.96); border-color: var(--sub-text); }
+        .samsara-btn svg { width: 18px; height: 18px; fill: var(--text-color); }
 
         .sidebar {
             height: 100%; width: 0; position: fixed; z-index: 2500; top: 0; left: 0;
@@ -530,11 +453,7 @@
             touch-action: manipulation;
         }
         .sidebar a:hover { background-color: var(--input-bg); }
-        .sidebar a svg {
-            width: 18px;
-            height: 18px;
-            fill: var(--text-color);
-        }
+        .sidebar a svg { width: 18px; height: 18px; fill: var(--text-color); }
         .sidebar .close-btn {
             position: absolute; top: 10px; right: 15px; font-size: 22px; background: none; border: none; color: var(--text-color); cursor: pointer;
             touch-action: manipulation;
@@ -577,34 +496,112 @@
             100% { opacity: 0; transform: translateY(-10px); }
         }
 
-        .custom-dialog-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: var(--overlay-bg);
-            backdrop-filter: blur(8px);
+        /* --- 格狀行囊專屬樣式 --- */
+        .inventory-tabs {
             display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .inventory-tab {
+            flex: none;
+            padding: 6px 12px;
+            font-size: 12px;
+            background-color: var(--input-bg);
+            color: var(--sub-text);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .inventory-tab.active {
+            background-color: var(--accent-color);
+            color: var(--card-bg);
+            border-color: var(--accent-color);
+        }
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding: 2px;
+        }
+        .inventory-slot {
+            aspect-ratio: 1;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.2s ease;
+            position: relative;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.1s;
         }
+        .inventory-slot:hover { border-color: var(--sub-text); }
+        .inventory-slot:active { transform: scale(0.95); }
+        .inventory-slot.empty { opacity: 0.4; cursor: default; }
+        .inventory-slot.empty:active { transform: none; }
+        .slot-icon { font-size: 22px; margin-bottom: 2px; }
+        .slot-count {
+            position: absolute;
+            bottom: 4px;
+            right: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--sub-text);
+            background: rgba(0,0,0,0.2);
+            padding: 1px 4px;
+            border-radius: 4px;
+        }
+        .slot-rarity-common { border-color: var(--rarity-common); }
+        .slot-rarity-rare { border-color: var(--rarity-rare); }
+        .slot-rarity-epic { border-color: var(--rarity-epic); }
+        .slot-rarity-quest { border-color: var(--rarity-quest); }
 
-        .custom-dialog-overlay.hidden {
+        /* 道具詳情彈窗 */
+        #item-detail-modal {
             display: none;
-            opacity: 0;
-            pointer-events: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--overlay-bg);
+            backdrop-filter: blur(4px);
+            z-index: 2800;
+            justify-content: center;
+            align-items: center;
         }
+        .item-detail-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 85%;
+            max-width: 340px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .item-detail-icon { font-size: 40px; margin-bottom: 8px; }
+        .item-detail-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+        .item-detail-type { font-size: 11px; color: var(--sub-text); margin-bottom: 12px; }
+        .item-detail-desc { font-size: 13px; color: var(--text-color); margin-bottom: 16px; text-align: left; line-height: 1.5; background: var(--input-bg); padding: 10px; border-radius: 8px; }
 
+        .custom-dialog-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--overlay-bg);
+            backdrop-filter: blur(8px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; opacity: 1; transition: opacity 0.2s ease;
+        }
+        .custom-dialog-overlay.hidden { display: none; opacity: 0; pointer-events: none; }
         .custom-dialog-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 18px;
-            width: 88%;
-            max-width: 360px;
+            width: 88%; max-width: 360px;
             padding: 22px;
             box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
             color: var(--text-color);
@@ -612,60 +609,39 @@
             animation: customDialogIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             transition: background-color 0.3s, border-color 0.3s, color 0.3s;
         }
-
         @keyframes customDialogIn {
-            from {
-                transform: translateY(15px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(15px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-
-        .custom-dialog-title {
-            margin: 0 0 14px 0;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-color);
-        }
-
+        .custom-dialog-title { margin: 0 0 14px 0; font-size: 1.1rem; font-weight: 600; color: var(--text-color); }
         .custom-dialog-input {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-color);
-            font-size: 14px;
-            outline: none;
-            box-sizing: border-box;
+            width: 100%; padding: 12px; background-color: var(--input-bg);
+            border: 1px solid var(--border-color); border-radius: 10px;
+            color: var(--text-color); font-size: 14px; outline: none; box-sizing: border-box;
             transition: border-color 0.2s, background-color 0.3s;
         }
-
-        .custom-dialog-input:focus {
-            border-color: var(--sub-text);
-        }
-
-        .custom-dialog-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .custom-dialog-actions button {
-            flex: unset;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-size: 13px;
-        }
+        .custom-dialog-input:focus { border-color: var(--sub-text); }
+        .custom-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .custom-dialog-actions button { flex: unset; padding: 10px 18px; border-radius: 8px; font-size: 13px; }
     </style>
 </head>
 <body>
 
     <div id="toast-container"></div>
+
+    <!-- 道具詳情彈窗 -->
+    <div id="item-detail-modal">
+        <div class="item-detail-card">
+            <div id="detail-icon" class="item-detail-icon">📦</div>
+            <div id="detail-name" class="item-detail-name">道具名稱</div>
+            <div id="detail-type" class="item-detail-type">種類 / 品質</div>
+            <div id="detail-desc" class="item-detail-desc">道具效果詳細說明...</div>
+            <div class="btn-group" id="detail-action-buttons">
+                <!-- 動態生成的按鈕 -->
+            </div>
+            <button type="button" class="btn-secondary" id="btn-close-item-detail" style="width: 100%; margin-top: 8px;">關閉</button>
+        </div>
+    </div>
 
     <div id="custom-prompt-modal" class="custom-dialog-overlay hidden">
         <div class="custom-dialog-card">
@@ -717,8 +693,8 @@
     </div>
 
     <div class="container">
-        <!-- 遊戲主介面 -->
-        <div id="game-screen" style="display: none;">
+        <!-- 遊戲主介面 (main-screen) -->
+        <div id="main-screen" class="screen-view">
             <div class="terminal-header">
                 <div class="terminal-title">
                     <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
@@ -803,8 +779,8 @@
             <div class="footer-credit">MADE BY 成都尖頭們</div>
         </div>
 
-        <!-- 輪迴全螢幕介面 -->
-        <div id="samsara-page">
+        <!-- 輪迴全螢幕介面 (samsara-screen) -->
+        <div id="samsara-screen" class="full-page-view screen-view" style="padding:20px; flex-direction:column; justify-content:space-between;">
             <div class="samsara-header">
                 <div class="samsara-title">輪迴</div>
                 <button type="button" id="btn-samsara-settings">
@@ -825,12 +801,34 @@
                 </button>
             </div>
 
-            <!-- 常駐控制按鈕面板（預設為行動面板 A~E + 抉擇） -->
+            <!-- 常駐控制按鈕面板 -->
             <div class="samsara-controls" id="samsara-controls-grid"></div>
         </div>
 
-        <!-- 遊戲與帳號設定全螢幕頁面 -->
-        <div id="settings-page" class="full-page-view">
+        <!-- 全新：格狀行囊介面 (inventory-screen) -->
+        <div id="inventory-screen" class="full-page-view screen-view">
+            <h3>🎒 行囊系統</h3>
+            <p style="font-size: 12px; color: var(--sub-text); margin-bottom: 14px;">收納因果冒險中獲得的物資與裝備：</p>
+            
+            <!-- 五大頁籤 -->
+            <div class="inventory-tabs">
+                <div class="inventory-tab active" data-tab="all">全部</div>
+                <div class="inventory-tab" data-tab="consumable">消耗</div>
+                <div class="inventory-tab" data-tab="equipment">裝備</div>
+                <div class="inventory-tab" data-tab="material">材料</div>
+                <div class="inventory-tab" data-tab="quest">劇情</div>
+            </div>
+
+            <!-- 格狀物品欄 -->
+            <div class="inventory-grid" id="inventory-grid-container"></div>
+
+            <div class="btn-group" style="margin-top: 24px;">
+                <button type="button" class="btn-secondary btn-back-smart" style="width: 100%;">返回上一頁</button>
+            </div>
+        </div>
+
+        <!-- 遊戲與帳號設定頁面 (settings-screen) -->
+        <div id="settings-screen" class="full-page-view screen-view">
             <h3>
                 <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: var(--text-color);"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
                 遊戲與帳號設定
@@ -863,12 +861,12 @@
             <div class="btn-group" style="margin-top: 24px;">
                 <button type="button" id="btn-save-api">儲存設定</button>
                 <button type="button" class="btn-secondary" id="btn-test-api">測試連線</button>
-                <button type="button" class="btn-secondary" id="btn-close-settings">返回首頁</button>
+                <button type="button" class="btn-secondary btn-back-smart">返回上一頁</button>
             </div>
         </div>
 
-        <!-- 執行者身份資訊全螢幕頁面 -->
-        <div id="profile-page" class="full-page-view">
+        <!-- 執行者身份資訊頁面 (profile-screen) -->
+        <div id="profile-screen" class="full-page-view screen-view">
             <h3>👤 執行者身份資訊</h3>
             <p style="font-size: 12px; color: var(--sub-text); margin-bottom: 20px;">檢視或編輯您的個人化身份設定：</p>
             
@@ -895,18 +893,18 @@
             </div>
             <div class="btn-group" style="margin-top: 24px;">
                 <button type="button" id="btn-save-profile">儲存至雲端</button>
-                <button type="button" class="btn-secondary" id="profile-close-btn">返回首頁</button>
+                <button type="button" class="btn-secondary btn-back-smart">返回上一頁</button>
             </div>
         </div>
 
-        <!-- 專屬子頁面共用全螢幕頁面 -->
-        <div id="subpage-page" class="full-page-view">
+        <!-- 專屬子頁面共用頁面 (subpage-screen) -->
+        <div id="subpage-screen" class="full-page-view screen-view">
             <h3 id="subpage-title">子頁面標題</h3>
             <div id="subpage-body" style="font-size: 14px; color: var(--text-color); margin: 20px 0; min-height: 180px; line-height: 1.6;">
                 此頁面內容建構中...
             </div>
             <div class="btn-group" style="margin-top: 24px;">
-                <button type="button" class="btn-secondary" id="btn-close-subpage" style="width: 100%;">返回首頁</button>
+                <button type="button" class="btn-secondary btn-back-smart" style="width: 100%;">返回上一頁</button>
             </div>
         </div>
     </div>
@@ -979,6 +977,41 @@
 
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // --- 歷史紀錄堆疊頁面導航系統 (Page Stack Navigation System) ---
+        let pageHistory = ["main-screen"];
+
+        function navigateTo(screenId) {
+            const currentScreen = pageHistory[pageHistory.length - 1];
+            if (currentScreen === screenId) return;
+
+            pageHistory.push(screenId);
+            renderScreen(screenId);
+        }
+
+        function navigateBack() {
+            if (pageHistory.length > 1) {
+                pageHistory.pop();
+                const previousScreen = pageHistory[pageHistory.length - 1];
+                renderScreen(previousScreen);
+            }
+        }
+
+        function renderScreen(screenId) {
+            document.querySelectorAll('.screen-view').forEach(el => {
+                if (el.id === screenId) {
+                    if (screenId === 'samsara-screen') {
+                        el.style.display = 'flex';
+                    } else if (screenId === 'main-screen') {
+                        el.style.display = 'block';
+                    } else {
+                        el.style.display = 'block';
+                    }
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+        }
+
         function showToast(message) {
             const container = document.getElementById('toast-container');
             if (!container) return;
@@ -986,9 +1019,7 @@
             toast.className = 'toast-message';
             toast.innerHTML = `⚡ <span>${message}</span>`;
             container.appendChild(toast);
-            setTimeout(() => {
-                toast.remove();
-            }, 2500);
+            setTimeout(() => { toast.remove(); }, 2500);
         }
 
         function customPrompt(title = "請輸入您的抉擇：", defaultValue = "") {
@@ -1047,17 +1078,24 @@
                 inDungeon: false,
                 ember: 0,
                 dimensionCore: "未同步",
-                hp: 0,
+                hp: 50,
                 maxHp: 100,
                 samsaraLog: "正在接入輪迴因果數據流...",
-                profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: true }
+                profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: true },
+                // 預設物品資料庫
+                inventory: [
+                    { id: "item_1", name: "低階復原藥水", type: "consumable", icon: "🧪", count: 3, rarity: "common", desc: "修復基礎意識損傷，使用後可恢復 30 點生命值 (HP)。" },
+                    { id: "item_2", name: "臨界戰術刀", type: "equipment", icon: "🗡️", count: 1, rarity: "rare", desc: "含有微量因果波動的高頻振盪刃，提升角色基礎攻擊力。" },
+                    { id: "item_3", name: "因果結晶殘頁", type: "material", icon: "💎", count: 12, rarity: "common", desc: "淬鍊維度核心時不可或缺的基底材料。" },
+                    { id: "item_4", name: "維度錨點金鑰", type: "quest", icon: "🗝️", count: 1, rarity: "quest", desc: "鎖定萬界修正錄特定時間軸的重要鑰匙，不可丟棄。" }
+                ]
             };
 
             let currentUserId = null;
             let currentUserEmail = "";
-
-            // 面板狀態：預設 0 為「行動面板 (A~E+抉擇)」，1 為「系統面板」
             let currentPanelMode = 0;
+            let currentTab = "all";
+            let selectedItem = null;
 
             const applyTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
@@ -1070,6 +1108,11 @@
                 if (el) el.addEventListener(event, fn);
             };
 
+            // 綁定所有智慧返回按鈕
+            document.querySelectorAll('.btn-back-smart').forEach(btn => {
+                btn.addEventListener('click', navigateBack);
+            });
+
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 currentUserId = session.user.id;
@@ -1080,12 +1123,8 @@
             function openSubPage(title, customHtmlContent) {
                 document.getElementById('subpage-title').innerText = title;
                 document.getElementById('subpage-body').innerHTML = customHtmlContent;
-                document.getElementById('subpage-page').style.display = 'block';
+                navigateTo('subpage-screen');
             }
-
-            bind('btn-close-subpage', 'click', () => {
-                document.getElementById('subpage-page').style.display = 'none';
-            });
 
             bind('btn-welcome-yes', 'click', async () => {
                 const { data: { session: activeSession } } = await supabaseClient.auth.getSession();
@@ -1096,7 +1135,7 @@
                 } else {
                     currentUserId = activeSession.user.id;
                     currentUserEmail = activeSession.user.email;
-                    document.getElementById('game-screen').style.display = 'block';
+                    renderScreen('main-screen');
                     updateMainUI();
                 }
             });
@@ -1122,7 +1161,7 @@
                 currentUserId = data.user.id;
                 currentUserEmail = data.user.email;
                 document.getElementById('auth-modal').style.display = 'none';
-                document.getElementById('game-screen').style.display = 'block';
+                renderScreen('main-screen');
                 await loadCloudData();
                 showToast('登入成功，雲端資料同步完成！');
             });
@@ -1145,7 +1184,7 @@
                     currentUserId = data.user.id;
                     currentUserEmail = data.user.email;
                     document.getElementById('auth-modal').style.display = 'none';
-                    document.getElementById('game-screen').style.display = 'block';
+                    renderScreen('main-screen');
                     await saveCloudData();
                     showToast('註冊並建立雲端存檔成功！');
                 }
@@ -1174,8 +1213,13 @@
                     if (!playerGameData.profile) {
                         playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "" };
                     }
-                    if (!playerGameData.profile.avatar) {
-                        playerGameData.profile.avatar = DEFAULT_AVATAR;
+                    if (!playerGameData.inventory) {
+                        playerGameData.inventory = [
+                            { id: "item_1", name: "低階復原藥水", type: "consumable", icon: "🧪", count: 3, rarity: "common", desc: "修復基礎意識損傷，使用後可恢復 30 點生命值 (HP)。" },
+                            { id: "item_2", name: "臨界戰術刀", type: "equipment", icon: "🗡️", count: 1, rarity: "rare", desc: "含有微量因果波動的高頻振盪刃，提升角色基礎攻擊力。" },
+                            { id: "item_3", name: "因果結晶殘頁", type: "material", icon: "💎", count: 12, rarity: "common", desc: "淬鍊維度核心時不可或缺的基底材料。" },
+                            { id: "item_4", name: "維度錨點金鑰", type: "quest", icon: "🗝️", count: 1, rarity: "quest", desc: "鎖定萬界修正錄特定時間軸的重要鑰匙，不可丟棄。" }
+                        ];
                     }
                     if (playerGameData.samsaraLog) {
                         const logBox = document.getElementById('samsara-text-log');
@@ -1237,7 +1281,7 @@ ${PROMPT_COMBAT}
             const closeNav = () => document.getElementById("mySidebar").style.width = "0";
             bind('btn-open-nav', 'click', openNav);
             bind('btn-close-nav', 'click', closeNav);
-            bind('menu-home', 'click', () => closeNav());
+            bind('menu-home', 'click', () => { pageHistory = ["main-screen"]; renderScreen("main-screen"); closeNav(); });
             bind('menu-profile', 'click', () => { openProfilePage(); closeNav(); });
             bind('menu-settings', 'click', () => { openSettingsPage(); closeNav(); });
             bind('btn-card-profile-quick', 'click', openProfilePage);
@@ -1251,9 +1295,13 @@ ${PROMPT_COMBAT}
                 openSubPage('因果面板', '因果律數據：生命 1000 | 攻擊 200 | 防禦 800 | 速度 100');
             });
 
-            bind('menu-card-inventory', 'click', () => {
-                openSubPage('行囊系統', '目前行囊尚無任何因果物資。');
-            });
+            // 行囊按鈕點擊事件：開啟行囊
+            const openInventoryScreen = () => {
+                renderInventoryGrid();
+                navigateTo('inventory-screen');
+            };
+
+            bind('menu-card-inventory', 'click', openInventoryScreen);
 
             bind('menu-card-history', 'click', () => {
                 openSubPage('往日之影', '目前尚未浮現任何往日之影紀錄。');
@@ -1286,6 +1334,123 @@ ${PROMPT_COMBAT}
                 openSubPage('治療系統', '治療系統啟動：生命值已恢復至上限！');
             });
 
+            // --- 行囊 UI 與動態互動系統 ---
+            document.querySelectorAll('.inventory-tab').forEach(tabBtn => {
+                tabBtn.addEventListener('click', () => {
+                    document.querySelectorAll('.inventory-tab').forEach(b => b.classList.remove('active'));
+                    tabBtn.classList.add('active');
+                    currentTab = tabBtn.getAttribute('data-tab');
+                    renderInventoryGrid();
+                });
+            });
+
+            function renderInventoryGrid() {
+                const container = document.getElementById('inventory-grid-container');
+                container.innerHTML = '';
+
+                const filteredItems = playerGameData.inventory.filter(item => {
+                    if (currentTab === 'all') return true;
+                    return item.type === currentTab;
+                });
+
+                const totalSlots = Math.max(16, Math.ceil((filteredItems.length + 1) / 4) * 4);
+
+                for (let i = 0; i < totalSlots; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'inventory-slot';
+
+                    if (i < filteredItems.length) {
+                        const item = filteredItems[i];
+                        slot.classList.add(`slot-rarity-${item.rarity || 'common'}`);
+                        slot.innerHTML = `
+                            <div class="slot-icon">${item.icon}</div>
+                            <div class="slot-count">x${item.count}</div>
+                        `;
+                        slot.addEventListener('click', () => openItemDetail(item));
+                    } else {
+                        slot.classList.add('empty');
+                    }
+                    container.appendChild(slot);
+                }
+            }
+
+            function openItemDetail(item) {
+                selectedItem = item;
+                document.getElementById('detail-icon').innerText = item.icon;
+                document.getElementById('detail-name').innerText = item.name;
+                
+                const typeNames = { consumable: "消耗品", equipment: "裝備", material: "材料", quest: "劇情道具" };
+                document.getElementById('detail-type').innerText = `${typeNames[item.type] || "道具"} · 數量: ${item.count}`;
+                document.getElementById('detail-desc').innerText = item.desc;
+
+                const actionContainer = document.getElementById('detail-action-buttons');
+                actionContainer.innerHTML = '';
+
+                if (item.type === 'consumable') {
+                    const useBtn = document.createElement('button');
+                    useBtn.type = 'button';
+                    useBtn.innerText = '使用藥水';
+                    useBtn.addEventListener('click', () => useConsumableItem(item));
+                    actionContainer.appendChild(useBtn);
+                } else if (item.type === 'equipment') {
+                    const equipBtn = document.createElement('button');
+                    equipBtn.type = 'button';
+                    equipBtn.innerText = '裝備';
+                    equipBtn.addEventListener('click', () => {
+                        showToast(`已成功裝備 ${item.name}！`);
+                        closeItemDetail();
+                    });
+                    actionContainer.appendChild(equipBtn);
+                }
+
+                if (item.type !== 'quest') {
+                    const discardBtn = document.createElement('button');
+                    discardBtn.type = 'button';
+                    discardBtn.className = 'btn-secondary';
+                    discardBtn.innerText = '丟棄';
+                    discardBtn.addEventListener('click', () => discardItem(item));
+                    actionContainer.appendChild(discardBtn);
+                }
+
+                document.getElementById('item-detail-modal').style.display = 'flex';
+            }
+
+            function closeItemDetail() {
+                document.getElementById('item-detail-modal').style.display = 'none';
+            }
+
+            bind('btn-close-item-detail', 'click', closeItemDetail);
+
+            async function useConsumableItem(item) {
+                if (item.id === 'item_1') {
+                    if (playerGameData.hp >= playerGameData.maxHp) {
+                        showToast("生命值已經全滿，無需使用！");
+                        return;
+                    }
+                    playerGameData.hp = Math.min(playerGameData.maxHp, playerGameData.hp + 30);
+                    showToast(`使用了 ${item.name}，恢復了 30 點生命值！`);
+                }
+
+                item.count -= 1;
+                if (item.count <= 0) {
+                    playerGameData.inventory = playerGameData.inventory.filter(i => i.id !== item.id);
+                }
+
+                updateMainUI();
+                renderInventoryGrid();
+                closeItemDetail();
+                await saveCloudData();
+            }
+
+            async function discardItem(item) {
+                playerGameData.inventory = playerGameData.inventory.filter(i => i.id !== item.id);
+                showToast(`已丟棄 ${item.name}。`);
+                updateMainUI();
+                renderInventoryGrid();
+                closeItemDetail();
+                await saveCloudData();
+            }
+
             async function triggerSamsaraAction(promptText) {
                 const logBox = document.getElementById('samsara-text-log');
                 try {
@@ -1310,9 +1475,7 @@ ${PROMPT_COMBAT}
                     return;
                 }
                 
-                document.getElementById('samsara-page').style.display = 'flex';
-                
-                // 每次進入輪迴頁面時，重置為常駐行動面板
+                navigateTo('samsara-screen');
                 currentPanelMode = 0;
                 renderSamsaraControls();
 
@@ -1346,13 +1509,12 @@ ${PROMPT_COMBAT}
                 }
             });
 
-            // 渲染控制面板（常駐行動面板 / SVG系統面板）
+            // 渲染輪迴控制面板
             const renderSamsaraControls = () => {
                 const grid = document.getElementById('samsara-controls-grid');
                 const label = document.getElementById('samsara-panel-label');
 
                 if (currentPanelMode === 0) {
-                    // 常駐：行動面板
                     label.innerText = "切換至系統面板";
                     grid.innerHTML = `
                         <button type="button" class="samsara-btn" data-choice="A">A</button>
@@ -1381,7 +1543,6 @@ ${PROMPT_COMBAT}
                         });
                     }
                 } else {
-                    // 切換：系統面板（全替換為向量 SVG 圖示）
                     label.innerText = "切換至行動面板";
                     grid.innerHTML = `
                         <button type="button" class="samsara-btn" id="samsara-sys-bag">
@@ -1410,14 +1571,12 @@ ${PROMPT_COMBAT}
                         </button>
                     `;
                     
-                    bind('samsara-sys-bag', 'click', () => showToast("已開啟行囊系統"));
+                    bind('samsara-sys-bag', 'click', openInventoryScreen);
                     bind('samsara-sys-status', 'click', () => showToast(`生命：${playerGameData.hp}/${playerGameData.maxHp}`));
                     bind('samsara-sys-map', 'click', () => showToast("當前時間軸區域解析中..."));
                     bind('samsara-sys-equip', 'click', () => showToast("裝備欄位全空"));
                     bind('samsara-sys-skill', 'click', () => showToast("因果技能樹已載入"));
-                    bind('samsara-sys-exit', 'click', () => {
-                        document.getElementById('samsara-page').style.display = 'none';
-                    });
+                    bind('samsara-sys-exit', 'click', navigateBack);
                 }
             };
 
@@ -1426,7 +1585,6 @@ ${PROMPT_COMBAT}
                 renderSamsaraControls();
             });
 
-            // 初始化載入面板
             renderSamsaraControls();
 
             bind('btn-test-api', 'click', async () => {
@@ -1457,10 +1615,9 @@ ${PROMPT_COMBAT}
                 applyTheme(theme);
                 await saveCloudData();
                 showToast('設定與帳號資料已同步至雲端！');
-                closeSettingsPage();
+                navigateBack();
             });
 
-            bind('btn-close-settings', 'click', closeSettingsPage);
             bind('theme-select', 'change', (e) => applyTheme(e.target.value));
 
             bind('avatar-file-input', 'change', (e) => {
@@ -1489,20 +1646,16 @@ ${PROMPT_COMBAT}
                 
                 updateMainUI();
                 await saveCloudData();
-                closeProfilePage();
+                navigateBack();
                 showToast('身份資訊與頭像已同步至雲端！');
             });
-            bind('profile-close-btn', 'click', closeProfilePage);
 
             function openSettingsPage() { 
                 document.getElementById('settings-email-display').value = currentUserEmail || "未綁定信箱";
                 document.getElementById('api-key-input').value = playerGameData.apiKey || "";
                 document.getElementById('ai-model-input').value = playerGameData.aiModel || "gemini-2.5-flash";
                 document.getElementById('theme-select').value = playerGameData.theme || "dark";
-                document.getElementById('settings-page').style.display = 'block'; 
-            }
-            function closeSettingsPage() { 
-                document.getElementById('settings-page').style.display = 'none'; 
+                navigateTo('settings-screen'); 
             }
             
             function openProfilePage() {
@@ -1511,9 +1664,8 @@ ${PROMPT_COMBAT}
                 document.getElementById('profile-personality-input').value = p.personality || "";
                 document.getElementById('profile-likes-input').value = p.likes || "";
                 document.getElementById('modal-avatar-preview').src = p.avatar || DEFAULT_AVATAR;
-                document.getElementById('profile-page').style.display = 'block';
+                navigateTo('profile-screen');
             }
-            function closeProfilePage() { document.getElementById('profile-page').style.display = 'none'; }
 
             function updateMainUI() {
                 document.getElementById('display-ember').innerText = (playerGameData.ember ?? 0).toLocaleString();
