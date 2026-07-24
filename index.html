@@ -148,7 +148,7 @@
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 14px;
             margin-bottom: 16px;
-            padding-right: 32px; /* 預留右上角齒輪按鈕空間 */
+            padding-right: 32px;
         }
 
         .terminal-title {
@@ -383,7 +383,7 @@
             overflow-y: auto;
         }
 
-        /* 輪迴專屬全螢幕介面樣式 */
+        /* 輪迴全螢幕介面 */
         #samsara-page {
             display: none;
             position: absolute;
@@ -404,7 +404,7 @@
             margin-bottom: 12px;
             flex-shrink: 0;
             width: 100%;
-            padding-right: 32px; /* 預留右上角齒輪按鈕空間 */
+            padding-right: 32px;
         }
 
         .samsara-title {
@@ -413,7 +413,6 @@
             color: var(--text-color);
         }
 
-        /* 強制將所有齒輪設定按鈕絕對定位在右上角 */
         #btn-open-settings-main, #btn-samsara-settings {
             position: absolute !important;
             top: 20px !important;
@@ -431,7 +430,6 @@
             z-index: 10 !important;
         }
 
-        /* AI 故事內容區塊：微調縮高，騰出下方切換列空間 */
         .samsara-story-box {
             flex: 1;
             background-color: var(--input-bg);
@@ -439,7 +437,7 @@
             border-radius: 14px;
             padding: 16px;
             overflow-y: auto;
-            margin-bottom: 8px; /* 縮小下邊距 */
+            margin-bottom: 8px;
             font-size: 14px;
             line-height: 1.7;
             color: var(--text-color);
@@ -447,7 +445,6 @@
             box-sizing: border-box;
         }
 
-        /* 文字區與控制按鈕之間的切換工具列 */
         .samsara-switch-bar {
             display: flex;
             justify-content: flex-end;
@@ -498,14 +495,14 @@
             border: 1px solid var(--border-color);
             border-radius: 12px;
             height: 56px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 2px;
+            gap: 6px;
             transition: transform 0.05s ease, border-color 0.2s;
             touch-action: manipulation;
             box-sizing: border-box;
@@ -517,8 +514,8 @@
         }
 
         .samsara-btn svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             fill: var(--text-color);
         }
 
@@ -580,7 +577,6 @@
             100% { opacity: 0; transform: translateY(-10px); }
         }
 
-        /* 自訂主題彈窗樣式 */
         .custom-dialog-overlay {
             position: fixed;
             top: 0;
@@ -669,10 +665,8 @@
 </head>
 <body>
 
-    <!-- 動態提示容器 -->
     <div id="toast-container"></div>
 
-    <!-- 自訂跟隨主題的抉擇彈跳視窗 -->
     <div id="custom-prompt-modal" class="custom-dialog-overlay hidden">
         <div class="custom-dialog-card">
             <h3 id="custom-prompt-title" class="custom-dialog-title">請輸入您的抉擇：</h3>
@@ -713,7 +707,6 @@
         </a>
         <div style="padding: 10px 20px; font-size: 11px; color: var(--sub-text); font-weight: bold; background: var(--input-bg);">系統管理</div>
         <a href="#" id="menu-settings">
-            <!-- 乾淨鏤空齒輪圖示 -->
             <svg viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
             遊戲與帳號設定
         </a>
@@ -731,7 +724,6 @@
                     <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
                     <span>臨界奇點 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">SINGULARITY TERMINAL</span></span>
                 </div>
-                <!-- 設定按鈕（乾淨鏤空齒輪圖示） -->
                 <button type="button" id="btn-open-settings-main">
                     <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color); transition: fill 0.3s;"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
                 </button>
@@ -742,7 +734,6 @@
                 <div></div>
             </div>
 
-            <!-- 玩家頭像與身份資訊卡片 -->
             <div class="player-info-card" id="btn-card-profile-quick">
                 <img id="main-player-avatar" src="" alt="頭像" class="player-avatar-small">
                 <div class="player-info-text">
@@ -771,7 +762,6 @@
                 </div>
             </div>
 
-            <!-- 維度錨點：步入輪迴 -->
             <div class="section-label">維度錨點 ANCHOR</div>
             <button type="button" class="action-main-btn" id="btn-enter-dungeon">
                 <div>
@@ -781,7 +771,6 @@
                 <span style="font-size: 22px;">→</span>
             </button>
 
-            <!-- 準備：因果與行囊 -->
             <div class="section-label">命理造化 DESTINY</div>
             <div class="menu-grid-prepare">
                 <div class="grid-card" id="menu-card-combat">
@@ -800,7 +789,6 @@
                 </div>
             </div>
 
-            <!-- 行動：往日之影 -->
             <div class="section-label">時光殘響 ECHOES</div>
             <div class="menu-grid-2">
                 <div class="grid-card" id="menu-card-history" style="grid-column: span 2;">
@@ -819,7 +807,6 @@
         <div id="samsara-page">
             <div class="samsara-header">
                 <div class="samsara-title">輪迴</div>
-                <!-- 輪迴頁面的設定按鈕（乾淨鏤空齒輪圖示） -->
                 <button type="button" id="btn-samsara-settings">
                     <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color);"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
                 </button>
@@ -830,7 +817,7 @@
                 正在接入輪迴因果數據流...
             </div>
 
-            <!-- 空隙區域：切換面板按鈕（使用 SVG） -->
+            <!-- 切換面板按鈕 -->
             <div class="samsara-switch-bar">
                 <button type="button" class="samsara-switch-btn" id="btn-toggle-samsara-panel">
                     <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
@@ -838,24 +825,13 @@
                 </button>
             </div>
 
-            <!-- 底部 3x2 控制按鈕面板 -->
-            <div class="samsara-controls" id="samsara-controls-grid">
-                <button type="button" class="samsara-btn" data-choice="A">A</button>
-                <button type="button" class="samsara-btn" data-choice="B">B</button>
-                <button type="button" class="samsara-btn" data-choice="C">C</button>
-                <button type="button" class="samsara-btn" data-choice="D">D</button>
-                <button type="button" class="samsara-btn" data-choice="E">E</button>
-                <button type="button" class="samsara-btn" id="btn-choice-custom">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                    <span style="font-size: 10px;">抉擇</span>
-                </button>
-            </div>
+            <!-- 常駐控制按鈕面板（預設為行動面板 A~E + 抉擇） -->
+            <div class="samsara-controls" id="samsara-controls-grid"></div>
         </div>
 
         <!-- 遊戲與帳號設定全螢幕頁面 -->
         <div id="settings-page" class="full-page-view">
             <h3>
-                <!-- 乾淨鏤空齒輪圖示 -->
                 <svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: var(--text-color);"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
                 遊戲與帳號設定
             </h3>
@@ -974,7 +950,7 @@
     <script>
         const PROMPT_COMBAT = `
 【因果系統規範】
-- 採《崩壞：星鐵道》回合制模式。
+- 採《崩壞：星軌道》回合制模式。
 - 回合劃分為：劇情推進階段與因果對抗回合。
 - 基礎數值參照：生命值 1000 | 攻擊力 200 | 防禦力 800 | 速度 100。
         `.trim();
@@ -1015,9 +991,6 @@
             }, 2500);
         }
 
-        /**
-         * 自訂跟隨主題的彈跳輸入視窗 (Promise-based)
-         */
         function customPrompt(title = "請輸入您的抉擇：", defaultValue = "") {
             return new Promise((resolve) => {
                 const modal = document.getElementById("custom-prompt-modal");
@@ -1083,7 +1056,7 @@
             let currentUserId = null;
             let currentUserEmail = "";
 
-            // 面板狀態管理 (0: 指令面板 A~E, 1: 系統面板)
+            // 面板狀態：預設 0 為「行動面板 (A~E+抉擇)」，1 為「系統面板」
             let currentPanelMode = 0;
 
             const applyTheme = (theme) => {
@@ -1338,6 +1311,11 @@ ${PROMPT_COMBAT}
                 }
                 
                 document.getElementById('samsara-page').style.display = 'flex';
+                
+                // 每次進入輪迴頁面時，重置為常駐行動面板
+                currentPanelMode = 0;
+                renderSamsaraControls();
+
                 const logBox = document.getElementById('samsara-text-log');
 
                 if (playerGameData.inDungeon && playerGameData.samsaraLog) {
@@ -1368,12 +1346,13 @@ ${PROMPT_COMBAT}
                 }
             });
 
-            // 控制按鈕面板切換邏輯
+            // 渲染控制面板（常駐行動面板 / SVG系統面板）
             const renderSamsaraControls = () => {
                 const grid = document.getElementById('samsara-controls-grid');
                 const label = document.getElementById('samsara-panel-label');
 
                 if (currentPanelMode === 0) {
+                    // 常駐：行動面板
                     label.innerText = "切換至系統面板";
                     grid.innerHTML = `
                         <button type="button" class="samsara-btn" data-choice="A">A</button>
@@ -1383,10 +1362,9 @@ ${PROMPT_COMBAT}
                         <button type="button" class="samsara-btn" data-choice="E">E</button>
                         <button type="button" class="samsara-btn" id="btn-choice-custom">
                             <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                            <span style="font-size: 10px;">抉擇</span>
+                            <span style="font-size: 11px;">抉擇</span>
                         </button>
                     `;
-                    // 重新繫結事件
                     grid.querySelectorAll('.samsara-btn[data-choice]').forEach(btn => {
                         btn.addEventListener('click', () => {
                             const choiceLetter = btn.getAttribute('data-choice');
@@ -1403,29 +1381,36 @@ ${PROMPT_COMBAT}
                         });
                     }
                 } else {
+                    // 切換：系統面板（全替換為向量 SVG 圖示）
                     label.innerText = "切換至行動面板";
                     grid.innerHTML = `
                         <button type="button" class="samsara-btn" id="samsara-sys-bag">
-                            <span style="font-size: 14px;">🎒 行囊</span>
+                            <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 15H4V8h16v11z"/></svg>
+                            <span>行囊</span>
                         </button>
                         <button type="button" class="samsara-btn" id="samsara-sys-status">
-                            <span style="font-size: 14px;">📊 狀態</span>
+                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                            <span>狀態</span>
                         </button>
                         <button type="button" class="samsara-btn" id="samsara-sys-map">
-                            <span style="font-size: 14px;">🗺️ 地圖</span>
+                            <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+                            <span>地圖</span>
                         </button>
                         <button type="button" class="samsara-btn" id="samsara-sys-equip">
-                            <span style="font-size: 14px;">⚔️ 裝備</span>
+                            <svg viewBox="0 0 24 24"><path d="M6.92 5c-1.2 0-2.26.77-2.6 1.92l-2.2 7.4c-.15.52.17 1.05.7 1.18.1.03.21.04.31.04.42 0 .81-.27.94-.69L5.8 9h12.4l1.73 5.85c.13.42.52.69.94.69.1 0 .21-.01.31-.04.53-.13.85-.66.7-1.18l-2.2-7.4C19.34 5.77 18.28 5 17.08 5H6.92zM12 11c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.65 0-3-1.35-3-3s1.35-3 3-3 3 1.35 3 3-1.35 3-3 3z"/></svg>
+                            <span>裝備</span>
                         </button>
                         <button type="button" class="samsara-btn" id="samsara-sys-skill">
-                            <span style="font-size: 14px;">✨ 技能</span>
+                            <svg viewBox="0 0 24 24"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>
+                            <span>技能</span>
                         </button>
                         <button type="button" class="samsara-btn" id="samsara-sys-exit">
-                            <span style="font-size: 14px; color: #ef4444;">🚪 離開</span>
+                            <svg viewBox="0 0 24 24" style="fill: #ef4444 !important;"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+                            <span style="color: #ef4444;">離開</span>
                         </button>
                     `;
-                    // 系統面板按鈕邏輯
-                    bind('samsara-sys-bag', 'click', () => showToast("已打同行囊系統"));
+                    
+                    bind('samsara-sys-bag', 'click', () => showToast("已開啟行囊系統"));
                     bind('samsara-sys-status', 'click', () => showToast(`生命：${playerGameData.hp}/${playerGameData.maxHp}`));
                     bind('samsara-sys-map', 'click', () => showToast("當前時間軸區域解析中..."));
                     bind('samsara-sys-equip', 'click', () => showToast("裝備欄位全空"));
@@ -1441,7 +1426,7 @@ ${PROMPT_COMBAT}
                 renderSamsaraControls();
             });
 
-            // 初始綁定預設按鈕
+            // 初始化載入面板
             renderSamsaraControls();
 
             bind('btn-test-api', 'click', async () => {
