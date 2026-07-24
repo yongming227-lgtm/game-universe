@@ -431,6 +431,7 @@
             z-index: 10 !important;
         }
 
+        /* AI 故事內容區塊：微調縮高，騰出下方切換列空間 */
         .samsara-story-box {
             flex: 1;
             background-color: var(--input-bg);
@@ -438,12 +439,50 @@
             border-radius: 14px;
             padding: 16px;
             overflow-y: auto;
-            margin-bottom: 16px;
+            margin-bottom: 8px; /* 縮小下邊距 */
             font-size: 14px;
             line-height: 1.7;
             color: var(--text-color);
             white-space: pre-wrap;
             box-sizing: border-box;
+        }
+
+        /* 文字區與控制按鈕之間的切換工具列 */
+        .samsara-switch-bar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .samsara-switch-btn {
+            background-color: var(--input-bg);
+            color: var(--sub-text);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+            width: auto;
+            flex: unset;
+        }
+
+        .samsara-switch-btn:hover {
+            color: var(--text-color);
+            border-color: var(--sub-text);
+        }
+
+        .samsara-switch-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
         }
 
         .samsara-controls {
@@ -786,11 +825,21 @@
                 </button>
             </div>
             
+            <!-- AI 劇情文字區塊 -->
             <div id="samsara-text-log" class="samsara-story-box">
                 正在接入輪迴因果數據流...
             </div>
 
-            <div class="samsara-controls">
+            <!-- 空隙區域：切換面板按鈕（使用 SVG） -->
+            <div class="samsara-switch-bar">
+                <button type="button" class="samsara-switch-btn" id="btn-toggle-samsara-panel">
+                    <svg viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+                    <span id="samsara-panel-label">切換至系統面板</span>
+                </button>
+            </div>
+
+            <!-- 底部 3x2 控制按鈕面板 -->
+            <div class="samsara-controls" id="samsara-controls-grid">
                 <button type="button" class="samsara-btn" data-choice="A">A</button>
                 <button type="button" class="samsara-btn" data-choice="B">B</button>
                 <button type="button" class="samsara-btn" data-choice="C">C</button>
@@ -1033,6 +1082,9 @@
 
             let currentUserId = null;
             let currentUserEmail = "";
+
+            // 面板狀態管理 (0: 指令面板 A~E, 1: 系統面板)
+            let currentPanelMode = 0;
 
             const applyTheme = (theme) => {
                 document.documentElement.setAttribute('data-theme', theme);
@@ -1316,19 +1368,81 @@ ${PROMPT_COMBAT}
                 }
             });
 
-            document.querySelectorAll('.samsara-btn[data-choice]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const choiceLetter = btn.getAttribute('data-choice');
-                    triggerSamsaraAction(`選擇選項 ${choiceLetter}`);
-                });
+            // 控制按鈕面板切換邏輯
+            const renderSamsaraControls = () => {
+                const grid = document.getElementById('samsara-controls-grid');
+                const label = document.getElementById('samsara-panel-label');
+
+                if (currentPanelMode === 0) {
+                    label.innerText = "切換至系統面板";
+                    grid.innerHTML = `
+                        <button type="button" class="samsara-btn" data-choice="A">A</button>
+                        <button type="button" class="samsara-btn" data-choice="B">B</button>
+                        <button type="button" class="samsara-btn" data-choice="C">C</button>
+                        <button type="button" class="samsara-btn" data-choice="D">D</button>
+                        <button type="button" class="samsara-btn" data-choice="E">E</button>
+                        <button type="button" class="samsara-btn" id="btn-choice-custom">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                            <span style="font-size: 10px;">抉擇</span>
+                        </button>
+                    `;
+                    // 重新繫結事件
+                    grid.querySelectorAll('.samsara-btn[data-choice]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const choiceLetter = btn.getAttribute('data-choice');
+                            triggerSamsaraAction(`選擇選項 ${choiceLetter}`);
+                        });
+                    });
+                    const customBtn = document.getElementById('btn-choice-custom');
+                    if (customBtn) {
+                        customBtn.addEventListener('click', async () => {
+                            const customChoice = await customPrompt("請輸入您的抉擇：");
+                            if (customChoice && customChoice.trim()) {
+                                triggerSamsaraAction(customChoice.trim());
+                            }
+                        });
+                    }
+                } else {
+                    label.innerText = "切換至行動面板";
+                    grid.innerHTML = `
+                        <button type="button" class="samsara-btn" id="samsara-sys-bag">
+                            <span style="font-size: 14px;">🎒 行囊</span>
+                        </button>
+                        <button type="button" class="samsara-btn" id="samsara-sys-status">
+                            <span style="font-size: 14px;">📊 狀態</span>
+                        </button>
+                        <button type="button" class="samsara-btn" id="samsara-sys-map">
+                            <span style="font-size: 14px;">🗺️ 地圖</span>
+                        </button>
+                        <button type="button" class="samsara-btn" id="samsara-sys-equip">
+                            <span style="font-size: 14px;">⚔️ 裝備</span>
+                        </button>
+                        <button type="button" class="samsara-btn" id="samsara-sys-skill">
+                            <span style="font-size: 14px;">✨ 技能</span>
+                        </button>
+                        <button type="button" class="samsara-btn" id="samsara-sys-exit">
+                            <span style="font-size: 14px; color: #ef4444;">🚪 離開</span>
+                        </button>
+                    `;
+                    // 系統面板按鈕邏輯
+                    bind('samsara-sys-bag', 'click', () => showToast("已打同行囊系統"));
+                    bind('samsara-sys-status', 'click', () => showToast(`生命：${playerGameData.hp}/${playerGameData.maxHp}`));
+                    bind('samsara-sys-map', 'click', () => showToast("當前時間軸區域解析中..."));
+                    bind('samsara-sys-equip', 'click', () => showToast("裝備欄位全空"));
+                    bind('samsara-sys-skill', 'click', () => showToast("因果技能樹已載入"));
+                    bind('samsara-sys-exit', 'click', () => {
+                        document.getElementById('samsara-page').style.display = 'none';
+                    });
+                }
+            };
+
+            bind('btn-toggle-samsara-panel', 'click', () => {
+                currentPanelMode = currentPanelMode === 0 ? 1 : 0;
+                renderSamsaraControls();
             });
 
-            bind('btn-choice-custom', 'click', async () => {
-                const customChoice = await customPrompt("請輸入您的抉擇：");
-                if (customChoice && customChoice.trim()) {
-                    triggerSamsaraAction(customChoice.trim());
-                }
-            });
+            // 初始綁定預設按鈕
+            renderSamsaraControls();
 
             bind('btn-test-api', 'click', async () => {
                 const key = document.getElementById('api-key-input').value.trim();
