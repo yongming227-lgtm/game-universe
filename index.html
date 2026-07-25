@@ -1855,6 +1855,158 @@ ${PROMPT_COMBAT}
                 showToast("身份資料已更新！");
             });
         });
+        function closeItemDetail() {
+            document.getElementById('item-detail-modal').style.display = 'none';
+        }
+        document.getElementById('btn-close-item-detail').addEventListener('click', closeItemDetail);
+        document.getElementById('item-detail-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'item-detail-modal') closeItemDetail();
+        });
+
+        async function useConsumableItem(item) {
+            if (item.id === 'item_1') {
+                window.playerGameData.hp = Math.min(window.playerGameData.maxHp, window.playerGameData.hp + 30);
+                updateMainUI();
+                item.count -= 1;
+                if (item.count <= 0) {
+                    window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
+                }
+                renderInventoryGrid();
+                closeItemDetail();
+                await saveCloudData();
+                showToast('成功使用低階復原藥水，生命值 +30！');
+            }
+        }
+
+        async function discardItem(item) {
+            window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
+            renderInventoryGrid();
+            closeItemDetail();
+            await saveCloudData();
+            showToast(`已丟棄 ${item.name}。`);
+        }
+
+        function openSettingsPage() {
+            document.getElementById('api-key-input').value = window.playerGameData.apiKey || "";
+            document.getElementById('ai-model-input').value = window.playerGameData.aiModel || "gemini-2.5-flash";
+            document.getElementById('theme-select').value = window.playerGameData.theme || "dark";
+            document.getElementById('settings-email-display').value = currentUserEmail || "未登入雲端帳號";
+            navigateTo('settings-screen');
+        }
+
+        function openProfilePage() {
+            const p = window.playerGameData.profile || {};
+            document.getElementById('profile-name-input').value = p.name || "";
+            document.getElementById('profile-personality-input').value = p.personality || "";
+            document.getElementById('profile-likes-input').value = p.likes || "";
+            document.getElementById('modal-avatar-preview').src = p.avatar || DEFAULT_AVATAR;
+            navigateTo('profile-screen');
+        }
+
+        bind('btn-save-api', 'click', async () => {
+            window.playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
+            window.playerGameData.aiModel = document.getElementById('ai-model-input').value.trim() || "gemini-2.5-flash";
+            window.playerGameData.theme = document.getElementById('theme-select').value;
+            applyTheme(window.playerGameData.theme);
+            await saveCloudData();
+            showToast('設定已成功儲存至雲端！');
+        });
+
+        bind('btn-test-api', 'click', async () => {
+            try {
+                showToast('正在測試 Gemini API 連線...');
+                const res = await callAI("請簡短回覆：連線測試成功");
+                showToast('API 連線測試成功！');
+            } catch (err) {
+                showToast('連線失敗：' + err.message);
+            }
+        });
+
+        bind('theme-select', 'change', (e) => {
+            const theme = e.target.value;
+            window.playerGameData.theme = theme;
+            applyTheme(theme);
+        });
+
+        bind('btn-save-profile', 'click', async () => {
+            window.playerGameData.profile.name = document.getElementById('profile-name-input').value.trim() || "執行者";
+            window.playerGameData.profile.personality = document.getElementById('profile-personality-input').value.trim();
+            window.playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
+            updateMainUI();
+            await saveCloudData();
+            showToast('執行者身份資訊已更新！');
+        });
+
+        bind('avatar-file-input', 'change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const base64Str = event.target.result;
+                window.playerGameData.profile.avatar = base64Str;
+                document.getElementById('modal-avatar-preview').src = base64Str;
+                updateMainUI();
+                saveCloudData();
+                showToast('自訂頭像已更新！');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        bind('btn-default-avatar', 'click', () => {
+            window.playerGameData.profile.avatar = DEFAULT_AVATAR;
+            document.getElementById('modal-avatar-preview').src = DEFAULT_AVATAR;
+            updateMainUI();
+            saveCloudData();
+            showToast('已恢復預設頭像！');
+        });
+
+        // 步入輪迴按鈕邏輯
+        bind('btn-enter-dungeon', 'click', async () => {
+            window.playerGameData.inDungeon = true;
+            navigateTo('samsara-screen');
+            const logBox = document.getElementById('samsara-text-log');
+            logBox.innerText = "正在接入輪迴因果數據流...\n";
+            try {
+                const aiResponse = await callAI("執行者已步入輪迴。請開始第一階段的隨機因果世界劇情，並在文末提供 5 個行動選項 (A, B, C, D, E)。");
+                logBox.innerText = aiResponse;
+                window.playerGameData.samsaraLog = aiResponse;
+                await saveCloudData();
+                renderSamsaraControls(aiResponse);
+            } catch (err) {
+                logBox.innerText = "因果數據流接入失敗：" + err.message;
+            }
+        });
+
+        function renderSamsaraControls(text) {
+            const grid = document.getElementById('samsara-controls-grid');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const charCode = String.fromCharCode(65 + i); // A, B, C, D, E
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'samsara-btn';
+                btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg> <span>選項 ${charCode}</span>`;
+                btn.addEventListener('click', () => handleSamsaraChoice(charCode));
+                grid.appendChild(btn);
+            }
+        }
+
+        async function handleSamsaraChoice(choiceLetter) {
+            const logBox = document.getElementById('samsara-text-log');
+            logBox.innerText += `\n\n> 您的抉擇：選項 ${choiceLetter}\n正在修正時空因果...`;
+            try {
+                const aiResponse = await callAI(`玩家選擇了選項 ${choiceLetter}。請根據此抉擇繼續推進劇情，並在文末提供新的 5 個行動選項 (A, B, C, D, E)。`);
+                logBox.innerText = aiResponse;
+                window.playerGameData.samsaraLog = aiResponse;
+                await saveCloudData();
+                renderSamsaraControls(aiResponse);
+            } catch (err) {
+                logBox.innerText += `\n因果對抗異常：${err.message}`;
+            }
+        }
+    });
+</script>
     </script>
 </body>
 </html>
