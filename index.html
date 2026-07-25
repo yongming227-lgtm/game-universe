@@ -1109,6 +1109,39 @@
         </div>
     </div>
     <script>
+        const RARITY_COLORS = {
+    common: '#9e9e9e',    // 普通 (灰)
+    uncommon: '#4caf50',  // 精良 (綠)
+    rare: '#2196f3',      // 稀有 (藍)
+    epic: '#9c27b0',      // 史詩 (紫)
+    legendary: '#ff9800'  // 傳說 (橘金)
+};
+        function renderInventoryGrid() {
+    const grid = document.getElementById('inventory-grid');
+    grid.innerHTML = '';
+
+    window.playerGameData.inventoryBag.forEach(item => {
+        const itemCard = document.createElement('div');
+        itemCard.className = `inventory-item-card rarity-${item.rarity || 'common'}`;
+        
+        // 取得該稀有度對應的顏色，若無則預設灰色
+        const rarityColor = RARITY_COLORS[item.rarity] || RARITY_COLORS.common;
+
+        itemCard.innerHTML = `
+            <div class="item-icon-container" style="border-color: ${rarityColor};">
+                <!-- 帶入動態顏色，讓 ICON 呈現稀有度色澤 -->
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="${rarityColor}">
+                    <path d="${item.svgPath || DEFAULT_ICON_PATH}"/>
+                </svg>
+            </div>
+            <span class="item-name">${item.name}</span>
+        `;
+        
+        itemCard.addEventListener('click', () => openItemDetail(item));
+        grid.appendChild(itemCard);
+    });
+}
+
         const PROMPT_COMBAT = `
 【因果系統規範】
 - 採《崩壞：星軌道》回合制模式。
@@ -1246,6 +1279,8 @@
             boots: '戰術戰靴',
             chest: '身體胸甲'
         };
+        
+
         let currentSlot = null;
         // 打開裝備背包 (彈窗)
         function openBag(slotType) {
