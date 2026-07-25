@@ -1254,7 +1254,7 @@
             //待修改
         };
         const typeNames = {
-            causal: '因果專屬裝備',
+            causal: '因果裝備',
             head: '頭部護具',
             weapon: '主手武器',
             boots: '戰術戰靴',
@@ -1360,11 +1360,8 @@
                     chest: null
                 },
                 inventoryBag: [
-                    { id: "item_1", name: "低階復原藥水", type: "consumable", icon: "🧪", count: 3, rarity: "common", desc: "修復基礎意識損傷，使用後可恢復 30 點生命值 (HP)。" },
-                    { id: "item_2", name: "因果結晶殘頁", type: "material", icon: "💎", count: 12, rarity: "common", desc: "淬鍊維度核心時不可或缺的基底材料。" },
-                    { id: "item_3", name: "維度錨點金鑰", type: "quest", icon: "🗝️", count: 1, rarity: "quest", desc: "鎖定萬界修正錄特定時間軸的重要鑰匙，不可丟棄。" }
-                ]
-            };
+                    //待更改
+                    };
             let currentUserId = null;
             let currentUserEmail = "";
             let currentPanelMode = 0;
@@ -1504,10 +1501,7 @@
                     }
                     if (!window.playerGameData.inventoryBag) {
                         window.playerGameData.inventoryBag = [
-                            { id: "item_1", name: "低階復原藥水", type: "consumable", icon: "🧪", count: 3, rarity: "common", desc: "修復基礎意識損傷，使用後可恢復 30 點生命值 (HP)。" },
-                            { id: "item_2", name: "因果結晶殘頁", type: "material", icon: "💎", count: 12, rarity: "common", desc: "淬鍊維度核心時不可或缺的基底材料。" },
-                            { id: "item_3", name: "維度錨點金鑰", type: "quest", icon: "🗝️", count: 1, rarity: "quest", desc: "鎖定萬界修正錄特定時間軸的重要鑰匙，不可丟棄。" }
-                        ];
+                            //待更改
                     }
                     if (window.playerGameData.samsaraLog) {
                         const logBox = document.getElementById('samsara-text-log');
