@@ -1903,7 +1903,7 @@ ${PROMPT_COMBAT}
             navigateTo('profile-screen');
         }
 
-        bind('btn-save-api', 'click', async () => {
+       document.getElementById('btn-save-api').addEventListener('click', async () => {
             window.playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
             window.playerGameData.aiModel = document.getElementById('ai-model-input').value.trim() || "gemini-2.5-flash";
             window.playerGameData.theme = document.getElementById('theme-select').value;
@@ -1912,7 +1912,7 @@ ${PROMPT_COMBAT}
             showToast('設定已成功儲存至雲端！');
         });
 
-        bind('btn-test-api', 'click', async () => {
+        document.getElementById('btn-test-api').addEventListener('click', async () => {
             try {
                 showToast('正在測試 Gemini API 連線...');
                 const res = await callAI("請簡短回覆：連線測試成功");
@@ -1922,13 +1922,13 @@ ${PROMPT_COMBAT}
             }
         });
 
-        bind('theme-select', 'change', (e) => {
+        document.getElementById('theme-select').addEventListener('change', (e) => {
             const theme = e.target.value;
             window.playerGameData.theme = theme;
             applyTheme(theme);
         });
 
-        bind('btn-save-profile', 'click', async () => {
+        document.getElementById('btn-save-profile').addEventListener('click', async () => {
             window.playerGameData.profile.name = document.getElementById('profile-name-input').value.trim() || "執行者";
             window.playerGameData.profile.personality = document.getElementById('profile-personality-input').value.trim();
             window.playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
@@ -1937,7 +1937,7 @@ ${PROMPT_COMBAT}
             showToast('執行者身份資訊已更新！');
         });
 
-        bind('avatar-file-input', 'change', (e) => {
+        document.getElementById('avatar-file-input').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -1952,7 +1952,7 @@ ${PROMPT_COMBAT}
             reader.readAsDataURL(file);
         });
 
-        bind('btn-default-avatar', 'click', () => {
+        document.getElementById('btn-default-avatar').addEventListener('click', () => {
             window.playerGameData.profile.avatar = DEFAULT_AVATAR;
             document.getElementById('modal-avatar-preview').src = DEFAULT_AVATAR;
             updateMainUI();
@@ -1961,7 +1961,7 @@ ${PROMPT_COMBAT}
         });
 
         // 步入輪迴按鈕邏輯
-        bind('btn-enter-dungeon', 'click', async () => {
+        document.getElementById('btn-enter-dungeon').addEventListener('click', async () => {
             window.playerGameData.inDungeon = true;
             navigateTo('samsara-screen');
             const logBox = document.getElementById('samsara-text-log');
@@ -1976,7 +1976,6 @@ ${PROMPT_COMBAT}
                 logBox.innerText = "因果數據流接入失敗：" + err.message;
             }
         });
-
         function renderSamsaraControls(text) {
             const grid = document.getElementById('samsara-controls-grid');
             grid.innerHTML = '';
