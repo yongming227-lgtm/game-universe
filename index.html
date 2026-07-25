@@ -1140,31 +1140,35 @@ async function loadPlayerInventory() {
         }
     });
 }
-        function renderInventoryGrid() {
-    const grid = document.getElementById('inventory-grid');
-    grid.innerHTML = '';
+        async function addAIGeneratedItem(itemData) {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) return;
 
-    window.playerGameData.inventoryBag.forEach(item => {
-        const itemCard = document.createElement('div');
-        itemCard.className = `inventory-item-card rarity-${item.rarity || 'common'}`;
-        
-        // 取得該稀有度對應的顏色，若無則預設灰色
-        const rarityColor = RARITY_COLORS[item.rarity] || RARITY_COLORS.common;
+    const newItem = {
+        user_id: user.user.id,
+        slot_type: itemData.slotType, // 例如 'weapon'
+        name: itemData.name,         // AI 生成的名字
+        icon: itemData.icon || SVG_ICONS[itemData.slotType],
+        hp: itemData.hp || 0,
+        atk: itemData.atk || 0,
+        def: itemData.def || 0,
+        spd: itemData.spd || 0,
+        rarity: itemData.rarity || 'common'
+    };
 
-        itemCard.innerHTML = `
-            <div class="item-icon-container" style="border-color: ${rarityColor};">
-                <!-- 帶入動態顏色，讓 ICON 呈現稀有度色澤 -->
-                <svg viewBox="0 0 24 24" width="24" height="24" fill="${rarityColor}">
-                    <path d="${item.svgPath || DEFAULT_ICON_PATH}"/>
-                </svg>
-            </div>
-            <span class="item-name">${item.name}</span>
-        `;
-        
-        itemCard.addEventListener('click', () => openItemDetail(item));
-        grid.appendChild(itemCard);
-    });
+    const { data, error } = await supabase
+        .from('player_items')
+        .insert([newItem])
+        .select();
+
+    if (!error && data) {
+        // 同步更新本地端記憶體與介面
+        inventory[newItem.slot_type].push(data[0]);
+        showToast(`獲得新裝備：${newItem.name}！`);
+    }
 }
+
+
 
         const PROMPT_COMBAT = `
 【因果系統規範】
@@ -1630,30 +1634,46 @@ ${PROMPT_COMBAT}
                 });
             });
             function renderInventoryGrid() {
-                const container = document.getElementById('inventory-grid-container');
-                container.innerHTML = '';
-                const filteredItems = (window.playerGameData.inventoryBag || []).filter(item => {
-                    if (currentTab === 'all') return true;
-                    return item.type === currentTab;
-                });
-                const totalSlots = Math.max(16, Math.ceil((filteredItems.length + 1) / 4) * 4);
-                for (let i = 0; i < totalSlots; i++) {
-                    const slot = document.createElement('div');
-                    slot.className = 'inventory-slot';
-                    if (i < filteredItems.length) {
-                        const item = filteredItems[i];
-                        slot.classList.add(`slot-rarity-${item.rarity || 'common'}`);
-                        slot.innerHTML = `
-                            <div class="slot-icon">${item.icon}</div>
-                            <div class="slot-count">x${item.count}</div>
-                        `;
-                        slot.addEventListener('click', () => openItemDetail(item));
-                    } else {
-                        slot.classList.add('empty');
-                    }
-                    container.appendChild(slot);
-                }
-            }
+    const container = document.getElementById('inventory-grid');
+    container.innerHTML = '';
+    
+    // 依據目前分頁過濾道具（保留第一張圖的 Tab 機制）
+    const filteredItems = (window.playerGameData.inventoryBag || []).filter(item => {
+        if (currentTab === 'all') return true;
+        return item.type === currentTab;
+    });
+
+    const totalSlots = Math.max(16, Math.ceil((filteredItems.length) / 4) * 4);
+    
+    for (let i = 0; i < totalSlots; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'inventory-slot';
+        
+        if (i < filteredItems.length) {
+            const item = filteredItems[i];
+            slot.classList.add(`slot-rarity-${item.rarity || 'common'}`);
+            
+            // 結合第二張圖的稀有度顏色與 SVG 渲染
+            const rarityColor = (typeof RARITY_COLORS !== 'undefined' ? RARITY_COLORS[item.rarity] : null) || '#999';
+            
+            slot.innerHTML = `
+                <div class="item-icon-container" style="border-color: ${rarityColor};">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="${rarityColor}">
+                        <path d="${item.svgPath || DEFAULT_ICON_PATH}"/>
+                    </svg>
+                </div>
+                <div class="slot-count">x${item.count || 1}</div>
+            `;
+            
+            slot.addEventListener('click', () => openItemDetail(item));
+        } else {
+            slot.classList.add('empty');
+        }
+        
+        container.appendChild(slot);
+    }
+}
+
             function openItemDetail(item) {
                 selectedItem = item;
                 document.getElementById('detail-icon').innerText = item.icon;
