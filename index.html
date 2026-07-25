@@ -738,71 +738,6 @@
     </style>
 </head>
 <body>
-    <!-- 全局 SVG 圖示倉庫 (Icon Sprite Database) -->
-<svg style="display: none;">
-    <!-- 主手武器：騎士長劍 -->
-  <g id="icon-sword-shape">
-    <path d="M14.5 17.5L3 6V3h3l11.5 11.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M13 19l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <path d="M16 16l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    <path d="M19 21l2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-  </g>
-  <!-- ==================== 頭盔類別 ==================== -->
-  <!-- A. 斯巴達戰盔 -->
-  <g id="helmet-style-a">
-    <path fill="currentColor" d="M12 2C7 2 3.5 5.5 3.5 11c0 3 1.2 5.5 2.5 7.5l2-1V15c0-.6.4-1 1-1h6c.6 0 1 .4 1 1v2.5l2 1c1.3-2 2.5-4.5 2.5-7.5 0-5.5-3.5-9-8.5-9z"/>
-    <path fill-rule="evenodd" d="M6 10.5h4.5V16H8.5c-.6 0-1-.4-1-1v-2.5L6 11.5v-1zM18 10.5h-4.5V16h2c.6 0 1-.4 1-1v-2.5l1.5-1v-1z"/>
-  </g>
-
-  <!-- B. 全覆式騎士盔 -->
-  <g id="helmet-style-b">
-    <path fill="currentColor" d="M12 2C6.5 2 3 6 3 11.5v4.5c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-4.5c0-5.5-3.5-9.5-9-9.5z"/>
-    <path stroke="#fff" stroke-width="1.2" stroke-linecap="round" d="M7 10.5h10M12 10.5v5"/>
-    <circle cx="9" cy="14" r="0.8" fill="#fff"/>
-    <circle cx="15" cy="14" r="0.8" fill="#fff"/>
-  </g>
-
-  <!-- C. 現代戰術頭盔 -->
-  <g id="helmet-style-c">
-    <path fill="currentColor" d="M12 3c-4.5 0-8 3-8 7.5V13c0 1 .8 1.5 1.5 1.5h1c.8 0 1.5-.7 1.5-1.5v-1h8v1c0 .8.7 1.5 1.5 1.5h1c.7 0 1.5-.5 1.5-1.5v-2.5C20 6 16.5 3 12 3z"/>
-    <path fill="currentColor" d="M10.5 2h3v3h-3z"/>
-  </g>
-
-  <!-- D. 科技機甲頭盔 -->
-  <g id="helmet-style-d">
-    <path fill="currentColor" d="M12 2L4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6l-8-4z"/>
-    <path stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M7 9l5 2 5-2M12 11v6"/>
-  </g>
-
-  <!-- ==================== 鞋子類別 ==================== -->
-  <!-- A. 經典板鞋 -->
-  <g id="shoes-style-a">
-    <path fill="currentColor" d="M3 18c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-1H3v1z"/>
-    <path fill="currentColor" d="M4 15.5c0-.8.4-1.5 1-2l3.5-3.5C9.2 9.3 10 9 10.8 9H13c.8 0 1.5.4 2 1l3.5 3.5c.8.8 1.5 1.2 2.5 1.5v1H4v-0.5z"/>
-    <path stroke="#fff" stroke-width="1.2" stroke-linecap="round" d="M10 10.5l3 2M11 9.5l3 2"/>
-  </g>
-
-  <!-- B. 復古慢跑鞋 -->
-  <g id="shoes-style-b">
-    <path fill="currentColor" d="M2.5 18.5c.8.8 2 1.5 3.5 1.5h13c1.1 0 2-.9 2-2v-1.5H3l-.5 2z"/>
-    <path fill="currentColor" d="M5 15c0-1 1-2 2-2h3l3.5-3.5c.6-.6 1.3-.9 2.1-.9H17c1.1 0 2 .9 2 2v4.4H5V15z"/>
-    <path stroke="#fff" stroke-width="1.2" stroke-linecap="round" d="M7 15l3-3M9.5 15l3-3"/>
-  </g>
-
-  <!-- C. 高筒籃球鞋 -->
-  <g id="shoes-style-c">
-    <path fill="currentColor" d="M3 18.5c0 1.1.9 1.5 2 1.5h14c1.1 0 2-.4 2-1.5V17H3v1.5z"/>
-    <path fill="currentColor" d="M6 16V8.5C6 7.7 6.7 7 7.5 7H10c.8 0 1.5.4 2 1l3 3.5c.8.8 1.5 1.2 2.5 1.5v3H6z"/>
-    <path stroke="#fff" stroke-width="1.2" stroke-linecap="round" d="M8 9.5h3.5M8 11.5h4M8 13.5h4.5"/>
-  </g>
-
-  <!-- D. 戰術軍靴 -->
-  <g id="shoes-style-d">
-    <path fill="currentColor" d="M3 19c0 1 1 1 2 1h14c1 0 2 0 2-1v-2H3v2z"/>
-    <path fill="currentColor" d="M4 20h2v1H4zm4 0h2v1H8zm4 0h2v1h-2zm4 0h2v1h-2z"/>
-    <path fill="currentColor" d="M6 16V6.5C6 5.7 6.7 5 7.5 5H11c.8 0 1.5.7 1.5 1.5v3l3 3c.8.8 1.5 1.2 2.5 1.5v2H6z"/>
-  </g>
-</svg>
     <div id="toast-container"></div>
     
     <!-- 道具詳情彈窗 -->
@@ -1006,25 +941,26 @@
                     <span class="slot-name-text" id="name-causal">因果裝備</span>
                 </div>
                 <!-- 左上：頭部護具 -->
-              <span class="slot-icon-text" id="icon-head">
-                  <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-                    <path d="M12 2C7 2 3.5 5.5 3.5 11c0 3 1.2 5.5 2.5 7.5l2-1V15c0-.6.4-1 1-1h6c.6 0 1 .4 1 1v2.5l2 1c1.3-2 2.5-4.5 2.5-7.5 0-5.5-3.5-9-8.5-9z"/>
-                <path fill-rule="evenodd" d="M6 10.5h4.5V16H8.5c-.6 0-1-.4-1-1v-2.5L6 11.5v-1zM18 10.5h-4.5V16h2c.6 0 1-.4 1-1v-2.5l1.5-1v-1z"/>
-              </svg>
-            </span>
-           </div>
+                <div class="equip-slot slot-top-left" onclick="openBag('head')">
+                    <span class="slot-icon-text" id="icon-head">
+                        <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 20h15.3l-.62-2.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9zm0 2c3.87 0 7 3.13 7 7 0 1.45-.44 2.8-1.19 3.92l-.39.58.33 1.26H6.25l.33-1.26-.39-.58C5.44 14.8 5 13.45 5 12c0-3.87 3.13-7 7-7z"/></svg>
+                    </span>
+                    <span class="slot-name-text" id="name-head">頭部護具</span>
+                </div>
                 <!-- 右上：主手武器 -->
                 <div class="equip-slot slot-top-right" onclick="openBag('weapon')">
                     <span class="slot-icon-text" id="icon-weapon">
-                      <svg viewBox="0 0 24 24"><use href="#icon-sword-shape"/></svg>
-                </span>
-            </div>
+                        <svg viewBox="0 0 24 24"><path d="M6.92 5c-.39 0-.75.22-.92.58l-3.8 8c-.28.59-.04 1.3.55 1.58.19.09.39.14.59.14h3.58l-1.8 3.6c-.28.59-.04 1.3.55 1.58.19.09.39.14.59.14h7.58c.39 0 .75-.22.92-.58l3.8-8c.28-.59.04-1.3-.55-1.58-.19-.09-.39-.14-.59-.14h-3.58l1.8-3.6c.28-.59.04-1.3-.55-1.58-.19-.09-.39-.14-.59-.14H6.92z"/></svg>
+                    </span>
+                    <span class="slot-name-text" id="name-weapon">主手武器</span>
+                </div>
                 <!-- 左下：戰術戰靴 -->
                 <div class="equip-slot slot-bottom-left" onclick="openBag('boots')">
                     <span class="slot-icon-text" id="icon-boots">
-                      <svg viewBox="0 0 24 24"><use href="#shoes-casual"/></svg>
-                </span>
-            </div>
+                        <svg viewBox="0 0 24 24"><path d="M19 18h-4v-2h2v-3c0-1.1-.9-2-2-2h-2V7c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-1c0-.55-.45-1-1-1zm-6-9h-2V7h2v2zm0 4h-2v-2h2v2z"/></svg>
+                    </span>
+                    <span class="slot-name-text" id="name-boots">戰術戰靴</span>
+                </div>
                 <!-- 右下：身體胸甲 -->
                 <div class="equip-slot slot-bottom-right" onclick="openBag('chest')">
                     <span class="slot-icon-text" id="icon-chest">
