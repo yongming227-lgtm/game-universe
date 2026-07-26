@@ -1633,46 +1633,56 @@ ${PROMPT_COMBAT}
                     renderInventoryGrid();
                 });
             });
-            function renderInventoryGrid() {
-    const container = document.getElementById('inventory-grid');
-    container.innerHTML = '';
-    
-    // 依據目前分頁過濾道具（保留第一張圖的 Tab 機制）
-    const filteredItems = (window.playerGameData.inventoryBag || []).filter(item => {
-        if (currentTab === 'all') return true;
-        return item.type === currentTab;
-    });
-
-    const totalSlots = Math.max(16, Math.ceil((filteredItems.length) / 4) * 4);
-    
-    for (let i = 0; i < totalSlots; i++) {
-        const slot = document.createElement('div');
-        slot.className = 'inventory-slot';
-        
-        if (i < filteredItems.length) {
-            const item = filteredItems[i];
-            slot.classList.add(`slot-rarity-${item.rarity || 'common'}`);
+                    function renderInventoryGrid() {
+            const container = document.getElementById('inventory-grid-container'); // 確保 ID 與你 HTML 一致
+            if (!container) return;
+            container.innerHTML = '';
             
-            // 結合第二張圖的稀有度顏色與 SVG 渲染
-            const rarityColor = (typeof RARITY_COLORS !== 'undefined' ? RARITY_COLORS[item.rarity] : null) || '#999';
+            // 1. 根據你想要的雙層結構（大分類與裝備細分部位）進行過濾
+            let itemsToDisplay = [];
+            let rawBag = window.playerGameData.inventoryBag || []; // 假設你的原始資料在這裡
             
-            slot.innerHTML = `
-                <div class="item-icon-container" style="border-color: ${rarityColor};">
-                    <svg viewBox="0 0 24 24" width="24" height="24" fill="${rarityColor}">
-                        <path d="${item.svgPath || DEFAULT_ICON_PATH}"/>
-                    </svg>
-                </div>
-                <div class="slot-count">x${item.count || 1}</div>
-            `;
+            if (currentTab === 'all') {
+                itemsToDisplay = rawBag;
+            } else if (currentTab === 'equipment') {
+                // 如果點擊「裝備」大分類，顯示所有裝備部位
+                const equipmentTypes = ['weapon', 'head', 'chest', 'boots', 'causal'];
+                itemsToDisplay = rawBag.filter(item => equipmentTypes.includes(item.slot_type));
+            } else {
+                // 如果點擊特定子分頁（如 weapon, head, consumable 等）
+                itemsToDisplay = rawBag.filter(item => item.slot_type === currentTab || item.type === currentTab);
+            }
             
-            slot.addEventListener('click', () => openItemDetail(item));
-        } else {
-            slot.classList.add('empty');
+            const totalSlots = Math.max(16, Math.ceil(itemsToDisplay.length / 4) * 4);
+            
+            for (let i = 0; i < totalSlots; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inventory-slot';
+                
+                if (i < itemsToDisplay.length) {
+                    const item = itemsToDisplay[i];
+                    
+                    // 2. 抓取稀有度對應的顏色
+                    const rarityColor = (typeof RARITY_COLORS !== 'undefined' ? RARITY_COLORS[item.rarity] : null) || '#999';
+                    
+                    // 3. 按照你的需求：顏色變化套用在 SVG 填色（fill）與 stroke 上，取消原本的 border 變色
+                    slot.innerHTML = `
+                        <div class="slot-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24" style="fill: ${rarityColor}; stroke: ${rarityColor};">
+                                <path d="${item.svgPath || item.icon || DEFAULT_ICON_PATH}"></path>
+                            </svg>
+                        </div>
+                        <div class="slot-count">${item.count > 1 ? item.count : ''}</div>
+                    `;
+                    
+                    slot.addEventListener('click', () => openItemDetail(item));
+                } else {
+                    slot.classList.add('empty');
+                }
+                
+                container.appendChild(slot);
+            }
         }
-        
-        container.appendChild(slot);
-    }
-}
 
             function openItemDetail(item) {
                 selectedItem = item;
