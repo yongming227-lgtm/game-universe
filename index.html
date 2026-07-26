@@ -7,6 +7,18 @@
     <!-- 引入 Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        .slot-icon.rarity-common { color: #9e9e9e; }
+.slot-icon.rarity-uncommon { color: #4caf50; }
+.slot-icon.rarity-rare { color: #2196f3; }
+.slot-icon.rarity-epic { color: #9c27b0; }
+.slot-icon.rarity-legendary { color: #ff9800; }
+
+.slot-icon svg {
+    width: 70%;
+    height: 70%;
+    fill: currentColor;
+}
+
         :root {
             --bg-color: #f8f9fa;
             --card-bg: #ffffff;
@@ -1118,28 +1130,38 @@
     legendary: '#ff9800'  // 傳說 (橘金)
 };
                 // 從 Supabase 載入玩家的裝備與道具
-async function loadPlayerInventory() {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return;
+        async function loadPlayerInventory() {
+            const { data: user } = await supabase.auth.getUser();
+            if (!user.user) return;
 
-    const { data, error } = await supabase
-        .from('player_items')
-        .select('*')
-        .eq('user_id', user.user.id);
+            const { data, error } = await supabase
+                .from('player_items')
+                .select('*')
+                .eq('user_id', user.user.id);
 
-    if (error) {
-        console.error('載入背包失敗:', error);
-        return;
-    }
+            if (error) {
+                console.error('載入背包失敗：', error);
+                return;
+            }
 
-    // 將資料分類對應回原本的 inventory 結構格式
-    inventory = { causal: [], head: [], weapon: [], boots: [], chest: [] };
-    data.forEach(item => {
-        if (inventory[item.slot_type]) {
-            inventory[item.slot_type].push(item);
+            inventory = {
+                consumable: [],
+                equipment: { weapon: [], head: [], chest: [], boots: [], causal: [] },
+                material: [],
+                quest: []
+            };
+
+            data.forEach(item => {
+                if (inventory.equipment[item.slot_type]) {
+                    inventory.equipment[item.slot_type].push(item);
+                } else if (inventory[item.slot_type]) {
+                    inventory[item.slot_type].push(item);
+                }
+            });
+
+            renderInventoryGrid();
         }
-    });
-}
+
         async function addAIGeneratedItem(itemData) {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) return;
@@ -1839,7 +1861,7 @@ ${PROMPT_COMBAT}
                         </button>
                         <button type="button" class="samsara-btn" id="samsara-sys-causal">
                             <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6 0 2.21 1.2 4.15 3 5.19 1.16.67 2.06.31 2.58-.21.46-.46.34-1.25-.18-1.63C10.5 14.71 10 13.42 10 12c0-1.1.9-2 2-2s2 .9 2 2c0 .55.45 1 1 1s1-.45 1-1c0-2.21-1.79-4-4-4z"/></svg>
-                            <span>因果面板</span>
+                            <span>因果</span>
                         </button>
                         <button type="button" class="samsara-btn" id="samsara-sys-skill">
                             <svg viewBox="0 0 24 24"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>
@@ -2069,6 +2091,77 @@ ${PROMPT_COMBAT}
                 logBox.innerText += `\n因果對抗異常：${err.message}`;
             }
         }
+                async function deleteItemFromSupabase(item) {
+            // 如果道具數量大於 1，詢問要丟棄多少個
+            let discardCount = 1;
+            const maxCount = item.count || 1;
+
+            if (maxCount > 1) {
+                const input = prompt(`「${item.name}」目前擁有 ${maxCount} 個，請問要丟棄多少個？`, "1");
+                if (input === null) return; // 玩家點擊取消
+                
+                discardCount = parseInt(input, 10);
+                
+                // 驗證輸入是否合法
+                if (isNaN(discardCount) || discardCount <= 0) {
+                    showToast('請輸入有效的數量！');
+                    return;
+                }
+                if (discardCount > maxCount) {
+                    showToast('丟棄數量不能大於擁有的數量！');
+                    return;
+                }
+            } else {
+                if (!confirm(`確定要永久丟棄 ${item.name} 嗎？`)) return;
+            }
+
+            // 計算剩餘數量
+            const remainingCount = maxCount - discardCount;
+
+            if (remainingCount > 0) {
+                // 情況 A：數量沒扣完，只需要更新資料庫的 count 欄位
+                const { error } = await supabase
+                    .from('player_items')
+                    .update({ count: remainingCount })
+                    .eq('id', item.id);
+
+                if (error) {
+                    console.error('更新道具數量失敗：', error);
+                    showToast('操作失敗，請稍後再試');
+                    return;
+                }
+
+                // 更新前端記憶體中的數量
+                item.count = remainingCount;
+                showToast(`已丟棄 ${item.name} x${discardCount}`);
+
+            } else {
+                // 情況 B：數量歸零，直接從資料庫刪除該筆紀錄
+                const { error } = await supabase
+                    .from('player_items')
+                    .delete()
+                    .eq('id', item.id);
+
+                if (error) {
+                    console.error('刪除道具失敗：', error);
+                    showToast('刪除失敗，請稍後再試');
+                    return;
+                }
+
+                // 從前端雙層結構中移除該物品
+                if (inventory.equipment && inventory.equipment[item.slot_type]) {
+                    inventory.equipment[item.slot_type] = inventory.equipment[item.slot_type].filter(i => i.id !== item.id);
+                } else if (inventory[item.slot_type]) {
+                    inventory[item.slot_type] = inventory[item.slot_type].filter(i => i.id !== item.id);
+                }
+
+                showToast(`已完全丟棄 ${item.name}`);
+            }
+
+            closeItemDetail();
+            renderInventoryGrid();
+        }
+
 </script>
     </script>
 </body>
