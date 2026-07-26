@@ -1189,6 +1189,32 @@
         showToast(`獲得新裝備：${newItem.name}！`);
     }
 }
+                function obtainItem(newItem) {
+            // 判斷該放入哪個陣列
+            let targetArray;
+            if (inventory.equipment[newItem.slot_type]) {
+                targetArray = inventory.equipment[newItem.slot_type];
+            } else if (inventory[newItem.slot_type]) {
+                targetArray = inventory[newItem.slot_type];
+            } else {
+                // 預防萬一找不到就預設丟進 material 或其他
+                targetArray = inventory.material;
+            }
+            
+            const existing = targetArray.find(item => item.id === newItem.id);
+            if (existing) {
+                existing.count = (existing.count || 1) + (newItem.count || 1);
+                showToast(`獲得道具：${newItem.name} x${newItem.count || 1}`);
+            } else {
+                targetArray.push({ ...newItem, count: newItem.count || 1 });
+                showToast(`新物品解鎖：${newItem.name}！`);
+            }
+            
+            if (document.getElementById('inventory-screen').style.display === 'block') {
+                renderInventoryGrid();
+            }
+        }
+
 
 
 
@@ -1301,8 +1327,18 @@
         };
 
         const inventory = {
-            //待修改
+            consumable: [],
+            equipment: {
+                weapon: [],
+                head: [],
+                chest: [],
+                boots: [],
+                causal: []
+            },
+            material: [],
+            quest: []
         };
+
         const typeNames = {
             causal: '因果裝備',
             head: '頭部護具',
@@ -1737,24 +1773,28 @@ ${PROMPT_COMBAT}
                 document.getElementById('item-detail-modal').style.display = 'none';
             }
             bind('btn-close-item-detail', 'click', closeItemDetail);
-            async function useConsumableItem(item) {
-                if (item.id === 'item_1') {
-                    if (window.playerGameData.hp >= window.playerGameData.maxHp) {
-                        showToast("生命值已經全滿，無需使用！");
-                        return;
-                    }
-                    window.playerGameData.hp = Math.min(window.playerGameData.maxHp, window.playerGameData.hp + 30);
-                    showToast(`使用了 ${item.name}，恢復了 30 點生命值！`);
+                    function useConsumableItem(item) {
+            if (item.id === 'item_1') {
+                if (window.playerGameData.hp >= window.playerGameData.maxHp) {
+                    showToast("生命值已全滿，無需使用！");
+                    return;
                 }
-                item.count -= 1;
-                if (item.count <= 0) {
-                    window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
-                }
+                window.playerGameData.hp = Math.min(window.playerGameData.maxHp, window.playerGameData.hp + 30);
+                showToast(`使用了 ${item.name}，恢復了 30 點生命值！`);
                 updateMainUI();
-                renderInventoryGrid();
-                closeItemDetail();
-                await window.saveCloudData();
             }
+            
+            item.count -= 1;
+            if (item.count <= 0) {
+                // 從 consumable 陣列中移除
+                inventory.consumable = inventory.consumable.filter(i => i.id !== item.id);
+                closeItemDetail();
+            } else {
+                openItemDetail(item);
+            }
+            renderInventoryGrid();
+        }
+
             async function discardItem(item) {
                 window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
                 showToast(`已丟棄 ${item.name}。`);
