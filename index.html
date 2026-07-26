@@ -526,50 +526,90 @@
         .slot-rarity-quest { border-color: var(--rarity-quest); box-shadow: inset 0 0 8px rgba(245, 158, 11, 0.2); }
         
         /* ---------------- 嵌入式：因果面板 X 型陣型樣式 ---------------- */
-        .equip-formation {
-            position: relative;
-            width: 260px;
-            height: 260px;
-            margin: 0 auto 24px auto;
-        }
-        .equip-slot {
-            position: absolute;
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: var(--input-bg);
-            border: 2px dashed var(--border-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            user-select: none;
-        }
-        .equip-slot:hover {
-            border-color: #4a90e2;
-            background: var(--badge-bg);
-            transform: scale(1.05);
-        }
-        .equip-slot.has-item {
-            border-style: solid;
-            border-color: #2b6cb0;
-            background: var(--badge-bg);
-        }
-        .slot-icon-text { 
-            font-size: 20px; 
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .slot-icon-text svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--text-color);
-        }
-        .slot-name-text { font-size: 10px; color: var(--sub-text); font-weight: 600; }
+       /* 因果裝備面板：覆蓋原本對應的 CSS 區塊即可。 */
+.equip-formation {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 0 auto 24px;
+  flex: 0 0 260px;
+}
+
+.equip-slot {
+  position: absolute;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--input-bg);
+  border: 2px dashed var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  overflow: hidden;
+  transform-origin: center;
+  transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+  user-select: none;
+}
+
+.equip-slot:hover {
+  border-color: #4a90e2;
+  background: var(--badge-bg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #4a90e2 18%, transparent);
+}
+
+/* 中央欄位必須永遠保留 translate；舊版 hover 的 transform: scale() 會把它推離中心。 */
+.slot-center {
+  top: 50%;
+  left: 50%;
+  width: 84px;
+  height: 84px;
+  transform: translate(-50%, -50%);
+  border-color: var(--slot-center-border);
+  background: var(--slot-center-bg);
+}
+.slot-center:hover { transform: translate(-50%, -50%); }
+
+.slot-top-left { top: 0; left: 0; }
+.slot-top-right { top: 0; right: 0; }
+.slot-bottom-left { bottom: 0; left: 0; }
+.slot-bottom-right { right: 0; bottom: 0; }
+
+.slot-icon-text {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+}
+.slot-icon-text svg,
+.slot-icon-text .causal-slot-asset {
+  display: block;
+  width: 28px;
+  height: 28px;
+  max-width: 28px;
+  max-height: 28px;
+  object-fit: contain;
+}
+.slot-center .slot-icon-text { width: 34px; height: 34px; flex-basis: 34px; }
+.slot-center .slot-icon-text svg,
+.slot-center .slot-icon-text .causal-slot-asset { width: 32px; height: 32px; max-width: 32px; max-height: 32px; }
+
+.slot-name-text {
+  display: block;
+  width: 62px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 14px;
+  font-size: 10px;
+  color: var(--sub-text);
+  font-weight: 600;
+}
+.slot-center .slot-name-text { width: 72px; }
         
         /* X 型方位定位 */
         .slot-center { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 84px; height: 84px; border-color: var(--slot-center-border); background: var(--slot-center-bg); }
