@@ -1159,1085 +1159,560 @@
 
     <script>
 
-        const RARITY_COLORS = {
-    common: '#9e9e9e',    // 普通 (灰)
-    uncommon: '#4caf50',  // 精良 (綠)
-    rare: '#2196f3',      // 稀有 (藍)
-    epic: '#9c27b0',      // 史詩 (紫)
-    legendary: '#ff9800'  // 傳說 (橘金)
-};
-                // 從 Supabase 載入玩家的裝備與道具
-        async function loadPlayerInventory() {
-            const { data: user } = await supabase.auth.getUser();
-            if (!user.user) return;
+       /* 臨界軸：萬界修正錄 — 整理後的唯一 JavaScript 版本
+ * 以 player_items 為背包唯一資料來源；player_saves 只保存角色進度。
+ */
+(() => {
+  'use strict';
 
-            const { data, error } = await supabase
-                .from('player_items')
-                .select('*')
-                .eq('user_id', user.user.id);
+  const SUPABASE_URL = 'https://xjuspusyimjdgitsbaku.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8';
 
-            if (error) {
-                console.error('載入背包失敗：', error);
-                return;
-            }
+  // ===== 遊戲內容提示詞（版本更新請直接修改這裡） =====
+  const GAME_CONTENT_VERSION = '1.0.0';
+  const GAME_CONTENT_PROMPT = String.raw`
+在此填寫本次遊戲版本的永久規則與內容。
+例如：世界觀、新地圖、勢力、敵人、職業、掉落規則、任務線與禁止事項。
 
-            inventory = {
-                consumable: [],
-                equipment: { weapon: [], head: [], chest: [], boots: [], causal: [] },
-                material: [],
-                quest: []
-            };
+請把這段範例改成你的正式提示詞；它會在每一次 AI 劇情與掉落生成請求中自動送出。
+`;
+  // ===== 遊戲內容提示詞結束 =====
+  const EQUIPMENT_SLOTS = new Set(['causal', 'head', 'weapon', 'boots', 'chest']);
+  const ITEM_TYPES = new Set(['causal', 'head', 'weapon', 'boots', 'chest', 'consumable', 'material', 'quest']);
+  const RARITY_COLORS = { common: '#9e9e9e', uncommon: '#4caf50', rare: '#2196f3', epic: '#9c27b0', legendary: '#ff9800' };
+  // 所有戰利品共用的稀有度平衡表。調整這裡即可改動整個遊戲版本的掉落強度。
+  const RARITY_BALANCE = {
+    common: { statMultiplier: 1.00, foodHealthRatio: 0.03, foodStaminaRatio: 0.25 },
+    uncommon: { statMultiplier: 1.35, foodHealthRatio: 0.045, foodStaminaRatio: 0.35 },
+    rare: { statMultiplier: 1.80, foodHealthRatio: 0.065, foodStaminaRatio: 0.50 },
+    epic: { statMultiplier: 2.45, foodHealthRatio: 0.09, foodStaminaRatio: 0.70 },
+    legendary: { statMultiplier: 3.30, foodHealthRatio: 0.12, foodStaminaRatio: 1.00 }
+  };
+  const STAMINA_PER_SAMSARA_ACTION = 8;
+  const TYPE_NAMES = { causal: '因果裝備', head: '頭部護具', weapon: '主手武器', boots: '戰術戰靴', chest: '身體胸甲', consumable: '消耗品', material: '材料', quest: '劇情道具' };
+  const svg = (content, label = '', viewBox = '0 0 24 24') => `<svg class="game-svg-icon" viewBox="${viewBox}" role="img" aria-label="${label}">${content}</svg>`;
+  const GAME_SVG = {
+    bolt: svg('<path d="M13 2 4 14h7l-1 8 10-14h-7z"/>', '通知'),
+    gem: svg('<path d="m12 2 8 10-8 10L4 12zM4 12h16M12 2v20"/>', '物品'),
+    food: svg('<path d="M12 21C4 17 6 8 12 10c6-2 8 7 0 11Z"/><path d="M12 10c0-3 1-5 4-6M12 7c2-2 4-2 6-1"/>', '食物'),
+    fragment: svg('<path d="m12 2 7 7-3 13H8L5 9zM5 9l7 4 7-4M12 13v9"/>', '材料碎片'),
+    key: svg('<path d="M8 4a5 5 0 1 0 4 8h8v3h-3v3h-3v-3h-2A5 5 0 0 0 8 4Zm0 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>', '鑰匙'),
+    book: svg('<path d="M3 4c3-1 5 0 9 3v13c-4-3-6-4-9-3Zm18 0c-3-1-5 0-9 3v13c4-3 6-4 9-3ZM12 7v13"/>', '書'),
+    causal: svg('<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16z"/>', '因果裝備'),
+    chest: svg('<path d="m12 2-8 4v6c0 5 3.4 9.6 8 10 4.6-.4 8-5 8-10V6z"/>', '胸甲')
+  };
+  // 三個指定 SVG 檔已與各自的「修改.txt」逐一雜湊比對，內容完全一致。
+  const SVG_ICONS = {
+    causal: GAME_SVG.causal,
+    head: '<img class="causal-slot-asset" src="./頭盔.svg" alt="頭盔">',
+    weapon: '<img class="causal-slot-asset" src="./劍.svg" alt="劍">',
+    boots: '<img class="causal-slot-asset" src="./靴子.svg.svg" alt="靴子">',
+    chest: GAME_SVG.chest,
+    consumable: GAME_SVG.food, food: GAME_SVG.food, material: GAME_SVG.fragment, fragment: GAME_SVG.fragment,
+    key: GAME_SVG.key, quest: GAME_SVG.book, book: GAME_SVG.book, default: GAME_SVG.gem
+  };
+  const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23818cf8'><path d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm0 14.2A7.2 7.2 0 0 1 6 16c.1-2 4-3.1 6-3.1s5.9 1.1 6 3.1a7.2 7.2 0 0 1-6 3.2z'/></svg>";
 
-            data.forEach(item => {
-                if (inventory.equipment[item.slot_type]) {
-                    inventory.equipment[item.slot_type].push(item);
-                } else if (inventory[item.slot_type]) {
-                    inventory[item.slot_type].push(item);
-                }
-            });
+  if (!window.supabase) {
+    console.error('Supabase SDK 尚未載入。請確認 HTML 已先引入 @supabase/supabase-js。');
+    return;
+  }
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentUserId = null;
+  let currentUserEmail = '';
+  let currentSlot = null;
+  let currentTab = 'all';
+  let currentPanelMode = 0;
+  let aiBusy = false;
+  let pageHistory = ['main-screen'];
+  let inventory = [];
 
-            renderInventoryGrid();
-        }
+  const defaultGameData = () => ({
+    apiKey: '', aiModel: 'gemini-2.5-flash', theme: 'dark', inDungeon: false, ember: 0,
+    dimensionCore: '未同步', hp: 0, maxHp: 0, stamina: 100, maxStamina: 100,
+    // 新角色的數值由開場 AI state 建立；之後只以雲端存檔與收斂後 AI state 更新。
+    baseStats: { hp: 0, atk: 0, def: 0, spd: 0 },
+    samsaraLog: '正在接入輪迴因果數據流...',
+    profile: { name: '執行者', avatar: DEFAULT_AVATAR, personality: '', likes: '', setupCompleted: true },
+    equippedCausal: { causal: null, head: null, weapon: null, boots: null, chest: null }
+  });
+  window.playerGameData = defaultGameData();
 
-        async function addAIGeneratedItem(itemData) {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) return;
-
-    const newItem = {
-        user_id: user.user.id,
-        slot_type: itemData.slotType, // 例如 'weapon'
-        name: itemData.name,         // AI 生成的名字
-        icon: itemData.icon || SVG_ICONS[itemData.slotType],
-        hp: itemData.hp || 0,
-        atk: itemData.atk || 0,
-        def: itemData.def || 0,
-        spd: itemData.spd || 0,
-        rarity: itemData.rarity || 'common'
+  const byId = (id) => document.getElementById(id);
+  const bind = (id, event, handler) => { const el = byId(id); if (el) el.addEventListener(event, handler); };
+  const itemType = (item) => item?.slot_type || item?.slotType || item?.type || 'material';
+  const itemKind = (item) => item?.item_kind || item?.itemKind || (itemType(item) === 'consumable' ? 'food' : itemType(item) === 'material' ? 'fragment' : itemType(item) === 'quest' ? 'book' : '');
+  const isEquipment = (item) => EQUIPMENT_SLOTS.has(itemType(item));
+  const apiKey = () => window.playerGameData.apiKey || '';
+  const rarityBalance = (item) => RARITY_BALANCE[item?.rarity] || RARITY_BALANCE.common;
+  function effectiveItemStats(item) {
+    const multiplier = rarityBalance(item).statMultiplier;
+    return {
+      hp: Math.round((Number(item?.hp) || 0) * multiplier),
+      atk: Math.round((Number(item?.atk) || 0) * multiplier),
+      def: Math.round((Number(item?.def) || 0) * multiplier),
+      spd: Math.round((Number(item?.spd) || 0) * multiplier)
     };
+  }
 
-    const { data, error } = await supabase
-        .from('player_items')
-        .insert([newItem])
-        .select();
+  function showToast(message) {
+    const container = byId('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    const icon = document.createRange().createContextualFragment(`${GAME_SVG.bolt} `);
+    const label = document.createElement('span');
+    label.textContent = String(message);
+    toast.append(icon, label);
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 2500);
+  }
 
-    if (!error && data) {
-        // 同步更新本地端記憶體與介面
-        inventory[newItem.slot_type].push(data[0]);
-        showToast(`獲得新裝備：${newItem.name}！`);
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme || 'dark');
+    const select = byId('theme-select');
+    if (select) select.value = theme || 'dark';
+  }
+
+  function renderScreen(screenId) {
+    document.querySelectorAll('.screen-view').forEach((el) => { el.style.display = el.id === screenId ? (screenId === 'samsara-screen' ? 'flex' : 'block') : 'none'; });
+  }
+  function navigateTo(screenId) {
+    if (pageHistory.at(-1) !== screenId) pageHistory.push(screenId);
+    renderScreen(screenId);
+  }
+  function navigateBack() {
+    if (pageHistory.length > 1) pageHistory.pop();
+    renderScreen(pageHistory.at(-1));
+  }
+  function goHome() { pageHistory = ['main-screen']; renderScreen('main-screen'); }
+
+  function updateCausalStats() {
+    const equipped = window.playerGameData.equippedCausal || {};
+    const base = window.playerGameData.baseStats || {};
+    const stats = { hp: Number(base.hp) || Number(window.playerGameData.maxHp) || 0, atk: Number(base.atk) || 0, def: Number(base.def) || 0, spd: Number(base.spd) || 0 };
+    Object.values(equipped).filter(Boolean).forEach((item) => {
+      const bonus = effectiveItemStats(item);
+      for (const key of Object.keys(stats)) stats[key] += bonus[key];
+    });
+    for (const [key, value] of Object.entries(stats)) { const el = byId(`stat-${key}`); if (el) el.textContent = String(value); }
+    const stamina = Math.max(0, Number(window.playerGameData.stamina) || 0), maxStamina = Math.max(1, Number(window.playerGameData.maxStamina) || 100);
+    if (byId('stat-stamina')) byId('stat-stamina').textContent = `${stamina}/${maxStamina}`;
+  }
+  function updateMainUI() {
+    const data = window.playerGameData;
+    if (byId('main-player-name')) byId('main-player-name').textContent = data.profile?.name || '執行者';
+    if (byId('main-player-avatar')) byId('main-player-avatar').src = data.profile?.avatar || DEFAULT_AVATAR;
+    if (byId('display-ember')) byId('display-ember').textContent = String(data.ember || 0);
+    if (byId('display-dimension-core')) byId('display-dimension-core').textContent = data.dimensionCore || '未同步';
+    const hp = Math.max(0, Number(data.hp) || 0), maxHp = Math.max(0, Number(data.maxHp) || 0), safeMaxHp = Math.max(1, maxHp);
+    if (byId('display-hp-text')) byId('display-hp-text').textContent = `${hp}/${maxHp}`;
+    if (byId('hp-bar-fill')) byId('hp-bar-fill').style.width = `${Math.min(100, hp / safeMaxHp * 100)}%`;
+    const stamina = Math.max(0, Number(data.stamina) || 0), maxStamina = Math.max(1, Number(data.maxStamina) || 100);
+    if (byId('display-stamina-text')) byId('display-stamina-text').textContent = `${stamina}/${maxStamina}`;
+    if (byId('stamina-bar-fill')) byId('stamina-bar-fill').style.width = `${Math.min(100, stamina / maxStamina * 100)}%`;
+    for (const slot of EQUIPMENT_SLOTS) {
+      const item = data.equippedCausal?.[slot];
+      const icon = byId(`icon-${slot}`), name = byId(`name-${slot}`);
+      // 即使尚未裝備，也固定顯示對應部位圖示，避免欄位寬高因內容改變。
+      if (icon) icon.innerHTML = item ? safeSvg(item) : SVG_ICONS[slot];
+      if (name) name.textContent = item?.name || '未裝備';
     }
-}
-                function obtainItem(newItem) {
-            // 判斷該放入哪個陣列
-            let targetArray;
-            if (inventory.equipment[newItem.slot_type]) {
-                targetArray = inventory.equipment[newItem.slot_type];
-            } else if (inventory[newItem.slot_type]) {
-                targetArray = inventory[newItem.slot_type];
-            } else {
-                // 預防萬一找不到就預設丟進 material 或其他
-                targetArray = inventory.material;
-            }
-            
-            const existing = targetArray.find(item => item.id === newItem.id);
-            if (existing) {
-                existing.count = (existing.count || 1) + (newItem.count || 1);
-                showToast(`獲得道具：${newItem.name} x${newItem.count || 1}`);
-            } else {
-                targetArray.push({ ...newItem, count: newItem.count || 1 });
-                showToast(`新物品解鎖：${newItem.name}！`);
-            }
-            
-            if (document.getElementById('inventory-screen').style.display === 'block') {
-                renderInventoryGrid();
-            }
-        }
+    updateCausalStats();
+  }
 
+  function safeSvg(item) {
+    const icon = item?.icon;
+    return Object.values(SVG_ICONS).includes(icon) ? icon : (SVG_ICONS[itemKind(item)] || SVG_ICONS[itemType(item)] || SVG_ICONS.default);
+  }
+  function addInventoryIcon(parent, item) {
+    const icon = document.createElement('div');
+    icon.className = 'slot-icon';
+    icon.style.color = RARITY_COLORS[item.rarity] || '#999';
+    icon.innerHTML = safeSvg(item);
+    parent.appendChild(icon);
+  }
 
+  async function loadCloudData() {
+    if (!currentUserId) return;
+    const { data, error } = await supabaseClient.from('player_saves').select('game_data').eq('user_id', currentUserId).maybeSingle();
+    if (error) throw error;
+    if (data?.game_data) {
+      const saved = data.game_data;
+      window.playerGameData = {
+        ...defaultGameData(), ...saved,
+        profile: { ...defaultGameData().profile, ...(saved.profile || {}) },
+        equippedCausal: { ...defaultGameData().equippedCausal, ...(saved.equippedCausal || {}) }
+      };
+    } else await saveCloudData();
+    applyTheme(window.playerGameData.theme);
+    updateMainUI();
+  }
+  async function saveCloudData() {
+    if (!currentUserId) return;
+    const { error } = await supabaseClient.from('player_saves').upsert({ user_id: currentUserId, game_data: window.playerGameData, updated_at: new Date().toISOString() });
+    if (error) throw error;
+  }
+  window.saveCloudData = saveCloudData;
 
+  async function loadPlayerInventory() {
+    if (!currentUserId) return;
+    const { data, error } = await supabaseClient.from('player_items').select('*').eq('user_id', currentUserId);
+    if (error) throw error;
+    inventory = (data || []).map((item) => ({ ...item, count: Math.max(1, Number(item.count) || 1) }));
+    if (await migrateLegacyInventory()) {
+      const { data: migratedData, error: migratedError } = await supabaseClient.from('player_items').select('*').eq('user_id', currentUserId);
+      if (migratedError) throw migratedError;
+      inventory = (migratedData || []).map((item) => ({ ...item, count: Math.max(1, Number(item.count) || 1) }));
+    }
+    renderInventoryGrid();
+  }
+  async function persistItem(item) {
+    const { error } = await supabaseClient.from('player_items').update({ count: item.count }).eq('id', item.id).eq('user_id', currentUserId);
+    if (error) throw error;
+  }
+  async function deleteItem(item) {
+    const { error } = await supabaseClient.from('player_items').delete().eq('id', item.id).eq('user_id', currentUserId);
+    if (error) throw error;
+  }
+  async function addAIGeneratedItem(itemData) {
+    if (!currentUserId) throw new Error('請先登入。');
+    const slot_type = itemData.slotType || itemData.slot_type || 'material';
+    const newItem = { user_id: currentUserId, slot_type, item_kind: itemKind(itemData), name: itemData.name || '未命名物品', description: itemData.desc || itemData.description || '', heal: Number(itemData.heal) || 0, icon: safeSvg(itemData), hp: Number(itemData.hp) || 0, atk: Number(itemData.atk) || 0, def: Number(itemData.def) || 0, spd: Number(itemData.spd) || 0, rarity: itemData.rarity || 'common', count: Math.max(1, Number(itemData.count) || 1) };
+    const { data, error } = await supabaseClient.from('player_items').insert(newItem).select().single();
+    if (error) throw error;
+    inventory.push(data);
+    renderInventoryGrid();
+    showToast(`獲得新物品：${data.name}`);
+    return data;
+  }
+  window.addAIGeneratedItem = addAIGeneratedItem;
 
-        const PROMPT_COMBAT = `
-【因果系統規範】
-- 採《崩壞：星軌道》回合制模式。
-- 回合劃分為：劇情推進階段與因果對抗回合。
-- 基礎數值參照：生命值 1000 | 攻擊力 200 | 防禦力 800 | 速度 100.
-        `.trim();
-        const PROMPT_LORE = `
-【世界觀與背景設定】
-- 遊戲名稱：臨界軸：萬界修正錄
-- 維度核心：高級貨幣，極其稀有，用於修正多元宇宙錯誤時間軸.
-        `.trim();
-        const PROMPT_RULES = `
-【AI 行為規則】
-- 扮演臨界奇點的管理者與旁白。
-- 語氣需冷酷、神祕、具壓迫感。
-- 請以第一人稱或客觀旁白引導玩家進行輪迴體驗。
-- **重要限制**：每次輸出完劇情後，必須於文末明確提供 5 個行動選項，格式如下：
-  A. [選項A描述]
-  B. [選項B描述]
-  C. [選項C描述]
-  D. [選項D描述]
-  E. [選項E描述]
-        `.trim();
-        const SUPABASE_URL = "https://xjuspusyimjdgitsbaku.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqdXNwdXN5aW1qZGdpdHNiYWt1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ3NjQ0MjAsImV4cCI6MjEwMDM0MDQyMH0.JxOOR-_7UpnRTlA2Luh8htAoCJAUEcrAAd-o2KXp1s8";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // --- 頁面歷史紀錄導航 ---
-        let pageHistory = ["main-screen"];
-        function navigateTo(screenId) {
-            const currentScreen = pageHistory[pageHistory.length - 1];
-            if (currentScreen === screenId) return;
-            pageHistory.push(screenId);
-            renderScreen(screenId);
-        }
-        function navigateBack() {
-            if (pageHistory.length > 1) {
-                pageHistory.pop();
-                const previousScreen = pageHistory[pageHistory.length - 1];
-                renderScreen(previousScreen);
-            }
-        }
-        function renderScreen(screenId) {
-            document.querySelectorAll('.screen-view').forEach(el => {
-                if (el.id === screenId) {
-                    el.style.display = screenId === 'samsara-screen' ? 'flex' : 'block';
-                } else {
-                    el.style.display = 'none';
-                }
-            });
-        }
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const toast = document.createElement('div');
-            toast.className = 'toast-message';
-            toast.innerHTML = `⚡ <span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 2500);
-        }
-        function customPrompt(title = "請輸入您的抉擇：", defaultValue = "") {
-            return new Promise((resolve) => {
-                const modal = document.getElementById("custom-prompt-modal");
-                const titleEl = document.getElementById("custom-prompt-title");
-                const inputEl = document.getElementById("custom-prompt-input");
-                const confirmBtn = document.getElementById("custom-prompt-confirm");
-                const cancelBtn = document.getElementById("custom-prompt-cancel");
-                titleEl.textContent = title;
-                inputEl.value = defaultValue;
-                modal.classList.remove("hidden");
-                setTimeout(() => {
-                    inputEl.focus();
-                    inputEl.select();
-                }, 50);
-                const cleanup = () => {
-                    modal.classList.add("hidden");
-                    confirmBtn.removeEventListener("click", onConfirm);
-                    cancelBtn.removeEventListener("click", onCancel);
-                    inputEl.removeEventListener("keydown", onKeyDown);
-                };
-                const onConfirm = () => {
-                    const value = inputEl.value;
-                    cleanup();
-                    resolve(value);
-                };
-                const onCancel = () => {
-                    cleanup();
-                    resolve(null);
-                };
-                const onKeyDown = (e) => {
-                    if (e.key === "Enter") onConfirm();
-                    if (e.key === "Escape") onCancel();
-                };
-                confirmBtn.addEventListener("click", onConfirm);
-                cancelBtn.addEventListener("click", onCancel);
-                inputEl.addEventListener("keydown", onKeyDown);
-            });
-        }
-        
-        // --- 全局因果裝備圖示與背包資料庫 (使用統一 SVG 樣式) ---
-        const SVG_ICONS = {
-            causal: `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6 0 2.21 1.2 4.15 3 5.19 1.16.67 2.06.31 2.58-.21.46-.46.34-1.25-.18-1.63C10.5 14.71 10 13.42 10 12c0-1.1.9-2 2-2s2 .9 2 2c0 .55.45 1 1 1s1-.45 1-1c0-2.21-1.79-4-4-4z"/></svg>`,
-            head: `<svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61L4.35 20h15.3l-.62-2.39C20.26 16.07 21 14.12 21 12c0-4.97-4.03-9-9-9zm0 2c3.87 0 7 3.13 7 7 0 1.45-.44 2.8-1.19 3.92l-.39.58.33 1.26H6.25l.33-1.26-.39-.58C5.44 14.8 5 13.45 5 12c0-3.87 3.13-7 7-7z"/></svg>`,
-            weapon: `<svg viewBox="0 0 24 24"><path d="M6.92 5c-.39 0-.75.22-.92.58l-3.8 8c-.28.59-.04 1.3.55 1.58.19.09.39.14.59.14h3.58l-1.8 3.6c-.28.59-.04 1.3.55 1.58.19.09.39.14.59.14h7.58c.39 0 .75-.22.92-.58l3.8-8c.28-.59.04-1.3-.55-1.58-.19-.09-.39-.14-.59-.14h-3.58l1.8-3.6c.28-.59.04-1.3-.55-1.58-.19-.09-.39-.14-.59-.14H6.92z"/></svg>`,
-            boots: `<svg viewBox="0 0 24 24"><path d="M19 18h-4v-2h2v-3c0-1.1-.9-2-2-2h-2V7c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-1c0-.55-.45-1-1-1zm-6-9h-2V7h2v2zm0 4h-2v-2h2v2z"/></svg>`,
-            chest: `<svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>`
-        };
+  // AI 的輸出不可信任：只接受白名單類型、有限長度的文字與合理的數值範圍。
+  function normalizeGeneratedItem(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    const slotType = String(raw.slotType || raw.slot_type || raw.type || 'material').toLowerCase();
+    if (!ITEM_TYPES.has(slotType)) return null;
+    const number = (value, min, max) => Math.min(max, Math.max(min, Number(value) || 0));
+    const text = (value, fallback, limit) => String(value || fallback).replace(/[<>]/g, '').trim().slice(0, limit);
+    return {
+      slotType,
+      name: text(raw.name, '未知遺物', 48),
+      desc: text(raw.desc || raw.description, '由因果亂流凝聚而成的物品。', 240),
+      rarity: ['common', 'uncommon', 'rare', 'epic', 'legendary'].includes(raw.rarity) ? raw.rarity : 'common',
+      itemKind: slotType === 'consumable' ? 'food' : slotType === 'material' && ['fragment', 'key'].includes(raw.itemKind || raw.item_kind) ? (raw.itemKind || raw.item_kind) : slotType === 'material' ? 'fragment' : slotType === 'quest' ? 'book' : '',
+      hp: number(raw.hp, 0, 3000), atk: number(raw.atk, 0, 1000),
+      def: number(raw.def, 0, 1500), spd: number(raw.spd, 0, 500),
+      // 消耗品可指定回血量；其他物品一律不採用此欄位。
+      // 上限隨角色目前生命成長；0 代表使用時依最大生命百分比計算。
+      heal: slotType === 'consumable' ? number(raw.heal ?? raw.hp_restore, 0, Math.max(1, (Number(window.playerGameData.maxHp) || 1000) * 0.8)) : 0,
+      count: Math.floor(number(raw.count, 1, 99))
+    };
+  }
+  async function migrateLegacyInventory() {
+    const legacyItems = window.playerGameData.inventoryBag;
+    if (window.playerGameData.legacyInventoryMigratedAt || !Array.isArray(legacyItems) || legacyItems.length === 0) return false;
+    const rows = legacyItems.map((raw, index) => {
+      const item = normalizeGeneratedItem(raw);
+      if (!item) return null;
+      const legacyId = String(raw.id || raw.name || 'item').slice(0, 120);
+      return {
+        user_id: currentUserId,
+        legacy_source_id: `legacy-${index}-${legacyId}`,
+        slot_type: item.slotType,
+        name: item.name,
+        description: item.desc,
+        icon: safeSvg(item), item_kind: item.itemKind,
+        rarity: item.rarity,
+        hp: item.hp, atk: item.atk, def: item.def, spd: item.spd,
+        heal: item.heal, count: item.count
+      };
+    }).filter(Boolean);
+    if (rows.length) {
+      const { error } = await supabaseClient.from('player_items').upsert(rows, { onConflict: 'user_id,legacy_source_id', ignoreDuplicates: true });
+      if (error) throw error;
+    }
+    // 僅在資料庫成功寫入後標記；中途失敗時下次登入會安全重試。
+    delete window.playerGameData.inventoryBag;
+    window.playerGameData.legacyInventoryMigratedAt = new Date().toISOString();
+    await saveCloudData();
+    showToast(`已遷移 ${rows.length} 個舊背包物品。`);
+    return true;
+  }
+  function extractJsonObject(text) {
+    const source = String(text || '').trim();
+    const fenced = source.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    const candidates = [fenced?.[1], source].filter(Boolean);
+    for (const candidate of candidates) {
+      try { return JSON.parse(candidate); } catch { /* 繼續嘗試擷取 JSON 區段 */ }
+      const start = candidate.indexOf('{');
+      if (start < 0) continue;
+      let depth = 0, quoted = false, escaped = false;
+      for (let index = start; index < candidate.length; index += 1) {
+        const char = candidate[index];
+        if (quoted) { if (escaped) escaped = false; else if (char === '\\') escaped = true; else if (char === '"') quoted = false; continue; }
+        if (char === '"') quoted = true;
+        else if (char === '{') depth += 1;
+        else if (char === '}' && --depth === 0) { try { return JSON.parse(candidate.slice(start, index + 1)); } catch { break; } }
+      }
+    }
+    return null;
+  }
 
-        let inventory = {
-            consumable: [],
-            equipment: {
-                weapon: [],
-                head: [],
-                chest: [],
-                boots: [],
-                causal: []
-            },
-            material: [],
-            quest: []
-        };
+  function renderInventoryGrid() {
+    const container = byId('inventory-grid-container');
+    if (!container) return;
+    const items = currentTab === 'all' ? inventory : currentTab === 'equipment' ? inventory.filter(isEquipment) : inventory.filter((item) => itemType(item) === currentTab);
+    container.replaceChildren();
+    const total = Math.max(16, Math.ceil(items.length / 4) * 4);
+    for (let index = 0; index < total; index += 1) {
+      const slot = document.createElement('div'); slot.className = 'inventory-slot';
+      if (index < items.length) {
+        const item = items[index]; addInventoryIcon(slot, item);
+        const count = document.createElement('div'); count.className = 'slot-count'; count.textContent = item.count > 1 ? String(item.count) : ''; slot.appendChild(count);
+        slot.addEventListener('click', () => openItemDetail(item));
+      } else slot.classList.add('empty');
+      container.appendChild(slot);
+    }
+  }
+  function openItemDetail(item) {
+    const type = itemType(item);
+    if (byId('detail-icon')) byId('detail-icon').innerHTML = safeSvg(item);
+    if (byId('detail-name')) byId('detail-name').textContent = item.name || '未命名物品';
+    if (byId('detail-type')) byId('detail-type').textContent = `${itemKind(item) === 'food' ? '食物' : (TYPE_NAMES[type] || '道具')} · 數量: ${item.count || 1}`;
+    const stats = effectiveItemStats(item);
+    const balance = rarityBalance(item);
+    const bonusText = isEquipment(item) ? `\n稀有度倍率 ×${balance.statMultiplier.toFixed(2)}\nHP+${stats.hp}｜攻+${stats.atk}｜防+${stats.def}｜速+${stats.spd}` : itemKind(item) === 'food' ? `\n回復最大生命 ${Math.round(balance.foodHealthRatio * 100)}%｜最大體力 ${Math.round(balance.foodStaminaRatio * 100)}%` : '';
+    if (byId('detail-desc')) byId('detail-desc').textContent = `${item.description || item.desc || '由因果亂流凝聚而成的物品。'}${bonusText}`;
+    const actions = byId('detail-action-buttons'); if (!actions) return;
+    actions.replaceChildren();
+    if (type === 'consumable') { const button = document.createElement('button'); button.type = 'button'; button.textContent = '使用'; button.addEventListener('click', () => useConsumableItem(item)); actions.appendChild(button); }
+    if (type !== 'quest') { const button = document.createElement('button'); button.type = 'button'; button.className = 'btn-secondary'; button.textContent = '丟棄'; button.addEventListener('click', () => discardItem(item)); actions.appendChild(button); }
+    if (byId('item-detail-modal')) byId('item-detail-modal').style.display = 'flex';
+  }
+  function closeItemDetail() { if (byId('item-detail-modal')) byId('item-detail-modal').style.display = 'none'; }
+  async function useConsumableItem(item) {
+    if (itemType(item) !== 'consumable') return;
+    const maxHp = Math.max(1, Number(window.playerGameData.maxHp) || 1), maxStamina = Math.max(1, Number(window.playerGameData.maxStamina) || 100);
+    const balance = rarityBalance(item);
+    const heal = Math.max(1, Math.round(maxHp * balance.foodHealthRatio));
+    const staminaRestore = Math.max(1, Math.round(maxStamina * balance.foodStaminaRatio));
+    const currentHp = Math.max(0, Number(window.playerGameData.hp) || 0), currentStamina = Math.max(0, Number(window.playerGameData.stamina) || 0);
+    if (currentHp >= maxHp && currentStamina >= maxStamina) return showToast('生命值與體力皆已全滿，無需使用。');
+    const actualHeal = Math.max(0, Math.min(maxHp, currentHp + heal) - currentHp);
+    const actualStamina = Math.max(0, Math.min(maxStamina, currentStamina + staminaRestore) - currentStamina);
+    window.playerGameData.hp = Math.min(maxHp, currentHp + heal);
+    window.playerGameData.stamina = Math.min(maxStamina, currentStamina + staminaRestore);
+    item.count -= 1;
+    try {
+      if (item.count > 0) await persistItem(item);
+      else { await deleteItem(item); inventory = inventory.filter((entry) => entry.id !== item.id); closeItemDetail(); }
+      await saveCloudData(); updateMainUI(); updateCausalStats(); renderInventoryGrid(); showToast(`使用 ${item.name}，生命值 +${actualHeal}、體力 +${actualStamina}`);
+    } catch (error) { showToast(`使用失敗：${error.message}`); }
+  }
+  async function discardItem(item) {
+    if (itemType(item) === 'quest') return;
+    const owned = Math.max(1, Number(item.count) || 1);
+    let amount = 1;
+    if (owned > 1) {
+      const input = await customPrompt(`「${item.name}」目前有 ${owned} 個；請輸入要丟棄的數量：`, '1');
+      if (input === null) return;
+      if (!/^\d+$/.test(input) || Number(input) < 1 || Number(input) > owned) return showToast('請輸入 1 至目前持有數量之間的整數。');
+      amount = Number(input);
+    }
+    try {
+      if (amount === owned) { await deleteItem(item); inventory = inventory.filter((entry) => entry.id !== item.id); closeItemDetail(); }
+      else { item.count = owned - amount; await persistItem(item); openItemDetail(item); }
+      renderInventoryGrid();
+      showToast(`已丟棄 ${item.name} ×${amount}。`);
+    }
+    catch (error) { showToast(`丟棄失敗：${error.message}`); }
+  }
 
-        const typeNames = {
-            causal: '因果裝備',
-            head: '頭部護具',
-            weapon: '主手武器',
-            boots: '戰術戰靴',
-            chest: '身體胸甲'
-        };
-        
+  function openBag(slotType) {
+    currentSlot = slotType;
+    const list = byId('bagList'); if (!list) return;
+    if (byId('modalTitle')) byId('modalTitle').textContent = `選擇 ${TYPE_NAMES[slotType] || '裝備'}`;
+    list.replaceChildren();
+    const items = inventory.filter((item) => itemType(item) === slotType);
+    if (!items.length) list.textContent = '無可用裝備';
+    items.forEach((item) => { const stats = effectiveItemStats(item); const button = document.createElement('button'); button.type = 'button'; button.className = 'causal-bag-item'; button.textContent = `${item.name}　[${item.rarity || 'common'} ×${rarityBalance(item).statMultiplier.toFixed(2)}]　HP+${stats.hp}｜攻+${stats.atk}｜防+${stats.def}｜速+${stats.spd}`; button.addEventListener('click', () => equipCausalItem(item)); list.appendChild(button); });
+    byId('bagModal')?.classList.add('active');
+  }
+  function closeBag(event) { if (!event || event.target?.id === 'bagModal' || event.target?.classList?.contains('causal-modal-close')) byId('bagModal')?.classList.remove('active'); }
+  function equipCausalItem(item) {
+    if (!currentSlot || itemType(item) !== currentSlot) return;
+    window.playerGameData.equippedCausal[currentSlot] = item;
+    updateMainUI(); closeBag(); saveCloudData().catch((error) => showToast(`裝備儲存失敗：${error.message}`)); showToast(`已裝備 ${item.name}。`);
+  }
+  window.openBag = openBag;
+  window.closeBag = closeBag;
 
-        let currentSlot = null;
-        // 打開裝備背包 (彈窗)
-        function openBag(slotType) {
-            currentSlot = slotType;
-            const modal = document.getElementById('bagModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const bagList = document.getElementById('bagList');
-            modalTitle.innerText = `選擇 ${typeNames[slotType]}`;
-            bagList.innerHTML = '';
-            const items = inventory[slotType] || [];
-            if(items.length === 0) {
-                bagList.innerHTML = '<div style="text-align:center; color:var(--sub-text); padding:20px;">無可用裝備</div>';
-            } else {
-                items.forEach(item => {
-                    const itemEl = document.createElement('div');
-                    itemEl.className = 'causal-bag-item';
-                    itemEl.onclick = () => equipCausalItem(item);
-                    itemEl.innerHTML = `
-                        <div class="causal-item-info">
-                            <span class="causal-item-icon">${item.icon}</span>
-                            <div>
-                                <div class="causal-item-name">${item.name}</div>
-                                <div class="causal-item-desc">HP+${item.hp} | 攻+${item.atk} | 防+${item.def} | 速+${item.spd}</div>
-                            </div>
-                        </div>
-                    `;
-                    bagList.appendChild(itemEl);
-                });
-            }
-            modal.classList.add('active');
-        }
-        // 關閉 Modal
-        function closeBag(e) {
-            if (!e || e.target.id === 'bagModal' || e.target.className === 'causal-modal-close') {
-                document.getElementById('bagModal').classList.remove('active');
-            }
-        }
-        // 穿戴裝備並更新 UI & 屬性總算
-        function equipCausalItem(item) {
-            document.getElementById(`icon-${currentSlot}`).innerHTML = item.icon;
-            document.getElementById(`name-${currentSlot}`).innerText = item.name;
-            
-            const slotEl = document.querySelector(`.slot-${currentSlot === 'causal' ? 'center' : currentSlot}`);
-            if(slotEl) slotEl.classList.add('has-item');
-            if (window.playerGameData) {
-                window.playerGameData.equippedCausal[currentSlot] = item;
-                updateCausalStats();
-                if (typeof window.saveCloudData === 'function') {
-                    window.saveCloudData();
-                }
-            }
-            closeBag();
-            showToast(`已成功裝備 ${item.name}！`);
-        }
-        // 重新計算因果總屬性加成
-        function updateCausalStats() {
-            if (!window.playerGameData || !window.playerGameData.equippedCausal) return;
-            
-            let baseHp = 1000;
-            let baseAtk = 200;
-            let baseDef = 800;
-            let baseSpd = 100;
-            Object.values(window.playerGameData.equippedCausal).forEach(item => {
-                if (item) {
-                    baseHp += item.hp || 0;
-                    baseAtk += item.atk || 0;
-                    baseDef += item.def || 0;
-                    baseSpd += item.spd || 0;
-                }
-            });
-            document.getElementById('stat-hp').innerText = baseHp;
-            document.getElementById('stat-atk').innerText = baseAtk;
-            document.getElementById('stat-def').innerText = baseDef;
-            document.getElementById('stat-spd').innerText = baseSpd;
-        }
-        document.addEventListener('DOMContentLoaded', async () => {
-            const DEFAULT_AVATAR = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23818cf8'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>";
-            
-            window.playerGameData = { 
-                apiKey: "", 
-                aiModel: "gemini-3.5-flash-lite",
-                theme: "dark",
-                inDungeon: false,
-                ember: 0,
-                dimensionCore: "未同步",
-                hp: 50,
-                maxHp: 100,
-                samsaraLog: "正在接入輪迴因果數據流...",
-                profile: { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "", setupCompleted: true },
-                // 替換為全新因果 5 大槽位裝備
-                equippedCausal: {
-                    causal: null,
-                    head: null,
-                    weapon: null,
-                    boots: null,
-                    chest: null
-                },
-                inventoryBag: [
-                  ] 
-            };
-            let currentUserId = null;
-            let currentUserEmail = "";
-            let currentPanelMode = 0;
-            let currentTab = "all";
-            let selectedItem = null;
-            const applyTheme = (theme) => {
-                document.documentElement.setAttribute('data-theme', theme);
-                const themeSelect = document.getElementById('theme-select');
-                if (themeSelect) themeSelect.value = theme;
-            };
-            const bind = (id, event, fn) => {
-                const el = document.getElementById(id);
-                if (el) el.addEventListener(event, fn);
-            };
-            // 綁定智慧返回按鈕
-            document.querySelectorAll('.btn-back-smart').forEach(btn => {
-                btn.addEventListener('click', navigateBack);
-            });
-            
-            function openSubPage(title, customHtmlContent) {
-                document.getElementById('subpage-title').innerText = title;
-                document.getElementById('subpage-body').innerHTML = customHtmlContent;
-                navigateTo('subpage-screen');
-            }
-            function updateMainUI() {
-                const nameEl = document.getElementById('main-player-name');
-                const avatarEl = document.getElementById('main-player-avatar');
-                const emberEl = document.getElementById('display-ember');
-                const coreEl = document.getElementById('display-dimension-core');
-                const hpText = document.getElementById('display-hp-text');
-                const hpBar = document.getElementById('hp-bar-fill');
-                if (nameEl) nameEl.innerText = window.playerGameData.profile.name || "執行者";
-                if (avatarEl) avatarEl.src = window.playerGameData.profile.avatar || DEFAULT_AVATAR;
-                if (emberEl) emberEl.innerText = window.playerGameData.ember || 0;
-                if (coreEl) coreEl.innerText = window.playerGameData.dimensionCore || "未同步";
-                
-                if (hpText && hpBar) {
-                    hpText.innerText = `${window.playerGameData.hp}/${window.playerGameData.maxHp}`;
-                    const pct = Math.min(100, Math.max(0, (window.playerGameData.hp / window.playerGameData.maxHp) * 100));
-                    hpBar.style.width = `${pct}%`;
-                }
-                // 載入當前因果面板裝備至介面
-                if (window.playerGameData.equippedCausal) {
-                    Object.keys(window.playerGameData.equippedCausal).forEach(slotKey => {
-                        const eqItem = window.playerGameData.equippedCausal[slotKey];
-                        if (eqItem) {
-                            const iconSlot = document.getElementById(`icon-${slotKey}`);
-                            const nameSlot = document.getElementById(`name-${slotKey}`);
-                            if (iconSlot) iconSlot.innerHTML = eqItem.icon;
-                            if (nameSlot) nameSlot.innerText = eqItem.name;
-                            const slotEl = document.querySelector(`.slot-${slotKey === 'causal' ? 'center' : slotKey}`);
-                            if (slotEl) slotEl.classList.add('has-item');
-                        }
-                    });
-                    updateCausalStats();
-                }
-            }
-            bind('btn-welcome-yes', 'click', async () => {
-                document.getElementById('welcome-modal').style.display = 'none';
-                const { data: { session: activeSession } } = await supabaseClient.auth.getSession();
-                if (!activeSession) {
-                    document.getElementById('auth-modal').style.display = 'flex';
-                } else {
-                    currentUserId = activeSession.user.id;
-                    currentUserEmail = activeSession.user.email;
-                    renderScreen('main-screen');
-                    await loadCloudData();
-                    updateMainUI();
-                }
-            });
-            bind('btn-welcome-no', 'click', () => {
-                openSubPage('連線拒絕終端', '連線已拒絕，臨界奇點終端保持休眠。');
-            });
-            bind('btn-supabase-login', 'click', async () => {
-                const email = document.getElementById('auth-email').value.trim();
-                const password = document.getElementById('auth-password').value.trim();
-                if (!email || !password) {
-                    showToast('請填寫完整信箱與密碼！');
-                    return;
-                }
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) {
-                    showToast('登入失敗：' + error.message);
-                    return;
-                }
-                currentUserId = data.user.id;
-                currentUserEmail = data.user.email;
-                document.getElementById('auth-modal').style.display = 'none';
-                renderScreen('main-screen');
-                await loadCloudData();
-                showToast('登入成功，雲端資料同步完成！');
-            });
-            bind('btn-supabase-signup', 'click', async () => {
-                const email = document.getElementById('auth-email').value.trim();
-                const password = document.getElementById('auth-password').value.trim();
-                if (!email || !password) {
-                    showToast('請填寫完整信箱與密碼！');
-                    return;
-                }
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) {
-                    showToast('註冊失敗：' + error.message);
-                    return;
-                }
-                if (data.user) {
-                    currentUserId = data.user.id;
-                    currentUserEmail = data.user.email;
-                    document.getElementById('auth-modal').style.display = 'none';
-                    renderScreen('main-screen');
-                    await saveCloudData();
-                    showToast('註冊並建立雲端存檔成功！');
-                }
-            });
-            bind('btn-auth-close', 'click', () => {
-                document.getElementById('auth-modal').style.display = 'none';
-                document.getElementById('welcome-modal').style.display = 'flex';
-            });
-            bind('menu-logout', 'click', async () => {
-                await supabaseClient.auth.signOut();
-                location.reload();
-            });
-            async function loadCloudData() {
-                if (!currentUserId) return;
-                const { data } = await supabaseClient
-                    .from('player_saves')
-                    .select('game_data')
-                    .eq('user_id', currentUserId)
-                    .single();
-                
-                if (data && data.game_data) {
-                    window.playerGameData = { ...window.playerGameData, ...data.game_data };
-                    if (!window.playerGameData.profile) {
-                        window.playerGameData.profile = { name: "執行者", avatar: DEFAULT_AVATAR, personality: "", likes: "" };
-                    }
-                    if (!window.playerGameData.equippedCausal) {
-                        window.playerGameData.equippedCausal = { causal: null, head: null, weapon: null, boots: null, chest: null };
-                    }
-                    if (!window.playerGameData.inventoryBag) {
-                        window.playerGameData.inventoryBag = [
-                            //待更改
-                            ]
-                    }
-                    if (window.playerGameData.samsaraLog) {
-                        const logBox = document.getElementById('samsara-text-log');
-                        if (logBox) logBox.innerText = window.playerGameData.samsaraLog;
-                    }
-                } else {
-                    await saveCloudData();
-                }
-                applyTheme(window.playerGameData.theme || "dark");
-                updateMainUI();
-            }
-            window.saveCloudData = async function() {
-                if (!currentUserId) return;
-                await supabaseClient
-                    .from('player_saves')
-                    .upsert({ user_id: currentUserId, game_data: window.playerGameData, updated_at: new Date() });
-            };
-            async function callAI(promptText) {
-                const apiKey = window.playerGameData.apiKey;
-                const model = window.playerGameData.aiModel || "gemini-2.5-flash";
-                if (!apiKey) {
-                    throw new Error("尚未設定 API Key，請至設定頁面中填寫。");
-                }
-                const combinedSystemPrompt = `
-${PROMPT_RULES}
-${PROMPT_LORE}
-${PROMPT_COMBAT}
-【目前執行者檔案】
-名字代號：${window.playerGameData.profile.name}
-個性描述：${window.playerGameData.profile.personality}
-喜好專長：${window.playerGameData.profile.likes}
-                `.trim();
-                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ role: "user", parts: [{ text: `${combinedSystemPrompt}\n\n玩家指令：${promptText}` }] }]
-                    })
-                });
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error?.message || "Gemini API 請求失敗");
-                return data.candidates[0].content.parts[0].text;
-            }
-            const openNav = () => document.getElementById("mySidebar").style.width = "250px";
-            const closeNav = () => document.getElementById("mySidebar").style.width = "0";
-            bind('btn-open-nav', 'click', openNav);
-            bind('btn-close-nav', 'click', closeNav);
-            bind('menu-home', 'click', () => { pageHistory = ["main-screen"]; renderScreen("main-screen"); closeNav(); });
-            bind('menu-profile', 'click', () => { openProfilePage(); closeNav(); });
-            bind('menu-settings', 'click', () => { openSettingsPage(); closeNav(); });
-            bind('btn-card-profile-quick', 'click', openProfilePage);
-            bind('btn-open-settings-main', 'click', openSettingsPage);
-            bind('btn-samsara-settings', 'click', openSettingsPage);
-            // 直接跳轉開啟因果面板
-            bind('menu-card-combat', 'click', () => {
-                updateCausalStats();
-                navigateTo('causal-screen');
-            });
-            
-            const openInventoryScreen = () => {
-                renderInventoryGrid();
-                navigateTo('inventory-screen');
-            };
-            bind('menu-card-inventory', 'click', openInventoryScreen);
-            bind('menu-card-history', 'click', () => {
-                openSubPage('往日之影', '目前尚未浮現任何往日之影紀錄。');
-            });
-            bind('menu-protocol-sidebar', 'click', () => {
-                closeNav();
-                openSubPage('臨界規則 Protocol', '1. 遵守任務指令，違者抹殺。<br>2. 積極修正多元宇宙錯誤時間軸。<br>3. 維度核心為極稀有高級貨幣。');
-            });
-            bind('menu-exchange-sidebar', 'click', async () => {
-                closeNav();
-                if (!window.playerGameData.inDungeon) {
-                    return openSubPage('兌換系統未解鎖', '請先步入輪迴以啟用兌換系統！');
-                }
-                openSubPage('兌換系統', '可使用極其稀有的維度核心或餘燼兌換稀有道具。');
-            });
-            bind('menu-medical-sidebar', 'click', async () => {
-                closeNav();
-                if (!window.playerGameData.inDungeon) {
-                    return openSubPage('治療系統未解鎖', '請先步入輪迴！');
-                }
-                if (window.playerGameData.hp >= window.playerGameData.maxHp) {
-                    return openSubPage('治療系統', '生命值已全滿，無需治療。');
-                }
-                window.playerGameData.hp = window.playerGameData.maxHp;
-                updateMainUI();
-                await window.saveCloudData();
-                openSubPage('治療系統', '治療系統啟動：生命值已恢復至上限！');
-            });
-            
-            // 行囊頁籤切換
-            document.querySelectorAll('.inventory-tab').forEach(tabBtn => {
-                tabBtn.addEventListener('click', () => {
-                    document.querySelectorAll('.inventory-tab').forEach(b => b.classList.remove('active'));
-                    tabBtn.classList.add('active');
-                    currentTab = tabBtn.getAttribute('data-tab');
-                    renderInventoryGrid();
-                });
-            });
-                    function renderInventoryGrid() {
-            const container = document.getElementById('inventory-grid-container'); // 確保 ID 與你 HTML 一致
-            if (!container) return;
-            container.innerHTML = '';
-            
-            // 1. 根據你想要的雙層結構（大分類與裝備細分部位）進行過濾
-            let itemsToDisplay = [];
-            let rawBag = window.playerGameData.inventoryBag || []; // 假設你的原始資料在這裡
-            
-            if (currentTab === 'all') {
-                itemsToDisplay = rawBag;
-            } else if (currentTab === 'equipment') {
-                // 如果點擊「裝備」大分類，顯示所有裝備部位
-                const equipmentTypes = ['weapon', 'head', 'chest', 'boots', 'causal'];
-                itemsToDisplay = rawBag.filter(item => equipmentTypes.includes(item.slot_type));
-            } else {
-                // 如果點擊特定子分頁（如 weapon, head, consumable 等）
-                itemsToDisplay = rawBag.filter(item => item.slot_type === currentTab || item.type === currentTab);
-            }
-            
-            const totalSlots = Math.max(16, Math.ceil(itemsToDisplay.length / 4) * 4);
-            
-            for (let i = 0; i < totalSlots; i++) {
-                const slot = document.createElement('div');
-                slot.className = 'inventory-slot';
-                
-                if (i < itemsToDisplay.length) {
-                    const item = itemsToDisplay[i];
-                    
-                    // 2. 抓取稀有度對應的顏色
-                    const rarityColor = (typeof RARITY_COLORS !== 'undefined' ? RARITY_COLORS[item.rarity] : null) || '#999';
-                    
-                    // 3. 按照你的需求：顏色變化套用在 SVG 填色（fill）與 stroke 上，取消原本的 border 變色
-                    slot.innerHTML = `
-                        <div class="slot-icon">
-                            <svg viewBox="0 0 24 24" width="24" height="24" style="fill: ${rarityColor}; stroke: ${rarityColor};">
-                                <path d="${item.svgPath || item.icon || DEFAULT_ICON_PATH}"></path>
-                            </svg>
-                        </div>
-                        <div class="slot-count">${item.count > 1 ? item.count : ''}</div>
-                    `;
-                    
-                    slot.addEventListener('click', () => openItemDetail(item));
-                } else {
-                    slot.classList.add('empty');
-                }
-                
-                container.appendChild(slot);
-            }
-        }
+  function customPrompt(title, defaultValue = '') {
+    return new Promise((resolve) => {
+      const modal = byId('custom-prompt-modal'), input = byId('custom-prompt-input'), confirm = byId('custom-prompt-confirm'), cancel = byId('custom-prompt-cancel');
+      if (!modal || !input || !confirm || !cancel) return resolve(window.prompt(title));
+      byId('custom-prompt-title').textContent = title; input.value = defaultValue; modal.classList.remove('hidden'); input.focus(); input.select();
+      const clean = () => { modal.classList.add('hidden'); confirm.removeEventListener('click', yes); cancel.removeEventListener('click', no); };
+      const yes = () => { const value = input.value.trim(); clean(); resolve(value || null); };
+      const no = () => { clean(); resolve(null); };
+      confirm.addEventListener('click', yes); cancel.addEventListener('click', no);
+    });
+  }
+  async function callAI(promptText) {
+    if (!apiKey()) throw new Error('尚未設定 API Key。');
+    const profile = window.playerGameData.profile || {};
+    const gameData = window.playerGameData;
+    const system = `【AI 行為規則】扮演臨界奇點的管理者與旁白；每次劇情文末提供 A 至 E 五個行動選項。\n【世界觀】臨界軸：萬界修正錄。\n【本版本遊戲內容 v${GAME_CONTENT_VERSION}】${GAME_CONTENT_PROMPT}\n【角色】名字：${profile.name || '執行者'}；個性：${profile.personality || '未設定'}；喜好：${profile.likes || '未設定'}。\n【目前資料庫角色狀態】生命 ${gameData.hp || 0}/${gameData.maxHp || 0}；體力 ${gameData.stamina || 0}/${gameData.maxStamina || 100}；基礎屬性 ${JSON.stringify(gameData.baseStats || {})}；餘燼 ${gameData.ember || 0}。`;
+    const model = window.playerGameData.aiModel || 'gemini-2.5-flash';
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey())}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: `${system}\n\n玩家指令：${promptText}` }] }] }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error?.message || 'Gemini API 請求失敗');
+    const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('');
+    if (!text) throw new Error('AI 未回傳可用文字。');
+    return text;
+  }
+  async function callGameAI(promptText) {
+    const outputContract = `
+你的回覆必須是「唯一一個有效 JSON 物件」，不要使用 Markdown 或程式碼區塊。
+格式：
+{"story":"給玩家看的繁體中文劇情","state":{"hpDelta":0,"maxHp":0,"staminaDelta":0,"maxStamina":100,"baseStats":{"hp":0,"atk":0,"def":0,"spd":0},"emberDelta":0},"items":[{"slotType":"weapon|head|chest|boots|causal|consumable|material|quest","itemKind":"food|fragment|key|book","name":"物品名稱","desc":"物品描述","rarity":"common|uncommon|rare|epic|legendary","hp":0,"atk":0,"def":0,"spd":0,"heal":0,"count":1}]}
+items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情中確實獲得物品時才加入 items；不要給予 API Key、HTML 或 JavaScript。裝備欄位的數值一律以「普通 common 基準」輸出，前端會依 rarity 自動套用平衡倍率；食物（itemKind: food）會依稀有度回復少量生命與體力；材料可用 fragment（依稀有度）、key（固定外觀）；劇情道具使用 book（固定外觀）。`;
+    const raw = await callAI(`${promptText}\n${outputContract}`);
+    const payload = extractJsonObject(raw);
+    // 讓遊戲容錯：模型若一時未遵守格式，仍可顯示劇情但不會憑空入庫。
+    if (!payload || typeof payload !== 'object') return { story: raw, items: [] };
+    return {
+      story: String(payload.story || payload.narrative || '因果亂流沒有留下可解析的敘事。').slice(0, 12000),
+      state: payload.state && typeof payload.state === 'object' ? payload.state : {},
+      items: Array.isArray(payload.items) ? payload.items.slice(0, 2).map(normalizeGeneratedItem).filter(Boolean) : []
+    };
+  }
+  function applyAIState(rawState) {
+    const data = window.playerGameData;
+    const number = (value) => Number.isFinite(Number(value)) ? Number(value) : null;
+    const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
+    const previousMaxHp = Math.max(0, number(data.maxHp) || 0);
+    const requestedMaxHp = number(rawState.maxHp);
+    if (requestedMaxHp !== null && requestedMaxHp > 0) {
+      data.maxHp = previousMaxHp === 0 ? clamp(requestedMaxHp, 1, 100000) : clamp(requestedMaxHp, Math.max(1, Math.floor(previousMaxHp * 0.85)), Math.ceil(previousMaxHp * 1.25));
+    }
+    const maxHp = Math.max(1, number(data.maxHp) || 1);
+    const requestedDelta = number(rawState.hpDelta);
+    const requestedHp = number(rawState.hp);
+    if (previousMaxHp === 0 && requestedMaxHp !== null && requestedHp === null) data.hp = maxHp;
+    else if (requestedHp !== null) data.hp = clamp(requestedHp, 0, maxHp);
+    else if (requestedDelta !== null) data.hp = clamp((number(data.hp) || 0) + requestedDelta, 0, maxHp);
+    const previousMaxStamina = Math.max(1, number(data.maxStamina) || 100);
+    const requestedMaxStamina = number(rawState.maxStamina);
+    if (requestedMaxStamina !== null && requestedMaxStamina > 0) data.maxStamina = previousMaxStamina === 100 ? clamp(requestedMaxStamina, 20, 1000) : clamp(requestedMaxStamina, Math.max(20, Math.floor(previousMaxStamina * 0.85)), Math.ceil(previousMaxStamina * 1.25));
+    else data.maxStamina = previousMaxStamina;
+    const maxStamina = Math.max(1, number(data.maxStamina) || 100);
+    const requestedStamina = number(rawState.stamina);
+    const requestedStaminaDelta = number(rawState.staminaDelta);
+    if (requestedStamina !== null) data.stamina = clamp(requestedStamina, 0, maxStamina);
+    else if (requestedStaminaDelta !== null) data.stamina = clamp((number(data.stamina) || maxStamina) + requestedStaminaDelta, 0, maxStamina);
+    else data.stamina = clamp(number(data.stamina) || maxStamina, 0, maxStamina);
+    const requestedStats = rawState.baseStats && typeof rawState.baseStats === 'object' ? rawState.baseStats : {};
+    const existingStats = data.baseStats || {};
+    for (const key of ['hp', 'atk', 'def', 'spd']) {
+      const requested = number(requestedStats[key]);
+      const previous = Math.max(0, number(existingStats[key]) || 0);
+      if (requested === null || requested < 0) continue;
+      existingStats[key] = previous === 0 ? clamp(requested, 0, 100000) : clamp(requested, Math.floor(previous * 0.85), Math.ceil(previous * 1.25));
+    }
+    data.baseStats = existingStats;
+    if (!data.baseStats.hp) data.baseStats.hp = maxHp;
+    const emberDelta = number(rawState.emberDelta);
+    if (emberDelta !== null) data.ember = Math.max(0, (number(data.ember) || 0) + clamp(emberDelta, -100000, 100000));
+    updateMainUI();
+  }
+  async function grantGeneratedItems(items) {
+    const acquired = [];
+    for (const item of items) {
+      const stored = await addAIGeneratedItem(item);
+      acquired.push(stored.name);
+    }
+    return acquired;
+  }
+  async function triggerSamsaraAction(promptText) {
+    if (aiBusy) return;
+    const log = byId('samsara-text-log'); if (!log) return;
+    const stamina = Math.max(0, Number(window.playerGameData.stamina) || 0);
+    if (stamina < STAMINA_PER_SAMSARA_ACTION) return showToast(`體力不足：每次行動需要 ${STAMINA_PER_SAMSARA_ACTION} 點體力。請先使用食物。`);
+    aiBusy = true; log.textContent += `\n\n> 執行者抉擇：${promptText}\n\n[正在解析未來因果軌跡...]`;
+    try {
+      const reply = await callGameAI(`目前劇情推進：${promptText}`);
+      applyAIState(reply.state);
+      const currentMaxStamina = Math.max(1, Number(window.playerGameData.maxStamina) || 100);
+      window.playerGameData.stamina = Math.max(0, Math.min(currentMaxStamina, (Number(window.playerGameData.stamina) || 0) - STAMINA_PER_SAMSARA_ACTION));
+      updateMainUI(); updateCausalStats();
+      const acquired = await grantGeneratedItems(reply.items);
+      log.textContent += `\n\n${reply.story}${acquired.length ? `\n\n【因果掉落】${acquired.join('、')}` : ''}`;
+      window.playerGameData.samsaraLog = log.textContent;
+      await saveCloudData();
+    }
+    catch (error) { showToast(`AI 響應失敗：${error.message}`); }
+    finally { aiBusy = false; log.scrollTop = log.scrollHeight; }
+  }
+  function renderSamsaraControls() {
+    const grid = byId('samsara-controls-grid'), label = byId('samsara-panel-label'); if (!grid || !label) return;
+    grid.replaceChildren();
+    label.textContent = currentPanelMode === 0 ? '切換至系統面板' : '切換至行動面板';
+    const add = (labelText, action) => { const button = document.createElement('button'); button.type = 'button'; button.className = 'samsara-btn'; button.textContent = labelText; button.addEventListener('click', action); grid.appendChild(button); };
+    if (currentPanelMode === 0) { ['A', 'B', 'C', 'D', 'E'].forEach((letter) => add(letter, () => triggerSamsaraAction(`選擇選項 ${letter}`))); add('抉擇', async () => { const value = await customPrompt('請輸入您的抉擇：'); if (value) triggerSamsaraAction(value); }); }
+    else { add('行囊', () => { renderInventoryGrid(); navigateTo('inventory-screen'); }); add('狀態', () => showToast(`生命：${window.playerGameData.hp}/${window.playerGameData.maxHp}｜體力：${window.playerGameData.stamina}/${window.playerGameData.maxStamina}`)); add('地圖', () => showToast('當前時間軸區域解析中...')); add('因果', () => { updateCausalStats(); navigateTo('causal-screen'); }); add('技能', () => showToast('因果技能樹尚未突破...')); add('離開', goHome); }
+  }
+  async function enterDungeon() {
+    if (aiBusy) return;
+    if (!apiKey()) return openSettingsPage();
+    navigateTo('samsara-screen'); currentPanelMode = 0; renderSamsaraControls();
+    const log = byId('samsara-text-log'); if (!log) return;
+    if (window.playerGameData.inDungeon && window.playerGameData.samsaraLog) { log.textContent = window.playerGameData.samsaraLog; return; }
+    aiBusy = true; log.textContent = '正在連線至臨界奇點並生成輪迴因果場景...';
+    try {
+      const reply = await callGameAI('執行者已步入輪迴，請生成開場劇情與五個抉擇選項。');
+      applyAIState(reply.state);
+      const acquired = await grantGeneratedItems(reply.items);
+      const displayText = `${reply.story}${acquired.length ? `\n\n【因果掉落】${acquired.join('、')}` : ''}`;
+      window.playerGameData.inDungeon = true;
+      window.playerGameData.samsaraLog = displayText;
+      log.textContent = displayText;
+      await saveCloudData();
+    }
+    catch (error) { log.textContent = `連線失敗：${error.message}`; }
+    finally { aiBusy = false; }
+  }
 
-            function openItemDetail(item) {
-                selectedItem = item;
-                document.getElementById('detail-icon').innerText = item.icon;
-                document.getElementById('detail-name').innerText = item.name;
-                
-                const typeNamesMap = { consumable: "消耗品", material: "材料", quest: "劇情道具" };
-                document.getElementById('detail-type').innerText = `${typeNamesMap[item.type] || "道具"} · 數量: ${item.count}`;
-                document.getElementById('detail-desc').innerText = item.desc;
-                const actionContainer = document.getElementById('detail-action-buttons');
-                actionContainer.innerHTML = '';
-                if (item.type === 'consumable') {
-                    const useBtn = document.createElement('button');
-                    useBtn.type = 'button';
-                    useBtn.innerText = '使用藥水';
-                    useBtn.addEventListener('click', () => useConsumableItem(item));
-                    actionContainer.appendChild(useBtn);
-                }
-                if (item.type !== 'quest') {
-                    const discardBtn = document.createElement('button');
-                    discardBtn.type = 'button';
-                    discardBtn.className = 'btn-secondary';
-                    discardBtn.innerText = '丟棄';
-                    discardBtn.addEventListener('click', () => discardItem(item));
-                    actionContainer.appendChild(discardBtn);
-                }
-                document.getElementById('item-detail-modal').style.display = 'flex';
-            }
-            function closeItemDetail() {
-                document.getElementById('item-detail-modal').style.display = 'none';
-            }
-            bind('btn-close-item-detail', 'click', closeItemDetail);
-                    function useConsumableItem(item) {
-            if (item.id === 'item_1') {
-                if (window.playerGameData.hp >= window.playerGameData.maxHp) {
-                    showToast("生命值已全滿，無需使用！");
-                    return;
-                }
-                window.playerGameData.hp = Math.min(window.playerGameData.maxHp, window.playerGameData.hp + 30);
-                showToast(`使用了 ${item.name}，恢復了 30 點生命值！`);
-                updateMainUI();
-            }
-            
-            item.count -= 1;
-            if (item.count <= 0) {
-                // 從 consumable 陣列中移除
-                inventory.consumable = inventory.consumable.filter(i => i.id !== item.id);
-                closeItemDetail();
-            } else {
-                openItemDetail(item);
-            }
-            renderInventoryGrid();
-        }
+  function openSettingsPage() { if (byId('settings-email-display')) byId('settings-email-display').value = currentUserEmail || '未登入'; if (byId('api-key-input')) byId('api-key-input').value = apiKey(); if (byId('ai-model-input')) byId('ai-model-input').value = window.playerGameData.aiModel || 'gemini-2.5-flash'; if (byId('theme-select')) byId('theme-select').value = window.playerGameData.theme || 'dark'; navigateTo('settings-screen'); }
+  function openProfilePage() { const profile = window.playerGameData.profile || {}; if (byId('profile-name-input')) byId('profile-name-input').value = profile.name || ''; if (byId('profile-personality-input')) byId('profile-personality-input').value = profile.personality || ''; if (byId('profile-likes-input')) byId('profile-likes-input').value = profile.likes || ''; if (byId('modal-avatar-preview')) byId('modal-avatar-preview').src = profile.avatar || DEFAULT_AVATAR; navigateTo('profile-screen'); }
+  function openSubPage(title, content) { byId('subpage-title').textContent = title; byId('subpage-body').textContent = content; navigateTo('subpage-screen'); }
 
-            async function discardItem(item) {
-                window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
-                showToast(`已丟棄 ${item.name}。`);
-                updateMainUI();
-                renderInventoryGrid();
-                closeItemDetail();
-                await window.saveCloudData();
-            }
-            async function triggerSamsaraAction(promptText) {
-                const logBox = document.getElementById('samsara-text-log');
-                try {
-                    logBox.innerText += `\n\n> 執行者抉擇：${promptText}\n\n[正在解析未來因果軌跡...]`;
-                    logBox.scrollTop = logBox.scrollHeight;
-                    
-                    const aiReply = await callAI(`目前劇情推進：${promptText}`);
-                    logBox.innerText += `\n\n${aiReply}`;
-                    logBox.scrollTop = logBox.scrollHeight;
-                    window.playerGameData.samsaraLog = logBox.innerText;
-                    await window.saveCloudData();
-                } catch (err) {
-                    showToast('AI 響應失敗：' + err.message);
-                }
-            }
-            bind('btn-enter-dungeon', 'click', async () => {
-                if (!window.playerGameData.apiKey) {
-                    showToast('尚未設定 API Key！請先至設定頁面中填寫。');
-                    openSettingsPage();
-                    return;
-                }
-                
-                navigateTo('samsara-screen');
-                currentPanelMode = 0;
-                renderSamsaraControls();
-                const logBox = document.getElementById('samsara-text-log');
-                if (window.playerGameData.inDungeon && window.playerGameData.samsaraLog) {
-                    logBox.innerText = window.playerGameData.samsaraLog;
-                    logBox.scrollTop = logBox.scrollHeight;
-                    return;
-                }
-                logBox.innerText = "正在連線至臨界奇點並生成輪迴因果場景...";
-                try {
-                    const aiReply = await callAI("執行者已步入輪迴，請生成開場劇情與5個抉擇選項。");
-                    
-                    window.playerGameData.inDungeon = true;
-                    window.playerGameData.ember = 1280;
-                    window.playerGameData.dimensionCore = "1 顆 (稀有核心)";
-                    window.playerGameData.hp = 86;
-                    window.playerGameData.maxHp = 100;
-                    window.playerGameData.samsaraLog = aiReply;
-                    
-                    updateMainUI();
-                    await window.saveCloudData();
-                    logBox.innerText = aiReply;
-                } catch (err) {
-                    showToast('AI 連線失敗：' + err.message);
-                    logBox.innerText = "連線失敗，請檢查 API Key 設定。";
-                }
-            });
-            const renderSamsaraControls = () => {
-                const grid = document.getElementById('samsara-controls-grid');
-                const label = document.getElementById('samsara-panel-label');
-                if (currentPanelMode === 0) {
-                    label.innerText = "切換至系統面板";
-                    grid.innerHTML = `
-                        <button type="button" class="samsara-btn" data-choice="A">A</button>
-                        <button type="button" class="samsara-btn" data-choice="B">B</button>
-                        <button type="button" class="samsara-btn" data-choice="C">C</button>
-                        <button type="button" class="samsara-btn" data-choice="D">D</button>
-                        <button type="button" class="samsara-btn" data-choice="E">E</button>
-                        <button type="button" class="samsara-btn" id="btn-choice-custom">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                            <span style="font-size: 11px;">抉擇</span>
-                        </button>
-                    `;
-                    grid.querySelectorAll('.samsara-btn[data-choice]').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            const choiceLetter = btn.getAttribute('data-choice');
-                            triggerSamsaraAction(`選擇選項 ${choiceLetter}`);
-                        });
-                    });
-                    const customBtn = document.getElementById('btn-choice-custom');
-                    if (customBtn) {
-                        customBtn.addEventListener('click', async () => {
-                            const customChoice = await customPrompt("請輸入您的抉擇：");
-                            if (customChoice && customChoice.trim()) {
-                                triggerSamsaraAction(customChoice.trim());
-                            }
-                        });
-                    }
-                } else {
-                    label.innerText = "切換至行動面板";
-                    grid.innerHTML = `
-                        <button type="button" class="samsara-btn" id="samsara-sys-bag">
-                            <svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM10 4h4v2h-4V4zm10 15H4V8h16v11z"/></svg>
-                            <span>行囊</span>
-                        </button>
-                        <button type="button" class="samsara-btn" id="samsara-sys-status">
-                            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-                            <span>狀態</span>
-                        </button>
-                        <button type="button" class="samsara-btn" id="samsara-sys-map">
-                            <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
-                            <span>地圖</span>
-                        </button>
-                        <button type="button" class="samsara-btn" id="samsara-sys-causal">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6 0 2.21 1.2 4.15 3 5.19 1.16.67 2.06.31 2.58-.21.46-.46.34-1.25-.18-1.63C10.5 14.71 10 13.42 10 12c0-1.1.9-2 2-2s2 .9 2 2c0 .55.45 1 1 1s1-.45 1-1c0-2.21-1.79-4-4-4z"/></svg>
-                            <span>因果</span>
-                        </button>
-                        <button type="button" class="samsara-btn" id="samsara-sys-skill">
-                            <svg viewBox="0 0 24 24"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg>
-                            <span>技能</span>
-                        </button>
-                        <button type="button" class="samsara-btn" id="samsara-sys-exit">
-                            <svg viewBox="0 0 24 24" style="fill: #ef4444 !important;"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
-                            <span style="color: #ef4444;">離開</span>
-                        </button>
-                    `;
-                    
-                    bind('samsara-sys-bag', 'click', openInventoryScreen);
-                    bind('samsara-sys-status', 'click', () => showToast(`生命：${window.playerGameData.hp}/${window.playerGameData.maxHp}`));
-                    bind('samsara-sys-map', 'click', () => showToast("當前時間軸區域解析中..."));
-                    bind('samsara-sys-causal', 'click', () => { updateCausalStats(); navigateTo('causal-screen'); });
-                    bind('samsara-sys-skill', 'click', () => showToast("因果技能樹尚未突破..."));
-                    bind('samsara-sys-exit', 'click', () => { pageHistory = ["main-screen"]; renderScreen("main-screen"); });
-                }
-            };
-            bind('btn-toggle-samsara-panel', 'click', () => {
-                currentPanelMode = currentPanelMode === 0 ? 1 : 0;
-                renderSamsaraControls();
-            });
-            function openSettingsPage() {
-                document.getElementById('settings-email-display').value = currentUserEmail || "未登入";
-                document.getElementById('api-key-input').value = window.playerGameData.apiKey || "";
-                document.getElementById('ai-model-input').value = window.playerGameData.aiModel || "gemini-2.5-flash";
-                document.getElementById('theme-select').value = window.playerGameData.theme || "dark";
-                navigateTo('settings-screen');
-            }
-            bind('btn-save-api', 'click', async () => {
-                window.playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
-                window.playerGameData.aiModel = document.getElementById('ai-model-input').value.trim() || "gemini-2.5-flash";
-                window.playerGameData.theme = document.getElementById('theme-select').value;
-                
-                applyTheme(window.playerGameData.theme);
-                await window.saveCloudData();
-                showToast("設定已儲存至雲端存檔！");
-            });
-            bind('btn-test-api', 'click', async () => {
-                try {
-                    showToast("正在測試 AI 連線...");
-                    const res = await callAI("簡短回應：測試成功。");
-                    showToast("API 連線正常！");
-                } catch(e) {
-                    showToast("測試失敗：" + e.message);
-                }
-            });
-            function openProfilePage() {
-                const profile = window.playerGameData.profile || {};
-                document.getElementById('profile-name-input').value = profile.name || "";
-                document.getElementById('profile-personality-input').value = profile.personality || "";
-                document.getElementById('profile-likes-input').value = profile.likes || "";
-                document.getElementById('modal-avatar-preview').src = profile.avatar || DEFAULT_AVATAR;
-                navigateTo('profile-screen');
-            }
-            bind('avatar-file-input', 'change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (evt) => {
-                        document.getElementById('modal-avatar-preview').src = evt.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-            bind('btn-default-avatar', 'click', () => {
-                document.getElementById('modal-avatar-preview').src = DEFAULT_AVATAR;
-            });
-            bind('btn-save-profile', 'click', async () => {
-                const name = document.getElementById('profile-name-input').value.trim() || "執行者";
-                const personality = document.getElementById('profile-personality-input').value.trim();
-                const likes = document.getElementById('profile-likes-input').value.trim();
-                const avatar = document.getElementById('modal-avatar-preview').src;
-                window.playerGameData.profile = { name, personality, likes, avatar, setupCompleted: true };
-                updateMainUI();
-                await window.saveCloudData();
-                showToast("身份資料已更新！");
-            });
-        });
-        function closeItemDetail() {
-            document.getElementById('item-detail-modal').style.display = 'none';
-        }
-        document.getElementById('btn-close-item-detail').addEventListener('click', closeItemDetail);
-        document.getElementById('item-detail-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'item-detail-modal') closeItemDetail();
-        });
+  document.addEventListener('DOMContentLoaded', async () => {
+    document.querySelectorAll('.btn-back-smart').forEach((button) => button.addEventListener('click', navigateBack));
+    bind('btn-welcome-yes', 'click', async () => { byId('welcome-modal').style.display = 'none'; const { data: { session } } = await supabaseClient.auth.getSession(); if (!session) return byId('auth-modal').style.display = 'flex'; currentUserId = session.user.id; currentUserEmail = session.user.email || ''; try { await loadCloudData(); await loadPlayerInventory(); renderScreen('main-screen'); } catch (error) { showToast(`載入失敗：${error.message}`); } });
+    bind('btn-welcome-no', 'click', () => openSubPage('連線拒絕終端', '連線已拒絕，臨界奇點終端保持休眠。'));
+    bind('btn-supabase-login', 'click', async () => { const email = byId('auth-email').value.trim(), password = byId('auth-password').value; const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password }); if (error) return showToast(`登入失敗：${error.message}`); currentUserId = data.user.id; currentUserEmail = data.user.email || ''; byId('auth-modal').style.display = 'none'; try { await loadCloudData(); await loadPlayerInventory(); renderScreen('main-screen'); } catch (loadError) { showToast(`同步失敗：${loadError.message}`); } });
+    bind('btn-supabase-signup', 'click', async () => { const email = byId('auth-email').value.trim(), password = byId('auth-password').value; const { data, error } = await supabaseClient.auth.signUp({ email, password }); if (error) return showToast(`註冊失敗：${error.message}`); if (!data.session) return showToast('註冊成功，請先至信箱完成驗證。'); currentUserId = data.user.id; currentUserEmail = data.user.email || ''; byId('auth-modal').style.display = 'none'; await saveCloudData(); renderScreen('main-screen'); });
+    bind('btn-auth-close', 'click', () => { byId('auth-modal').style.display = 'none'; byId('welcome-modal').style.display = 'flex'; });
+    bind('menu-logout', 'click', async () => { await supabaseClient.auth.signOut(); location.reload(); });
+    bind('btn-open-nav', 'click', () => byId('mySidebar').style.width = '250px'); bind('btn-close-nav', 'click', () => byId('mySidebar').style.width = '0');
+    bind('menu-home', 'click', goHome); bind('menu-profile', 'click', openProfilePage); bind('menu-settings', 'click', openSettingsPage); bind('btn-card-profile-quick', 'click', openProfilePage); bind('btn-open-settings-main', 'click', openSettingsPage); bind('btn-samsara-settings', 'click', openSettingsPage);
+    bind('menu-card-combat', 'click', () => { updateCausalStats(); navigateTo('causal-screen'); }); bind('menu-card-inventory', 'click', () => { renderInventoryGrid(); navigateTo('inventory-screen'); });
+    bind('menu-card-history', 'click', () => openSubPage('往日之影', '目前尚未浮現任何往日之影紀錄。')); bind('menu-protocol-sidebar', 'click', () => openSubPage('臨界規則 Protocol', '遵守任務指令，積極修正多元宇宙錯誤時間軸。'));
+    bind('menu-exchange-sidebar', 'click', () => window.playerGameData.inDungeon ? openSubPage('兌換系統', '可使用維度核心或餘燼兌換稀有道具。') : openSubPage('兌換系統未解鎖', '請先步入輪迴以啟用兌換系統。'));
+    bind('menu-medical-sidebar', 'click', async () => { if (!window.playerGameData.inDungeon) return openSubPage('治療系統未解鎖', '請先步入輪迴。'); window.playerGameData.hp = window.playerGameData.maxHp; await saveCloudData(); updateMainUI(); openSubPage('治療系統', '生命值已恢復至上限。'); });
+    document.querySelectorAll('.inventory-tab').forEach((tab) => tab.addEventListener('click', () => { document.querySelectorAll('.inventory-tab').forEach((button) => button.classList.remove('active')); tab.classList.add('active'); currentTab = tab.dataset.tab || 'all'; renderInventoryGrid(); }));
+    bind('btn-close-item-detail', 'click', closeItemDetail); bind('item-detail-modal', 'click', (event) => { if (event.target === byId('item-detail-modal')) closeItemDetail(); });
+    bind('btn-toggle-samsara-panel', 'click', () => { currentPanelMode = currentPanelMode ? 0 : 1; renderSamsaraControls(); }); bind('btn-enter-dungeon', 'click', enterDungeon);
+    bind('btn-save-api', 'click', async () => { window.playerGameData.apiKey = byId('api-key-input').value.trim(); window.playerGameData.aiModel = byId('ai-model-input').value.trim() || 'gemini-2.5-flash'; window.playerGameData.theme = byId('theme-select').value; applyTheme(window.playerGameData.theme); try { await saveCloudData(); showToast('設定與 API Key 已儲存至雲端。'); } catch (error) { showToast(`設定儲存失敗：${error.message}`); } });
+    bind('btn-test-api', 'click', async () => { try { await callAI('請簡短回覆：測試成功。'); showToast('API 連線正常。'); } catch (error) { showToast(`測試失敗：${error.message}`); } }); bind('theme-select', 'change', (event) => applyTheme(event.target.value));
+    bind('btn-save-profile', 'click', async () => { const profile = window.playerGameData.profile; profile.name = byId('profile-name-input').value.trim() || '執行者'; profile.personality = byId('profile-personality-input').value.trim(); profile.likes = byId('profile-likes-input').value.trim(); profile.avatar = byId('modal-avatar-preview').src || DEFAULT_AVATAR; try { await saveCloudData(); updateMainUI(); showToast('身份資料已更新。'); } catch (error) { showToast(`儲存失敗：${error.message}`); } });
+    bind('avatar-file-input', 'change', (event) => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { byId('modal-avatar-preview').src = reader.result; }; reader.readAsDataURL(file); }); bind('btn-default-avatar', 'click', () => byId('modal-avatar-preview').src = DEFAULT_AVATAR);
+    applyTheme(window.playerGameData.theme); updateMainUI();
+  });
+})();
 
-        async function useConsumableItem(item) {
-            if (item.id === 'item_1') {
-                window.playerGameData.hp = Math.min(window.playerGameData.maxHp, window.playerGameData.hp + 30);
-                updateMainUI();
-                item.count -= 1;
-                if (item.count <= 0) {
-                    window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
-                }
-                renderInventoryGrid();
-                closeItemDetail();
-                await saveCloudData();
-                showToast('成功使用低階復原藥水，生命值 +30！');
-            }
-        }
-
-        async function discardItem(item) {
-            window.playerGameData.inventoryBag = window.playerGameData.inventoryBag.filter(i => i.id !== item.id);
-            renderInventoryGrid();
-            closeItemDetail();
-            await saveCloudData();
-            showToast(`已丟棄 ${item.name}。`);
-        }
-
-        function openSettingsPage() {
-            document.getElementById('api-key-input').value = window.playerGameData.apiKey || "";
-            document.getElementById('ai-model-input').value = window.playerGameData.aiModel || "gemini-2.5-flash";
-            document.getElementById('theme-select').value = window.playerGameData.theme || "dark";
-            document.getElementById('settings-email-display').value = currentUserEmail || "未登入雲端帳號";
-            navigateTo('settings-screen');
-        }
-
-        function openProfilePage() {
-            const p = window.playerGameData.profile || {};
-            document.getElementById('profile-name-input').value = p.name || "";
-            document.getElementById('profile-personality-input').value = p.personality || "";
-            document.getElementById('profile-likes-input').value = p.likes || "";
-            document.getElementById('modal-avatar-preview').src = p.avatar || DEFAULT_AVATAR;
-            navigateTo('profile-screen');
-        }
-
-       document.getElementById('btn-save-api').addEventListener('click', async () => {
-            window.playerGameData.apiKey = document.getElementById('api-key-input').value.trim();
-            window.playerGameData.aiModel = document.getElementById('ai-model-input').value.trim() || "gemini-2.5-flash";
-            window.playerGameData.theme = document.getElementById('theme-select').value;
-            applyTheme(window.playerGameData.theme);
-            await saveCloudData();
-            showToast('設定已成功儲存至雲端！');
-        });
-
-        document.getElementById('btn-test-api').addEventListener('click', async () => {
-            try {
-                showToast('正在測試 Gemini API 連線...');
-                const res = await callAI("請簡短回覆：連線測試成功");
-                showToast('API 連線測試成功！');
-            } catch (err) {
-                showToast('連線失敗：' + err.message);
-            }
-        });
-
-        document.getElementById('theme-select').addEventListener('change', (e) => {
-            const theme = e.target.value;
-            window.playerGameData.theme = theme;
-            applyTheme(theme);
-        });
-
-        document.getElementById('btn-save-profile').addEventListener('click', async () => {
-            window.playerGameData.profile.name = document.getElementById('profile-name-input').value.trim() || "執行者";
-            window.playerGameData.profile.personality = document.getElementById('profile-personality-input').value.trim();
-            window.playerGameData.profile.likes = document.getElementById('profile-likes-input').value.trim();
-            updateMainUI();
-            await saveCloudData();
-            showToast('執行者身份資訊已更新！');
-        });
-
-        document.getElementById('avatar-file-input').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const base64Str = event.target.result;
-                window.playerGameData.profile.avatar = base64Str;
-                document.getElementById('modal-avatar-preview').src = base64Str;
-                updateMainUI();
-                saveCloudData();
-                showToast('自訂頭像已更新！');
-            };
-            reader.readAsDataURL(file);
-        });
-
-        document.getElementById('btn-default-avatar').addEventListener('click', () => {
-            window.playerGameData.profile.avatar = DEFAULT_AVATAR;
-            document.getElementById('modal-avatar-preview').src = DEFAULT_AVATAR;
-            updateMainUI();
-            saveCloudData();
-            showToast('已恢復預設頭像！');
-        });
-
-        // 步入輪迴按鈕邏輯
-        document.getElementById('btn-enter-dungeon').addEventListener('click', async () => {
-            window.playerGameData.inDungeon = true;
-            navigateTo('samsara-screen');
-            const logBox = document.getElementById('samsara-text-log');
-            logBox.innerText = "正在接入輪迴因果數據流...\n";
-            try {
-                const aiResponse = await callAI("執行者已步入輪迴。請開始第一階段的隨機因果世界劇情，並在文末提供 5 個行動選項 (A, B, C, D, E)。");
-                logBox.innerText = aiResponse;
-                window.playerGameData.samsaraLog = aiResponse;
-                await saveCloudData();
-                renderSamsaraControls(aiResponse);
-            } catch (err) {
-                logBox.innerText = "因果數據流接入失敗：" + err.message;
-            }
-        });
-        function renderSamsaraControls(text) {
-            const grid = document.getElementById('samsara-controls-grid');
-            grid.innerHTML = '';
-            
-            for (let i = 0; i < 5; i++) {
-                const charCode = String.fromCharCode(65 + i); // A, B, C, D, E
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'samsara-btn';
-                btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg> <span>選項 ${charCode}</span>`;
-                btn.addEventListener('click', () => handleSamsaraChoice(charCode));
-                grid.appendChild(btn);
-            }
-        }
-
-        async function handleSamsaraChoice(choiceLetter) {
-            const logBox = document.getElementById('samsara-text-log');
-            logBox.innerText += `\n\n> 您的抉擇：選項 ${choiceLetter}\n正在修正時空因果...`;
-            try {
-                const aiResponse = await callAI(`玩家選擇了選項 ${choiceLetter}。請根據此抉擇繼續推進劇情，並在文末提供新的 5 個行動選項 (A, B, C, D, E)。`);
-                logBox.innerText = aiResponse;
-                window.playerGameData.samsaraLog = aiResponse;
-                await saveCloudData();
-                renderSamsaraControls(aiResponse);
-            } catch (err) {
-                logBox.innerText += `\n因果對抗異常：${err.message}`;
-            }
-        }
-                async function deleteItemFromSupabase(item) {
-            // 如果道具數量大於 1，詢問要丟棄多少個
-            let discardCount = 1;
-            const maxCount = item.count || 1;
-
-            if (maxCount > 1) {
-                const input = prompt(`「${item.name}」目前擁有 ${maxCount} 個，請問要丟棄多少個？`, "1");
-                if (input === null) return; // 玩家點擊取消
-                
-                discardCount = parseInt(input, 10);
-                
-                // 驗證輸入是否合法
-                if (isNaN(discardCount) || discardCount <= 0) {
-                    showToast('請輸入有效的數量！');
-                    return;
-                }
-                if (discardCount > maxCount) {
-                    showToast('丟棄數量不能大於擁有的數量！');
-                    return;
-                }
-            } else {
-                if (!confirm(`確定要永久丟棄 ${item.name} 嗎？`)) return;
-            }
-
-            // 計算剩餘數量
-            const remainingCount = maxCount - discardCount;
-
-            if (remainingCount > 0) {
-                // 情況 A：數量沒扣完，只需要更新資料庫的 count 欄位
-                const { error } = await supabase
-                    .from('player_items')
-                    .update({ count: remainingCount })
-                    .eq('id', item.id);
-
-                if (error) {
-                    console.error('更新道具數量失敗：', error);
-                    showToast('操作失敗，請稍後再試');
-                    return;
-                }
-
-                // 更新前端記憶體中的數量
-                item.count = remainingCount;
-                showToast(`已丟棄 ${item.name} x${discardCount}`);
-
-            } else {
-                // 情況 B：數量歸零，直接從資料庫刪除該筆紀錄
-                const { error } = await supabase
-                    .from('player_items')
-                    .delete()
-                    .eq('id', item.id);
-
-                if (error) {
-                    console.error('刪除道具失敗：', error);
-                    showToast('刪除失敗，請稍後再試');
-                    return;
-                }
-
-                // 從前端雙層結構中移除該物品
-                if (inventory.equipment && inventory.equipment[item.slot_type]) {
-                    inventory.equipment[item.slot_type] = inventory.equipment[item.slot_type].filter(i => i.id !== item.id);
-                } else if (inventory[item.slot_type]) {
-                    inventory[item.slot_type] = inventory[item.slot_type].filter(i => i.id !== item.id);
-                }
-
-                showToast(`已完全丟棄 ${item.name}`);
-            }
-
-            closeItemDetail();
-            renderInventoryGrid();
-        }
 
 </script>
     </script>
