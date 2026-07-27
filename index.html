@@ -783,7 +783,7 @@
         .custom-dialog-input:focus { border-color: var(--sub-text); }
         .custom-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         .custom-dialog-actions button { flex: unset; padding: 10px 18px; border-radius: 8px; font-size: 13px; }
-    </style>
+                    .game-svg-icon, .inline-game-icon { width: 1em; height: 1em; fill: currentColor; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.13em; }                    .slot-icon .game-svg-icon { width: 70%; height: 70%; display: block; margin: auto; }                    .slot-icon-text .game-svg-icon, .slot-icon-text .causal-slot-asset { width: 32px; height: 32px; max-width: 32px; max-height: 32px; display: block; object-fit: contain; }                    .item-detail-icon .game-svg-icon, .item-detail-icon .inline-game-icon { width: 52px; height: 52px; }                    .toast-message .game-svg-icon { margin-right: 6px; }                    #stamina-bar-fill { background-color: #f59e0b; }                        </style>
 </head>
 <body>
     <div id="toast-container"></div>
@@ -791,7 +791,7 @@
     <!-- 道具詳情彈窗 -->
     <div id="item-detail-modal">
         <div class="item-detail-card">
-            <div id="detail-icon" class="item-detail-icon">📦</div>
+            <div id="detail-icon" class="item-detail-icon"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="物品"><path d="m12 2 8 10-8 10L4 12zM4 12h16M12 2v20"/></svg></div>
             <div id="detail-name" class="item-detail-name">道具名稱</div>
             <div id="detail-type" class="item-detail-type">種類 / 品質</div>
             <div id="detail-desc" class="item-detail-desc">道具效果詳細說明...</div>
@@ -852,7 +852,7 @@
         <div id="main-screen" class="screen-view" style="display: none;">
             <div class="terminal-header">
                 <div class="terminal-title">
-                    <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
+                    <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="選單"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
                     <span>臨界奇點 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">SINGULARITY TERMINAL</span></span>
                 </div>
                 <button type="button" id="btn-open-settings-main">
@@ -885,7 +885,7 @@
                     <div class="bar-row">
                         <span>生命值 HP</span>
                         <span id="display-hp-text" style="font-size:11px; color:var(--sub-text);">0/100</span>
-                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="hp-bar-fill" style="width: 0%;"></div></div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="hp-bar-fill" style="width: 0%;"></div></div></div><div class="bar-row"><span>體力 STAMINA</span><span id="display-stamina-text" style="font-size:11px; color:var(--sub-text);">100/100</span><div class="progress-bar-bg"><div class="progress-bar-fill" id="stamina-bar-fill" style="width: 100%; background-color: #f59e0b;"></div></div>
                     </div>
                 </div>
             </div>
@@ -895,7 +895,7 @@
                     <div style="font-size: 20px; font-weight: bold; margin-bottom: 4px;">步入輪迴</div>
                     <div style="font-size: 12px; color: var(--sub-text);">SAMSARA ENTRY · 隨機因果世界</div>
                 </div>
-                <span style="font-size: 22px;">→</span>
+                <span style="font-size: 22px;"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="前往"><path d="M3 12h16m-6-6 6 6-6 6"/></svg></span>
             </button>
             <div class="section-label">命理造化 DESTINY</div>
             <div class="menu-grid-prepare">
@@ -1021,10 +1021,10 @@
             <div class="causal-stats-container">
                 <div class="causal-stats-title">因果律數據 / 屬性總加成</div>
                 <div class="causal-stats-grid">
-                    <div class="causal-stat-item"><span class="causal-stat-label">❤️ 生命</span><span class="causal-stat-value" id="stat-hp">1000</span></div>
-                    <div class="causal-stat-item"><span class="causal-stat-label">⚔️ 攻擊</span><span class="causal-stat-value" id="stat-atk">200</span></div>
-                    <div class="causal-stat-item"><span class="causal-stat-label">🛡️ 防禦</span><span class="causal-stat-value" id="stat-def">800</span></div>
-                    <div class="causal-stat-item"><span class="causal-stat-label">⚡ 速度</span><span class="causal-stat-value" id="stat-spd">100</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="生命"><path d="M12 21S3 15.4 3 8.8C3 4.9 7.8 3.2 12 7.2c4.2-4 9-2.3 9 1.6C21 15.4 12 21 12 21Z"/></svg> 生命</span><span class="causal-stat-value" id="stat-hp">1000</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="攻擊"><path d="m4 4 16 16M20 4 4 20M6 2l3 3M15 19l3 3M18 2l3 3M3 18l3 3"/></svg> 攻擊</span><span class="causal-stat-value" id="stat-atk">200</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="防禦"><path d="m12 2 8 3v6c0 5-3.4 9.6-8 11-4.6-1.4-8-6-8-11V5z"/></svg> 防禦</span><span class="causal-stat-value" id="stat-def">800</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="速度"><path d="M13 2 4 14h7l-1 8 10-14h-7z"/></svg> 速度</span><span class="causal-stat-value" id="stat-spd">100</span></div>                    <div class="causal-stat-item"><span class="causal-stat-label">體力</span><span class="causal-stat-value" id="stat-stamina">100/100</span></div>
                 </div>
             </div>
             <div class="btn-group">
@@ -1115,7 +1115,7 @@
         <div class="causal-modal-content" onclick="event.stopPropagation()">
             <div class="causal-modal-header">
                 <span class="causal-modal-title" id="modalTitle">選擇裝備</span>
-                <button class="causal-modal-close" onclick="closeBag()">✕</button>
+                <button class="causal-modal-close" onclick="closeBag()"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="關閉"><path d="m5 5 14 14M19 5 5 19"/></svg></button>
             </div>
             <div class="causal-bag-list" id="bagList">
                 <!-- JS 動態渲染裝備清單 -->
@@ -1125,7 +1125,7 @@
     <!-- 提示視窗：Welcome 閘道 -->
     <div id="welcome-modal" class="modal" style="display: flex;">
         <div class="modal-content" style="text-align: center;">
-            <h3 style="margin-bottom: 10px; justify-content: center;">⚡ 臨界奇點連線請求</h3>
+            <h3 style="margin-bottom: 10px; justify-content: center;"><svg class="inline-game-icon" viewBox="0 0 24 24" aria-label="速度"><path d="M13 2 4 14h7l-1 8 10-14h-7z"/></svg> 臨界奇點連線請求</h3>
             <p style="font-size: 13px; color: var(--sub-text); margin-bottom: 20px;">偵測到未授權的意識波動，是否接入《臨界軸：萬界修正錄》終端？</p>
             <div class="btn-group">
                 <button type="button" id="btn-welcome-yes">Yes (接入)</button>
@@ -1156,6 +1156,7 @@
             <button type="button" class="btn-secondary" id="btn-auth-close" style="width: 100%; margin-top: 10px;">返回</button>
         </div>
     </div>
+
     <script>
 
         const RARITY_COLORS = {
