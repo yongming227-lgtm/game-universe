@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW" data-theme="dark">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -801,7 +802,7 @@
         .custom-dialog-input:focus { border-color: var(--sub-text); }
         .custom-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
         .custom-dialog-actions button { flex: unset; padding: 10px 18px; border-radius: 8px; font-size: 13px; }
-                    .game-svg-icon, .inline-game-icon { width: 1em; height: 1em; fill: currentColor; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.13em; }                    .slot-icon .game-svg-icon { width: 70%; height: 70%; display: block; margin: auto; }                    .slot-icon-text .game-svg-icon, .slot-icon-text .causal-slot-asset { width: 32px; height: 32px; max-width: 32px; max-height: 32px; display: block; object-fit: contain; }                    .item-detail-icon .game-svg-icon, .item-detail-icon .inline-game-icon { width: 52px; height: 52px; }                    .toast-message .game-svg-icon { margin-right: 6px; }                    #stamina-bar-fill { background-color: #f59e0b; }                                        #menu-card-combat .causal-panel-icon { width: 32px; height: 32px; max-width: 32px; max-height: 32px; display: block; }                    #menu-card-combat .causal-panel-icon * { fill: currentColor !important; stroke: none !important; }                                        .slot-icon .game-svg-icon *, .item-detail-icon .game-svg-icon *, .slot-icon-text .game-svg-icon * { fill: currentColor !important; }                                        /* 背包 SVG 依圖形留白調整大小。 */                    .slot-icon .game-svg-icon { width: 78% !important; height: 78% !important; max-width: 78%; max-height: 78%; transform-origin: center; }                    .slot-icon.icon-kind-book .game-svg-icon { transform: scale(1.85); }                    .slot-icon.icon-kind-food .game-svg-icon, .slot-icon.icon-kind-potion .game-svg-icon { transform: scale(1.12); }                    .slot-icon.icon-kind-fragment .game-svg-icon, .slot-icon.icon-kind-key .game-svg-icon { transform: scale(1.18); }                    .item-detail-icon.icon-kind-book .game-svg-icon { transform: scale(1.5); transform-origin: center; }                        </style>
+                    .game-svg-icon, .inline-game-icon { width: 1em; height: 1em; fill: currentColor; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -0.13em; }                    .slot-icon .game-svg-icon { width: 70%; height: 70%; display: block; margin: auto; }                    .slot-icon-text .game-svg-icon, .slot-icon-text .causal-slot-asset { width: 32px; height: 32px; max-width: 32px; max-height: 32px; display: block; object-fit: contain; }                    .item-detail-icon .game-svg-icon, .item-detail-icon .inline-game-icon { width: 52px; height: 52px; }                    .toast-message .game-svg-icon { margin-right: 6px; }                    #stamina-bar-fill { background-color: #f59e0b; }                                        #menu-card-combat .causal-panel-icon { width: 32px; height: 32px; max-width: 32px; max-height: 32px; display: block; }                    #menu-card-combat .causal-panel-icon * { fill: currentColor !important; stroke: none !important; }                                        .slot-icon .game-svg-icon *, .item-detail-icon .game-svg-icon *, .slot-icon-text .game-svg-icon * { fill: currentColor !important; }                                        /* 背包 SVG 依圖形留白調整大小。 */                    .slot-icon .game-svg-icon { width: 78% !important; height: 78% !important; max-width: 78%; max-height: 78%; transform-origin: center; }                    .slot-icon.icon-kind-book .game-svg-icon { transform: scale(1.85); }                    .slot-icon.icon-kind-food .game-svg-icon, .slot-icon.icon-kind-potion .game-svg-icon { transform: scale(1.12); }                    .slot-icon.icon-kind-fragment .game-svg-icon, .slot-icon.icon-kind-key .game-svg-icon { transform: scale(1.18); }                    .item-detail-icon.icon-kind-book .game-svg-icon { transform: scale(1.5); transform-origin: center; }                         .btn-group { flex-wrap: nowrap; } .btn-group button { flex: 1 1 0; min-width: 0; padding: 12px 8px; white-space: nowrap; } .causal-modal-content { position: relative; } .causal-modal-header { padding-right: 40px; } .causal-modal-close { position: absolute !important; top: 16px !important; right: 16px !important; width: 32px; height: 32px; min-width: 32px; padding: 0; margin: 0; flex: 0 0 32px; display: grid; place-items: center; border-radius: 50%; background: transparent; } .causal-modal-close:hover { background: var(--input-bg); } .screen-view.screen-enter { animation: screen-enter 220ms cubic-bezier(.2, .8, .2, 1); } @keyframes screen-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } } @media (prefers-reduced-motion: reduce) { .screen-view.screen-enter { animation: none; } }</style>
 </head>
 <body>
     <div id="toast-container"></div>
@@ -1728,6 +1729,7 @@ c-37 -3 -50 -1 -40 5 11 7 11 10 2 10 -7 0 -10 4 -7 10 4 6 -1 7 -12 3 -10 -3
     </div>
 
 
+
  <script>
 /* 臨界軸：萬界修正錄 — 整理後的唯一 JavaScript 版本
  * 以 player_items 為背包唯一資料來源；player_saves 只保存角色進度。
@@ -2384,7 +2386,13 @@ c23 21 31 25 31 17z"/>
   }
 
   function renderScreen(screenId) {
-    document.querySelectorAll('.screen-view').forEach((el) => { el.style.display = el.id === screenId ? (screenId === 'samsara-screen' ? 'flex' : 'block') : 'none'; });
+    document.querySelectorAll('.screen-view').forEach((el) => {
+      if (el.id !== screenId) { el.style.display = 'none'; return; }
+      el.style.display = screenId === 'samsara-screen' ? 'flex' : 'block';
+      el.classList.remove('screen-enter');
+      void el.offsetWidth;
+      el.classList.add('screen-enter');
+    });
   }
   function navigateTo(screenId) {
     if (pageHistory.at(-1) !== screenId) pageHistory.push(screenId);
@@ -2826,6 +2834,7 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
     applyTheme(window.playerGameData.theme); updateMainUI();
   });
 })();
+
 
 </script>
     </script>
