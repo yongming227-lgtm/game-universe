@@ -857,6 +857,7 @@
 .battle-cell:nth-child(10n) { border-right:0; }
 .terrain-grass { background:linear-gradient(135deg,#315d47,#284b3a); }.terrain-stone { background:linear-gradient(135deg,#536170,#3b4652); }.terrain-sand { background:linear-gradient(135deg,#8b7043,#665230); }.terrain-snow { background:linear-gradient(135deg,#d8e6ec,#a8c1cb); }.terrain-void { background:radial-gradient(circle at 30% 25%,#4a316d,#161327 70%); }.terrain-ruins { background:linear-gradient(135deg,#5f594b,#3f3a31); }
 .battle-token { display:grid; place-items:center; width:72%; aspect-ratio:1; border-radius:50%; font-style:normal; font-size:clamp(11px,2.6vw,22px); line-height:1; font-weight:900; z-index:1; }
+.battle-token .game-svg-icon { display:block; width:68%; height:68%; fill:currentColor; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; }
 .battle-token-player { color:#dbeafe; background:#2563eb; box-shadow:0 0 0 2px #bfdbfe,0 0 14px rgba(59,130,246,.65); }.battle-token-enemy { color:#fee2e2; background:#b91c1c; box-shadow:0 0 0 2px #fecaca,0 0 12px rgba(239,68,68,.5); }.battle-token-obstacle { width:72%; color:#ede9fe; background:rgba(15,23,42,.55); border-radius:8px; }.obstacle-tree { color:#bbf7d0; }.obstacle-crystal { color:#c4b5fd; }.obstacle-wall { border-radius:3px; }
 .battle-sidebar { display:grid; gap:12px; }.battle-status-card,.battle-legend { padding:15px; border:1px solid var(--border-color); border-radius:14px; background:var(--card-bg); }.battle-status-card strong { display:block; margin:6px 0 3px; color:var(--text-color); }.battle-status-card span { color:var(--sub-text); font-size:13px; }.battle-legend { display:grid; gap:10px; }.battle-legend span { display:flex; align-items:center; gap:8px; color:var(--sub-text); font-size:13px; }.battle-legend .battle-token { width:20px; font-size:12px; flex:0 0 20px; }
 .battle-status-card small { display:block; margin-top:10px; color:var(--sub-text); font-size:12px; line-height:1.45; }
@@ -873,11 +874,11 @@
 </head>
 <body>
     <div id="toast-container"></div>
-
+    
     <!-- 道具詳情彈窗 -->
     <div id="item-detail-modal">
         <div class="item-detail-card">
-            <div id="detail-icon" class="item-detail-icon">📦</div>
+            <div id="detail-icon" class="item-detail-icon"><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="物品詳情"><path d="M4 8h16v12H4zM3 5h18v3H3zM9 12h6" fill="none" stroke="currentColor" stroke-width="2"/></svg></div>
             <div id="detail-name" class="item-detail-name">道具名稱</div>
             <div id="detail-type" class="item-detail-type">種類 / 品質</div>
             <div id="detail-desc" class="item-detail-desc">道具效果詳細說明...</div>
@@ -938,7 +939,7 @@
         <div id="main-screen" class="screen-view" style="display: none;">
             <div class="terminal-header">
                 <div class="terminal-title">
-                    <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;">☰</button>
+                    <button type="button" id="btn-open-nav" style="background:none; border:none; color:var(--text-color); cursor:pointer; font-size:16px; padding:0; flex:unset;"><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="選單"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.2"/></svg></button>
                     <span>臨界奇點 <span style="font-size:10px; color:var(--sub-text); font-weight:normal;">SINGULARITY TERMINAL</span></span>
                 </div>
                 <button type="button" id="btn-open-settings-main">
@@ -1020,10 +1021,10 @@
                     <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: var(--text-color);"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
                 </button>
             </div>
-
+            
             <!-- AI 劇情文字區塊 -->
             <div id="samsara-text-log" class="samsara-story-box">正在接入輪迴因果數據流...</div>
-
+            
             <!-- 切換面板按鈕 -->
             <div class="samsara-switch-bar">
                 <button type="button" class="samsara-switch-btn" id="btn-toggle-samsara-panel">
@@ -1043,7 +1044,7 @@
                 行囊系統
             </h3>
             <p style="font-size: 12px; color: var(--sub-text); margin-bottom: 14px;">收納因果冒險中獲得的物資與裝備：</p>
-
+            
             <!-- 五大頁籤 -->
             <div class="inventory-tabs">
                 <div class="inventory-tab active" data-tab="all">全部</div>
@@ -1058,7 +1059,7 @@
                 <button type="button" class="btn-secondary btn-back-smart" style="width: 100%;">返回上一頁</button>
             </div>
         </div>
-
+        
         <!-- 全新替換：因果面板介面 (causal-screen) -->
         <div id="causal-screen" class="full-page-view screen-view">
             <h3 style="margin-bottom: 20px; justify-content: center;">
@@ -1107,10 +1108,10 @@
             <div class="causal-stats-container">
                 <div class="causal-stats-title">因果律數據 / 屬性總加成</div>
                 <div class="causal-stats-grid">
-                    <div class="causal-stat-item"><span class="causal-stat-label">❤️ 生命</span><span class="causal-stat-value" id="stat-hp">1000</span></div>
-                    <div class="causal-stat-item"><span class="causal-stat-label">⚔️ 攻擊</span><span class="causal-stat-value" id="stat-atk">200</span></div>
-                    <div class="causal-stat-item"><span class="causal-stat-label">🛡️ 防禦</span><span class="causal-stat-value" id="stat-def">800</span></div>
-                    <div class="causal-stat-item"><span class="causal-stat-label">⚡ 速度</span><span class="causal-stat-value" id="stat-spd">100</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label"><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="生命"><path d="M12 20S4 15.2 4 9.4C4 6.9 5.8 5 8.2 5c1.7 0 3.1.9 3.8 2.2C12.7 5.9 14.1 5 15.8 5 18.2 5 20 6.9 20 9.4 20 15.2 12 20 12 20Z"/></svg> 生命</span><span class="causal-stat-value" id="stat-hp">1000</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label"><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="攻擊"><path d="m14.5 4.5 5 5-9.8 9.8-5.2.8.8-5.2zM13 6l5 5M5 19l-2 2" fill="none" stroke="currentColor" stroke-width="2"/></svg> 攻擊</span><span class="causal-stat-value" id="stat-atk">200</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label"><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="防禦"><path d="M12 3 19 6v5.5c0 4.4-2.9 7.8-7 9.5-4.1-1.7-7-5.1-7-9.5V6z" fill="none" stroke="currentColor" stroke-width="2"/></svg> 防禦</span><span class="causal-stat-value" id="stat-def">800</span></div>
+                    <div class="causal-stat-item"><span class="causal-stat-label"><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="閃電"><path d="M13 2 4 14h7l-1 8 10-14h-7z"/></svg> 速度</span><span class="causal-stat-value" id="stat-spd">100</span></div>
                 </div>
             </div>
             <div class="btn-group">
@@ -1124,13 +1125,13 @@
                 遊戲與帳號設定
             </h3>
             <p style="font-size: 12px; color: var(--sub-text); margin-bottom: 20px;">在此管理您的雲端帳號資料與 AI 核心參數：</p>
-
+            
             <div style="font-size: 11px; color: var(--sub-text); font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">帳號資料 ACCOUNT</div>
             <div class="input-group">
                 <label for="settings-email-display">目前登入信箱：</label>
                 <input type="text" id="settings-email-display" readonly style="opacity: 0.8; cursor: not-allowed;">
             </div>
-
+            
             <div style="font-size: 11px; color: var(--sub-text); font-weight: bold; margin: 20px 0 8px 0; text-transform: uppercase; letter-spacing: 0.5px;">API 與核心設定 CORE & API</div>
             <div class="input-group">
                 <label for="api-key-input">API Key：</label>
@@ -1147,7 +1148,7 @@
                     <option value="light">白晝模式 (Light)</option>
                 </select>
             </div>
-
+            
             <div class="btn-group" style="margin-top: 24px;">
                 <button type="button" id="btn-save-api">儲存設定</button>
                 <button type="button" class="btn-secondary" id="btn-test-api">測試連線</button>
@@ -1156,9 +1157,9 @@
         </div>
         <!-- 執行者身份資訊頁面 (profile-screen) -->
         <div id="profile-screen" class="full-page-view screen-view">
-            <h3>👤 執行者身份資訊</h3>
+            <h3><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="執行者身份"><circle cx="12" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 21c.6-4 2.8-6 6.5-6s5.9 2 6.5 6" fill="none" stroke="currentColor" stroke-width="2"/></svg> 執行者身份資訊</h3>
             <p style="font-size: 12px; color: var(--sub-text); margin-bottom: 20px;">檢視或編輯您的個人化身份設定：</p>
-
+            
             <div class="input-group" style="text-align: center; margin-top: 10px;">
                 <img id="modal-avatar-preview" src="" alt="頭像預覽" class="avatar-preview" style="margin: 0 auto 10px auto; display: block; width: 80px; height: 80px;">
                 <label for="avatar-file-input" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; background-color: var(--badge-bg); padding: 9px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; border: 1px solid var(--border-color); touch-action: manipulation; width: fit-content; margin: 0 auto;">
@@ -1201,7 +1202,7 @@
         <div class="causal-modal-content" onclick="event.stopPropagation()">
             <div class="causal-modal-header">
                 <span class="causal-modal-title" id="modalTitle">選擇裝備</span>
-                <button class="causal-modal-close" onclick="closeBag()">✕</button>
+                <button class="causal-modal-close" onclick="closeBag()"><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="關閉"><path d="M6 6 18 18M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button>
             </div>
             <div class="causal-bag-list" id="bagList">
                 <!-- JS 動態渲染裝備清單 -->
@@ -1211,7 +1212,7 @@
     <!-- 提示視窗：Welcome 閘道 -->
     <div id="welcome-modal" class="modal" style="display: flex;">
         <div class="modal-content" style="text-align: center;">
-            <h3 style="margin-bottom: 10px; justify-content: center;">⚡ 臨界奇點連線請求</h3>
+            <h3 style="margin-bottom: 10px; justify-content: center;"><svg class="game-svg-icon" viewBox="0 0 24 24" role="img" aria-label="閃電"><path d="M13 2 4 14h7l-1 8 10-14h-7z"/></svg> 臨界奇點連線請求</h3>
             <p style="font-size: 13px; color: var(--sub-text); margin-bottom: 20px;">偵測到未授權的意識波動，是否接入《臨界軸：萬界修正錄》終端？</p>
             <div class="btn-group">
                 <button type="button" id="btn-welcome-yes">Yes (接入)</button>
@@ -1276,6 +1277,26 @@
   const TYPE_NAMES = { causal: '因果裝備', head: '頭部護具', weapon: '主手武器', boots: '戰術戰靴', chest: '身體胸甲', consumable: '消耗品', material: '材料', quest: '劇情道具' };
   const ITEM_KIND_NAMES = { food: '食物', potion: '藥水', fragment: '碎片', key: '鑰匙', core: '核心', herb: '草藥', book: '書', map: '地圖', relic: '遺物', treasure: '寶箱' };
   const svg = (content, label = '', viewBox = '0 0 24 24') => `<svg class="game-svg-icon" viewBox="${viewBox}" role="img" aria-label="${label}">${content}</svg>`;
+  // 所有「因果」入口共用同一個漩渦，不讓裝備欄、主選單與頁面標題出現不同圖示。
+  const CAUSAL_SWIRL_SVG = svg('<path d="M12 3a9 9 0 1 0 9 9" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M18.7 5.4A6.2 6.2 0 1 0 18 17.8" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M15.8 8A3.3 3.3 0 1 0 15 15.1" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="1.35"/>', '因果漩渦');
+  const BATTLE_SVG = {
+    player: svg('<path d="M12 3 19 7v5c0 4.3-2.9 7.7-7 9-4.1-1.3-7-4.7-7-9V7z"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-width="2"/>', '執行者'),
+    enemy: svg('<path d="M5 5 19 19M19 5 5 19" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>', '敵方'),
+    rock: svg('<path d="m4 18 3-10 5-4 6 5 2 9zM7 8l4 3 3-4" fill="none" stroke="currentColor" stroke-width="2"/>', '岩石'),
+    tree: svg('<path d="M12 3 6 12h4l-5 6h14l-5-6h4zM12 18v3" fill="none" stroke="currentColor" stroke-width="2"/>', '樹木'),
+    wall: svg('<path d="M3 7h18v11H3zM3 12h18M8 7v5m8 0V7m-4 5v6" fill="none" stroke="currentColor" stroke-width="2"/>', '牆壁'),
+    debris: svg('<path d="m4 18 5-12 4 7 3-5 4 10zM4 18h16" fill="none" stroke="currentColor" stroke-width="2"/>', '殘骸'),
+    crystal: svg('<path d="m12 2 6 7-6 13L6 9zM6 9h12m-6-7v20" fill="none" stroke="currentColor" stroke-width="2"/>', '水晶')
+  };
+  const UI_CLOSE_SVG = svg('<path d="M6 6 18 18M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4"/>', '關閉');
+  const UI_SVG = {
+    package: svg('<path d="M4 8h16v12H4zM3 5h18v3H3zM9 12h6" fill="none" stroke="currentColor" stroke-width="2"/>', '物品詳情'),
+    menu: svg('<path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.2"/>', '選單'),
+    heart: svg('<path d="M12 20S4 15.2 4 9.4C4 6.9 5.8 5 8.2 5c1.7 0 3.1.9 3.8 2.2C12.7 5.9 14.1 5 15.8 5 18.2 5 20 6.9 20 9.4 20 15.2 12 20 12 20Z"/>', '生命'),
+    sword: svg('<path d="m14.5 4.5 5 5-9.8 9.8-5.2.8.8-5.2zM13 6l5 5M5 19l-2 2" fill="none" stroke="currentColor" stroke-width="2"/>', '攻擊'),
+    shield: svg('<path d="M12 3 19 6v5.5c0 4.4-2.9 7.8-7 9.5-4.1-1.7-7-5.1-7-9.5V6z" fill="none" stroke="currentColor" stroke-width="2"/>', '防禦'),
+    person: svg('<circle cx="12" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 21c.6-4 2.8-6 6.5-6s5.9 2 6.5 6" fill="none" stroke="currentColor" stroke-width="2"/>', '執行者身份')
+  };
   const svgFromAsset = (encoded, label) => atob(encoded)
     .replace(/<\?xml[\s\S]*?\?>\s*/g, '')
     .replace(/<!DOCTYPE[\s\S]*?>\s*/g, '')
@@ -1685,6 +1706,8 @@ c-37 -3 -50 -1 -40 5 11 7 11 10 2 10 -7 0 -10 4 -7 10 4 6 -1 7 -12 3 -10 -3
     chest: svg('<path d="m12 2-8 4v6c0 5 3.4 9.6 8 10 4.6-.4 8-5 8-10V6z"/>', '胸甲')
   };
   // 三個指定 SVG 檔已與各自的「修改.txt」逐一雜湊比對，內容完全一致。
+  // 因果相關的每一個顯示位置，都使用這個同一份漩渦 SVG。
+  GAME_SVG.causal = CAUSAL_SWIRL_SVG;
   const SVG_ICONS = {
     causal: GAME_SVG.causal,
     head: String.raw`<svg class="causal-slot-asset game-svg-icon" version="1.0" xmlns="http://www.w3.org/2000/svg"
@@ -1959,6 +1982,7 @@ c23 21 31 25 31 17z"/>
   }
 
   function safeSvg(item, slotFallback = '') {
+    if (itemType(item) === 'causal' || slotFallback === 'causal') return CAUSAL_SWIRL_SVG;
     const icon = item?.icon;
     if (Object.values(SVG_ICONS).includes(icon)) return icon;
     const hasExplicitType = Boolean(item?.slot_type || item?.slotType || item?.type);
@@ -2493,7 +2517,7 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
     if (byId('battle-screen')) renderBattlePage();
   }
   function terrainName(terrain) { return ({ grass: '草原', stone: '岩地', sand: '沙地', snow: '雪原', void: '虛空', ruins: '遺跡' })[terrain] || '未知地形'; }
-  function obstacleSymbol(type) { return ({ rock: '◆', tree: '♣', wall: '▰', debris: '✦', crystal: '◇' })[type] || '◆'; }
+  function obstacleIcon(type) { return BATTLE_SVG[type] || BATTLE_SVG.rock; }
   function ensureBattleScreen() {
     if (byId('battle-screen')) return;
     const screen = document.createElement('section');
@@ -2506,7 +2530,7 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
       </header>
       <section class="battle-layout">
         <div class="battle-board-shell"><div id="battle-board" class="battle-board" role="grid" aria-label="10乘10戰術棋盤"></div></div>
-        <aside class="battle-sidebar"><div class="battle-status-card"><p class="battle-eyebrow">SCENE</p><strong id="battle-scene-name">尚未進入戰鬥</strong><span id="battle-terrain-name"></span><small id="battle-turn-status"></small></div><div id="battle-action-controls" class="battle-action-controls"></div><div class="battle-legend"><span><i class="battle-token battle-token-player">◆</i>執行者</span><span><i class="battle-token battle-token-enemy">✕</i>敵方</span><span><i class="battle-token battle-token-obstacle">◆</i>障礙</span></div><p class="battle-hint">移動、普通攻擊與技能均以曼哈頓距離判定。選取行動後，點擊棋盤上的高亮格。</p></aside>
+        <aside class="battle-sidebar"><div class="battle-status-card"><p class="battle-eyebrow">SCENE</p><strong id="battle-scene-name">尚未進入戰鬥</strong><span id="battle-terrain-name"></span><small id="battle-turn-status"></small></div><div id="battle-action-controls" class="battle-action-controls"></div><div class="battle-legend"><span><i class="battle-token battle-token-player">${BATTLE_SVG.player}</i>執行者</span><span><i class="battle-token battle-token-enemy">${BATTLE_SVG.enemy}</i>敵方</span><span><i class="battle-token battle-token-obstacle">${BATTLE_SVG.rock}</i>障礙</span></div><p class="battle-hint">移動、普通攻擊與技能均以曼哈頓距離判定。選取行動後，點擊棋盤上的高亮格。</p></aside>
       </section>`;
     document.body.appendChild(screen);
     byId('battle-return-story').addEventListener('click', navigateBack);
@@ -2554,9 +2578,9 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
         const canAttack = battleInteraction.mode === 'attack' && !battle.player.acted && selectedAction && enemies.has(key) && distance >= selectedAction.minRange && distance <= selectedAction.maxRange;
         if (canMove) cell.classList.add('battle-cell--move-target');
         if (canAttack) cell.classList.add('battle-cell--attack-target');
-        if (battle.player?.x === x && battle.player?.y === y) { const token = document.createElement('span'); token.className = 'battle-token battle-token-player'; token.textContent = '◆'; token.title = '執行者'; cell.appendChild(token); }
-        else if (enemies.has(key)) { const enemy = enemies.get(key); const token = document.createElement('span'); token.className = 'battle-token battle-token-enemy'; token.textContent = '✕'; token.title = `${enemy.name} · HP ${enemy.hp}`; cell.appendChild(token); }
-        else if (obstacles.has(key)) { const obstacle = obstacles.get(key); const token = document.createElement('span'); token.className = `battle-token battle-token-obstacle obstacle-${obstacle.type}`; token.textContent = obstacleSymbol(obstacle.type); token.title = obstacle.type; cell.appendChild(token); }
+        if (battle.player?.x === x && battle.player?.y === y) { const token = document.createElement('span'); token.className = 'battle-token battle-token-player'; token.innerHTML = BATTLE_SVG.player; token.title = '執行者'; cell.appendChild(token); }
+        else if (enemies.has(key)) { const enemy = enemies.get(key); const token = document.createElement('span'); token.className = 'battle-token battle-token-enemy'; token.innerHTML = BATTLE_SVG.enemy; token.title = `${enemy.name} · HP ${enemy.hp}`; cell.appendChild(token); }
+        else if (obstacles.has(key)) { const obstacle = obstacles.get(key); const token = document.createElement('span'); token.className = `battle-token battle-token-obstacle obstacle-${obstacle.type}`; token.innerHTML = obstacleIcon(obstacle.type); token.title = obstacle.type; cell.appendChild(token); }
         if (canMove) cell.addEventListener('click', async () => { battle.player.x = x; battle.player.y = y; battle.player.moved = true; try { await saveCloudData(); } catch (error) { showToast(`移動儲存失敗：${error.message}`); } renderBattlePage(); });
         if (canAttack) cell.addEventListener('click', async () => {
           const target = enemies.get(key); const attack = Math.max(1, playerCombatStats().atk); const damage = Math.max(1, Math.round(attack * selectedAction.damageMultiplier));
@@ -2576,6 +2600,21 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
     if (!window.playerGameData.battle?.active) return;
     renderBattlePage();
     navigateTo('battle-screen');
+  }
+
+  function normalizeCausalIcons() {
+    const menuIcon = document.querySelector('#menu-card-combat .causal-panel-icon, #menu-card-combat .grid-card-icon');
+    if (menuIcon) menuIcon.innerHTML = CAUSAL_SWIRL_SVG;
+    const titleIcon = document.querySelector('#causal-screen h3 > svg, #causal-screen h2 > svg');
+    if (titleIcon) titleIcon.outerHTML = CAUSAL_SWIRL_SVG;
+    const equippedIcon = byId('icon-causal');
+    if (equippedIcon) equippedIcon.innerHTML = CAUSAL_SWIRL_SVG;
+    document.querySelectorAll('.causal-modal-close').forEach((button) => { button.innerHTML = UI_CLOSE_SVG; button.setAttribute('aria-label', '關閉'); });
+    const detailIcon = byId('detail-icon'); if (detailIcon && !detailIcon.querySelector('svg')) detailIcon.innerHTML = UI_SVG.package;
+    const navButton = byId('btn-open-nav'); if (navButton) { navButton.innerHTML = UI_SVG.menu; navButton.setAttribute('aria-label', '開啟選單'); }
+    const statIcons = { hp: UI_SVG.heart, atk: UI_SVG.sword, def: UI_SVG.shield, spd: GAME_SVG.bolt };
+    Object.entries(statIcons).forEach(([key, icon]) => { const value = byId(`stat-${key}`); const label = value?.previousElementSibling; if (label?.classList.contains('causal-stat-label')) label.innerHTML = `${icon} ${label.textContent.replace(/^[^\p{L}\p{N}]+\s*/u, '')}`; });
+    document.querySelectorAll('h3').forEach((heading) => { if (heading.textContent.includes('執行者身份資訊')) heading.innerHTML = `${UI_SVG.person} 執行者身份資訊`; if (heading.textContent.includes('臨界奇點連線請求')) heading.innerHTML = `${GAME_SVG.bolt} 臨界奇點連線請求`; });
   }
 
   document.addEventListener('DOMContentLoaded', async () => {
@@ -2599,12 +2638,11 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
     bind('btn-test-api', 'click', async () => { try { await callAI('請簡短回覆：測試成功。'); showToast('API 連線正常。'); } catch (error) { showToast(`測試失敗：${error.message}`); } }); bind('theme-select', 'change', (event) => applyTheme(event.target.value));
     bind('btn-save-profile', 'click', async () => { const profile = window.playerGameData.profile; profile.name = byId('profile-name-input').value.trim() || '執行者'; profile.personality = byId('profile-personality-input').value.trim(); profile.likes = byId('profile-likes-input').value.trim(); profile.avatar = byId('modal-avatar-preview').src || DEFAULT_AVATAR; try { await saveCloudData(); updateMainUI(); showToast('身份資料已更新。'); } catch (error) { showToast(`儲存失敗：${error.message}`); } });
     bind('avatar-file-input', 'change', (event) => { const file = event.target.files?.[0]; if (!file) return; const reader = new FileReader(); reader.onload = () => { byId('modal-avatar-preview').src = reader.result; }; reader.readAsDataURL(file); }); bind('btn-default-avatar', 'click', () => byId('modal-avatar-preview').src = DEFAULT_AVATAR);
-    ensureCompanionScreen();
+    ensureCompanionScreen(); normalizeCausalIcons();
     applyTheme(window.playerGameData.theme); updateMainUI();
   });
 })();
 
-</script>
-</body>
+</script>`n</body>
 </html>
 
