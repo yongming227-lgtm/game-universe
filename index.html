@@ -1734,6 +1734,68 @@ c-37 -3 -50 -1 -40 5 11 7 11 10 2 10 -7 0 -10 4 -7 10 4 6 -1 7 -12 3 -10 -3
         </div>
     </div>
 
+伴侶系統獨立頁面 CSS（請將以下規則放在主 CSS 後）
+/* 伴侶系統獨立頁面：請確保此檔案在主 CSS 後載入。 */
+.companion-screen { max-width: 760px; margin: 0 auto; padding: clamp(20px, 4vw, 38px); }
+.companion-page-header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:24px; }
+.companion-page-header h2 { display:flex; align-items:center; gap:10px; margin:2px 0 8px; color:var(--text-color); }
+.companion-page-header h2 .game-svg-icon { width:28px; height:28px; fill:currentColor; }
+.companion-page-header > div > p:last-child { color:var(--sub-text); font-size:14px; }
+.companion-eyebrow { color:var(--sub-text); font-size:11px; font-weight:800; letter-spacing:.14em; margin:0; }
+.companion-active-panel { display:flex; gap:20px; align-items:center; min-height:150px; padding:24px; border:1px solid var(--border-color); border-radius:20px; background:linear-gradient(135deg, color-mix(in srgb, var(--badge-bg) 88%, transparent), var(--card-bg)); box-shadow:0 12px 30px rgba(0,0,0,.08); }
+.companion-portrait,.companion-card-icon { display:grid; place-items:center; flex:0 0 auto; border-radius:50%; background:var(--badge-bg); color:var(--accent-color); }
+.companion-portrait { width:86px; height:86px; border:1px solid var(--border-color); }
+.companion-portrait .game-svg-icon { width:48px; height:48px; fill:currentColor; }
+.companion-active-copy h3 { margin:3px 0 8px; color:var(--text-color); }
+.companion-active-copy > p:not(.companion-eyebrow) { color:var(--sub-text); line-height:1.6; }
+.companion-stat-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.companion-stat-row span,.companion-count { padding:5px 9px; border-radius:999px; background:var(--badge-bg); color:var(--sub-text); font-size:12px; font-weight:700; }
+.companion-empty-active { display:flex; align-items:center; gap:14px; color:var(--sub-text); }
+.companion-empty-active .game-svg-icon { width:40px; height:40px; fill:currentColor; }
+.companion-empty-active strong { display:block; color:var(--text-color); margin-bottom:4px; }
+.companion-roster-section { margin-top:28px; }
+.companion-section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+.companion-section-heading h3 { margin:2px 0 0; color:var(--text-color); }
+.companion-roster { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; }
+.companion-card { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:center; padding:14px; border:1px solid var(--border-color); border-radius:16px; background:var(--card-bg); }
+.companion-card.is-active { border-color:var(--slot-center-border); box-shadow:0 0 0 2px color-mix(in srgb, var(--slot-center-border) 18%, transparent); }
+.companion-card-icon { width:44px; height:44px; }
+.companion-card-icon .game-svg-icon { width:26px; height:26px; fill:currentColor; }
+.companion-card-copy { min-width:0; }
+.companion-card h4 { margin:0 0 4px; color:var(--text-color); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.companion-card p { margin:0; color:var(--sub-text); font-size:12px; }
+.companion-card button { grid-column:1 / -1; width:100%; }
+.companion-empty-roster { grid-column:1 / -1; padding:28px; text-align:center; color:var(--sub-text); border:1px dashed var(--border-color); border-radius:16px; }
+@media (max-width:560px) { .companion-page-header { flex-direction:column; } .companion-page-header .btn-secondary { width:100%; } .companion-active-panel { align-items:flex-start; } }
+戰術棋盤 CSS（10 × 10，請放在主 CSS 後）
+/* 戰術棋盤：10 × 10，僅在 battle.active 為 true 時由 JavaScript 開啟。 */
+.battle-screen { max-width:980px; margin:0 auto; padding:clamp(20px,4vw,38px); }
+.battle-page-header { display:flex; justify-content:space-between; align-items:flex-start; gap:20px; margin-bottom:24px; }
+.battle-page-header h2 { margin:2px 0 8px; color:var(--text-color); }
+.battle-page-header > div > p:last-child,.battle-hint { color:var(--sub-text); font-size:14px; line-height:1.55; }
+.battle-eyebrow { margin:0; color:var(--sub-text); font-size:11px; font-weight:800; letter-spacing:.14em; }
+.battle-layout { display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:20px; align-items:start; }
+.battle-board-shell { padding:12px; border:1px solid var(--border-color); border-radius:20px; background:var(--card-bg); box-shadow:0 14px 34px rgba(0,0,0,.1); }
+.battle-board { display:grid; grid-template-columns:repeat(10, minmax(0,1fr)); aspect-ratio:1; overflow:hidden; border:1px solid var(--border-color); border-radius:12px; background:#182130; }
+.battle-cell { position:relative; display:grid; place-items:center; min-width:0; min-height:0; border-right:1px solid rgba(255,255,255,.12); border-bottom:1px solid rgba(255,255,255,.12); }
+.battle-cell:nth-child(10n) { border-right:0; }
+.terrain-grass { background:linear-gradient(135deg,#315d47,#284b3a); }.terrain-stone { background:linear-gradient(135deg,#536170,#3b4652); }.terrain-sand { background:linear-gradient(135deg,#8b7043,#665230); }.terrain-snow { background:linear-gradient(135deg,#d8e6ec,#a8c1cb); }.terrain-void { background:radial-gradient(circle at 30% 25%,#4a316d,#161327 70%); }.terrain-ruins { background:linear-gradient(135deg,#5f594b,#3f3a31); }
+.battle-token { display:grid; place-items:center; width:72%; aspect-ratio:1; border-radius:50%; font-style:normal; font-size:clamp(11px,2.6vw,22px); line-height:1; font-weight:900; z-index:1; }
+.battle-token-player { color:#dbeafe; background:#2563eb; box-shadow:0 0 0 2px #bfdbfe,0 0 14px rgba(59,130,246,.65); }.battle-token-enemy { color:#fee2e2; background:#b91c1c; box-shadow:0 0 0 2px #fecaca,0 0 12px rgba(239,68,68,.5); }.battle-token-obstacle { width:72%; color:#ede9fe; background:rgba(15,23,42,.55); border-radius:8px; }.obstacle-tree { color:#bbf7d0; }.obstacle-crystal { color:#c4b5fd; }.obstacle-wall { border-radius:3px; }
+.battle-sidebar { display:grid; gap:12px; }.battle-status-card,.battle-legend { padding:15px; border:1px solid var(--border-color); border-radius:14px; background:var(--card-bg); }.battle-status-card strong { display:block; margin:6px 0 3px; color:var(--text-color); }.battle-status-card span { color:var(--sub-text); font-size:13px; }.battle-legend { display:grid; gap:10px; }.battle-legend span { display:flex; align-items:center; gap:8px; color:var(--sub-text); font-size:13px; }.battle-legend .battle-token { width:20px; font-size:12px; flex:0 0 20px; }
+@media (max-width:700px) { .battle-page-header { flex-direction:column; }.battle-page-header .btn-secondary { width:100%; }.battle-layout { grid-template-columns:1fr; }.battle-sidebar { grid-template-columns:1fr 1fr; }.battle-hint { grid-column:1 / -1; } }
+戰術棋盤互動 CSS（曼哈頓距離高亮與操作按鈕）
+.battle-sidebar { display:grid; gap:12px; }.battle-status-card,.battle-legend { padding:15px; border:1px solid var(--border-color); border-radius:14px; background:var(--card-bg); }.battle-status-card strong { display:block; margin:6px 0 3px; color:var(--text-color); }.battle-status-card span { color:var(--sub-text); font-size:13px; }.battle-legend { display:grid; gap:10px; }.battle-legend span { display:flex; align-items:center; gap:8px; color:var(--sub-text); font-size:13px; }.battle-legend .battle-token { width:20px; font-size:12px; flex:0 0 20px; }
+.battle-status-card small { display:block; margin-top:10px; color:var(--sub-text); font-size:12px; line-height:1.45; }
+.battle-action-controls { display:grid; gap:8px; }
+.battle-action-button { width:100%; padding:10px 12px; border:1px solid var(--border-color); border-radius:10px; background:var(--card-bg); color:var(--text-color); text-align:left; font:inherit; cursor:pointer; }
+.battle-action-button:hover:not(:disabled),.battle-action-button.is-selected { border-color:#60a5fa; background:color-mix(in srgb, #2563eb 16%, var(--card-bg)); }
+.battle-action-button:disabled { opacity:.48; cursor:not-allowed; }.battle-end-turn { border-color:#64748b; }
+.battle-cell--move-target { cursor:pointer; box-shadow:inset 0 0 0 2px rgba(96,165,250,.75); }.battle-cell--move-target::after { content:''; width:24%; aspect-ratio:1; border-radius:50%; background:rgba(147,197,253,.75); }
+.battle-cell--attack-target { cursor:crosshair; box-shadow:inset 0 0 0 2px rgba(248,113,113,.9); }.battle-cell--attack-target .battle-token-enemy { animation:battle-target-pulse .8s ease-in-out infinite alternate; }
+@keyframes battle-target-pulse { from { transform:scale(.9); } to { transform:scale(1.05); } }
+@media (max-width:700px) { .battle-page-header { flex-direction:column; }.battle-page-header .btn-secondary { width:100%; }.battle-layout { grid-template-columns:1fr; }.battle-sidebar { grid-template-columns:1fr 1fr; }.battle-hint { grid-column:1 / -1; } }
+
 
 
 
