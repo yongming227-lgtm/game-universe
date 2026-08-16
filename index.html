@@ -875,6 +875,27 @@
 @keyframes battle-target-pulse { from { transform:scale(.9); } to { transform:scale(1.05); } }
 @media (max-width:700px) { .battle-page-header { flex-direction:column; }.battle-page-header .btn-secondary { width:100%; }.battle-layout { grid-template-columns:1fr; }.battle-sidebar { grid-template-columns:1fr 1fr; }.battle-hint { grid-column:1 / -1; } }
 
+
+/* ===== 常駐玩家端 AI 助理（絮語引導版 2） ===== */
+#player-ai-assistant { position:fixed; right:22px; bottom:22px; z-index:5000; width:min(340px,calc(100vw - 28px)); pointer-events:none; }
+.assistant-bubble { display:none; margin:0 8px 10px auto; max-width:290px; padding:12px 14px; border:1px solid color-mix(in srgb,var(--border-color) 65%,#8b5cf6); border-radius:16px 16px 4px 16px; background:var(--card-bg); color:var(--text-color); box-shadow:0 10px 28px rgba(0,0,0,.24); font-size:13px; line-height:1.55; pointer-events:auto; }
+.assistant-bubble.is-visible { display:block; animation:assistant-pop .18s ease-out; }
+.assistant-bubble strong { display:block; margin-bottom:3px; font-size:12px; color:#a78bfa; }
+.assistant-bubble-actions { display:flex; gap:7px; margin-top:10px; }
+.assistant-bubble-actions button { flex:0 0 auto; width:auto; padding:6px 9px; font-size:11px; border-radius:9px; }
+.assistant-orb { width:64px; height:64px; margin-left:auto; display:grid; place-items:center; border:2px solid #c4b5fd; border-radius:50%; background:radial-gradient(circle at 35% 28%,#f5f3ff 0 9%,#c4b5fd 33%,#7c3aed 72%,#312e81 100%); box-shadow:0 0 0 5px rgba(139,92,246,.12),0 10px 24px rgba(49,46,129,.42); color:white; font-size:27px; cursor:grab; user-select:none; touch-action:none; pointer-events:auto; }
+.assistant-orb:active { cursor:grabbing; transform:scale(.96); }
+.assistant-orb::after { content:'✦'; transform:translateY(-1px); text-shadow:0 1px 5px #312e81; }
+.assistant-orb.has-alert { animation:assistant-pulse 1.7s ease-in-out infinite; }
+.assistant-panel { display:none; position:fixed; right:22px; bottom:100px; width:min(330px,calc(100vw - 32px)); padding:16px; border:1px solid var(--border-color); border-radius:18px; background:var(--card-bg); box-shadow:0 16px 44px rgba(0,0,0,.35); pointer-events:auto; }
+.assistant-panel.is-open { display:block; }
+.assistant-panel h3 { margin:0 0 8px; font-size:15px; }.assistant-panel p { margin:0 0 12px; color:var(--sub-text); font-size:12px; line-height:1.55; }
+.assistant-quick-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }.assistant-quick-actions button { padding:9px; font-size:12px; }
+.assistant-onboarding { position:fixed; inset:0; z-index:6000; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(4,7,18,.72); pointer-events:auto; }.assistant-onboarding.is-open { display:flex; }
+.assistant-onboarding-card { width:min(430px,100%); max-height:92vh; overflow:auto; padding:24px; border:1px solid #8b5cf6; border-radius:22px; background:var(--card-bg); box-shadow:0 24px 70px rgba(0,0,0,.5); }.assistant-onboarding-card h2 { margin:0 0 10px; }.assistant-onboarding-card p { color:var(--sub-text); line-height:1.65; }.assistant-onboarding-card label { display:grid; gap:6px; margin:13px 0; font-size:13px; color:var(--sub-text); }.assistant-onboarding-card input,.assistant-onboarding-card select { padding:11px; border:1px solid var(--border-color); border-radius:10px; background:var(--input-bg); color:var(--text-color); }
+@keyframes assistant-pop { from { opacity:0; transform:translateY(8px) scale(.96); } to { opacity:1; transform:none; } } @keyframes assistant-pulse { 50% { box-shadow:0 0 0 9px rgba(139,92,246,.14),0 10px 24px rgba(49,46,129,.42); } }
+@media (max-width:560px) { #player-ai-assistant { right:14px; bottom:16px; }.assistant-panel { right:14px; bottom:92px; } }
+
 </style>
 </head>
 <body>
@@ -2682,6 +2703,100 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
   });
 })();
 
+
+/* ===== 玩家端 AI 助理邏輯（絮語引導版 2） ===== */
+(() => {
+  const ASSISTANT_DEFAULT = { configured:false, name:'星語', playerNickname:'執行者', personality:'warm', frequency:'balanced', mutedUntil:0, position:null };
+  let greetedThisSession = false, dragging = false, dragOffset = { x:0, y:0 };
+  const byAssistantId = (id) => document.getElementById(id);
+  const state = () => {
+    window.playerGameData = window.playerGameData || {};
+    const current = window.playerGameData.playerAssistant || {};
+    window.playerGameData.playerAssistant = { ...ASSISTANT_DEFAULT, ...current };
+    return window.playerGameData.playerAssistant;
+  };
+  const saveAssistant = async () => { if (typeof saveCloudData === 'function') await saveCloudData(); };
+  const personalityLabel = (id) => ({ warm:'溫柔引導型', playful:'活潑吐槽型', calm:'冷靜分析型', aloof:'高冷型', lazy:'懶散型', silent:'觀察型' })[id] || '溫柔引導型';
+  const personalityLine = (kind, s = state()) => {
+    const name = s.playerNickname || '執行者';
+    const lines = {
+      greeting: { warm:`歡迎回來，${name}。輪迴連線穩定；今天想從哪裡開始？`, playful:`${name}，終於回來了？我可沒有一直在等你。`, calm:`${name}，終端已同步。你可以繼續目前的目標。`, aloof:`……回來了。系統正常。`, lazy:`……嗯，你回來了。要開始時叫我。`, silent:'' },
+      battle: { warm:'先別急。選取行動後，我會幫你看射程與危險格。', playful:'棋盤不會咬人，但站錯格的敵人會。', calm:'移動與攻擊皆使用曼哈頓距離；先確認射程。', aloof:'先看距離，再行動。', lazy:'別走進包圍圈……很麻煩。', silent:'戰術提示已就緒。' },
+      lowHp: { warm:'你的生命值偏低。行囊裡若有藥水，先評估是否要使用。', playful:'你的血條看起來需要一點關愛。', calm:'生命值偏低；建議先確認補給與治療選項。', aloof:'生命值不理想。自行處理，或讓我整理選項。', lazy:'……先別倒下。', silent:'生命值偏低。' }
+    };
+    return lines[kind]?.[s.personality] ?? lines[kind]?.warm ?? '';
+  };
+  function say(message, actions = [], alert = false) {
+    if (!message) return;
+    const bubble = byAssistantId('assistant-bubble'); if (!bubble) return;
+    const s = state();
+    bubble.innerHTML = `<strong>${s.name}</strong><span>${message}</span>${actions.length ? `<div class="assistant-bubble-actions">${actions.map((a) => `<button type="button" data-assistant-action="${a.id}">${a.label}</button>`).join('')}</div>` : ''}`;
+    bubble.classList.add('is-visible'); byAssistantId('assistant-orb')?.classList.toggle('has-alert', alert);
+    window.clearTimeout(say.timer); say.timer = window.setTimeout(() => { bubble.classList.remove('is-visible'); byAssistantId('assistant-orb')?.classList.remove('has-alert'); }, 8500);
+  }
+  function currentHelp() {
+    const s = state(), screen = document.querySelector('.screen-view[style*="display: block"], .screen-view[style*="display: flex"]')?.id || '';
+    if (screen === 'battle-screen') return say(personalityLine('battle', s), [{ id:'battleHelp', label:'看戰術提示' }], true);
+    if (screen === 'inventory-screen') return say('這裡可以整理消耗品、裝備、材料與劇情物品。點選物品，我會幫你判斷用途。');
+    if (screen === 'causal-screen') return say('因果面板用來調整裝備與屬性。若你告訴我偏好的打法，我可以給你配裝方向。');
+    if (screen === 'companion-screen') return say('絮語伴侶會進入世界與棋盤；我則只陪你操作系統。好感度會影響你對伴侶的控制權。');
+    if (screen === 'samsara-screen') return say('輪迴中的抉擇由你決定。我能摘要線索、整理資源與提醒未完成的目標。');
+    const hp = Number(window.playerGameData?.hp || 0), maxHp = Number(window.playerGameData?.maxHp || 100);
+    if (hp && hp / maxHp < .35) return say(personalityLine('lowHp', s), [{ id:'inventory', label:'查看行囊' }], true);
+    say(`目前狀態穩定，${s.playerNickname}。你可以步入輪迴、整理行囊，或檢查因果面板。`);
+  }
+  function openSettings() {
+    const s = state(), host = byAssistantId('assistant-onboarding-body');
+    host.innerHTML = `<h2>助理設定</h2><p>人格影響用字與主動出聲的頻率，但不會影響必要提示的正確性。</p><label>助理名稱<input id="assistant-name" maxlength="24" value="${String(s.name).replace(/"/g,'&quot;')}"></label><label>我怎麼稱呼你<input id="assistant-nickname" maxlength="24" value="${String(s.playerNickname).replace(/"/g,'&quot;')}"></label><label>人格<select id="assistant-personality">${['warm','playful','calm','aloof','lazy','silent'].map((id) => `<option value="${id}" ${s.personality === id ? 'selected' : ''}>${personalityLabel(id)}</option>`).join('')}</select></label><label>主動提示<select id="assistant-frequency"><option value="quiet" ${s.frequency === 'quiet' ? 'selected' : ''}>安靜：只在重要時機提醒</option><option value="balanced" ${s.frequency === 'balanced' ? 'selected' : ''}>平衡：重要事件與卡關時提醒</option><option value="tactical" ${s.frequency === 'tactical' ? 'selected' : ''}>戰術：主動提供棋盤建言</option></select></label><div class="btn-group"><button type="button" data-assistant-action="saveSettings">儲存設定</button><button type="button" class="btn-secondary" data-assistant-action="closeOnboarding">取消</button></div>`;
+    byAssistantId('assistant-onboarding').classList.add('is-open');
+  }
+  function beginOnboarding() {
+    const host = byAssistantId('assistant-onboarding-body');
+    host.innerHTML = `<h2>連線建立完成</h2><p>你好，新的執行者。我是玩家端的終端助理，不屬於輪迴世界，也不會取代你的絮語伴侶。我會陪你理解系統、整理資訊，並在需要時提供戰術建言。</p><p>在開始之前，我該怎麼稱呼你？</p><label>玩家暱稱<input id="assistant-first-nickname" maxlength="24" placeholder="例如：阿嵐"></label><label>助理名稱<input id="assistant-first-name" maxlength="24" value="星語"></label><label>我的人格<select id="assistant-first-personality"><option value="warm">溫柔引導型</option><option value="playful">活潑吐槽型</option><option value="calm">冷靜分析型</option><option value="aloof">高冷型</option><option value="lazy">懶散型</option><option value="silent">觀察型</option></select></label><div class="btn-group"><button type="button" data-assistant-action="finishOnboarding">開始引導</button></div>`;
+    byAssistantId('assistant-onboarding').classList.add('is-open');
+  }
+  async function finishOnboarding() {
+    const s = state(); s.playerNickname = byAssistantId('assistant-first-nickname')?.value.trim() || '執行者'; s.name = byAssistantId('assistant-first-name')?.value.trim() || '星語'; s.personality = byAssistantId('assistant-first-personality')?.value || 'warm'; s.configured = true;
+    byAssistantId('assistant-onboarding').classList.remove('is-open'); await saveAssistant();
+    say(`很高興認識你，${s.playerNickname}。先從「步入輪迴」開始吧；其他系統不必現在全部記住。`, [{ id:'context', label:'我能幫什麼？' }]);
+  }
+  async function saveSettings() { const s = state(); s.name = byAssistantId('assistant-name')?.value.trim() || '星語'; s.playerNickname = byAssistantId('assistant-nickname')?.value.trim() || '執行者'; s.personality = byAssistantId('assistant-personality')?.value || 'warm'; s.frequency = byAssistantId('assistant-frequency')?.value || 'balanced'; byAssistantId('assistant-onboarding').classList.remove('is-open'); await saveAssistant(); say(`設定已更新。我會以${personalityLabel(s.personality)}陪著你。`); }
+  function greetingIfReady() { const s = state(), main = byAssistantId('main-screen'); if (!main || main.style.display === 'none' || greetedThisSession || !s.configured) return; greetedThisSession = true; if (s.personality !== 'silent') say(personalityLine('greeting', s)); }
+  function setupDrag() { const orb = byAssistantId('assistant-orb'), dock = byAssistantId('player-ai-assistant'); if (!orb || !dock) return; const apply = () => { const p = state().position; if (p) { dock.style.right = 'auto'; dock.style.bottom = 'auto'; dock.style.left = `${p.x}px`; dock.style.top = `${p.y}px`; } }; apply();
+    orb.addEventListener('pointerdown', (event) => { dragging = true; orb.setPointerCapture(event.pointerId); const r = dock.getBoundingClientRect(); dragOffset = { x:event.clientX-r.left, y:event.clientY-r.top }; });
+    orb.addEventListener('pointermove', (event) => { if (!dragging) return; const x = Math.max(8, Math.min(window.innerWidth - dock.offsetWidth - 8, event.clientX-dragOffset.x)); const y = Math.max(8, Math.min(window.innerHeight - 76, event.clientY-dragOffset.y)); dock.style.right='auto'; dock.style.bottom='auto'; dock.style.left=`${x}px`; dock.style.top=`${y}px`; });
+    orb.addEventListener('pointerup', async (event) => { const wasDragging = dragging; dragging = false; try { orb.releasePointerCapture(event.pointerId); } catch (_) {} const r = dock.getBoundingClientRect(); state().position = { x:Math.round(r.left), y:Math.round(r.top) }; await saveAssistant(); if (wasDragging) window.setTimeout(() => { dragging = false; }, 0); });
+    orb.addEventListener('click', () => { if (dragging) return; byAssistantId('assistant-panel').classList.toggle('is-open'); });
+  }
+  function handleAction(id) { if (id === 'context') return currentHelp(); if (id === 'settings') return openSettings(); if (id === 'quiet') { state().mutedUntil = Date.now()+30*60*1000; saveAssistant(); return say('好的，接下來 30 分鐘我會保持安靜。'); } if (id === 'close') return byAssistantId('assistant-panel').classList.remove('is-open'); if (id === 'closeOnboarding') return byAssistantId('assistant-onboarding').classList.remove('is-open'); if (id === 'saveSettings') return saveSettings(); if (id === 'finishOnboarding') return finishOnboarding(); if (id === 'battleHelp') return say('先選擇移動或技能，再點高亮格。障礙不可通過；攻擊與技能皆依曼哈頓距離判定。'); if (id === 'inventory') return byAssistantId('menu-card-inventory')?.click(); }
+  function setupIntegration() { document.addEventListener('click', (event) => { const action = event.target.closest('[data-assistant-action]')?.dataset.assistantAction; if (action) { event.preventDefault(); handleAction(action); return; } const id = event.target.closest('[id]')?.id || ''; const s = state(); if (Date.now() < s.mutedUntil) return; if (id === 'btn-enter-dungeon') say('進入輪迴後，劇情的選擇由你決定；需要時我可以替你整理已知線索。'); if (id === 'menu-card-inventory') say('行囊分為消耗、裝備、材料與劇情物品。先點一件物品看看，我會幫你解讀。'); if (id === 'menu-card-combat') say('先從因果面板檢查裝備與屬性；你的配裝會直接影響棋盤戰鬥。'); if (id === 'companion-create-button') say('絮語伴侶是世界中的同行者。她的好感會改變你在棋盤上對她的控制權。'); if (id === 'battle-return-story' || id === 'battle-board' || id.startsWith('battle-')) say(personalityLine('battle', s)); });
+    const observer = new MutationObserver(() => { greetingIfReady(); }); observer.observe(document.body, { subtree:true, attributes:true, attributeFilter:['style','class'] });
+  }
+  document.addEventListener('DOMContentLoaded', () => { setupDrag(); setupIntegration(); window.setTimeout(() => { if (!state().configured && byAssistantId('main-screen')?.style.display !== 'none') beginOnboarding(); else greetingIfReady(); }, 500); window.setInterval(() => { const s = state(); const hp=Number(window.playerGameData?.hp||0), max=Number(window.playerGameData?.maxHp||100); if (s.configured && s.frequency !== 'quiet' && hp && hp/max < .25 && Date.now() > s.mutedUntil) say(personalityLine('lowHp', s), [{id:'inventory',label:'查看行囊'}], true); }, 45000); });
+})();
+
 </script>
+
+<!-- 常駐 AI 助理：與玩家對話，不屬於輪迴世界或絮語伴侶。 -->
+<section id="player-ai-assistant" aria-label="玩家端 AI 助理">
+  <div id="assistant-bubble" class="assistant-bubble" aria-live="polite"></div>
+  <div id="assistant-panel" class="assistant-panel">
+    <h3 id="assistant-panel-title">我的終端助理</h3>
+    <p id="assistant-panel-summary">我會依照目前畫面提供提示；需要時點我即可。</p>
+    <div class="assistant-quick-actions">
+      <button type="button" data-assistant-action="context">現在我能幫什麼？</button>
+      <button type="button" data-assistant-action="settings">助理設定</button>
+      <button type="button" data-assistant-action="quiet">暫時安靜</button>
+      <button type="button" data-assistant-action="close">收起面板</button>
+    </div>
+  </div>
+  <button type="button" id="assistant-orb" class="assistant-orb" aria-label="開啟玩家端 AI 助理" title="拖曳移動；點擊交談"></button>
+</section>
+<section id="assistant-onboarding" class="assistant-onboarding" aria-modal="true" role="dialog">
+  <div class="assistant-onboarding-card">
+    <div id="assistant-onboarding-body"></div>
+  </div>
+</section>
+
 </body>
 </html>
