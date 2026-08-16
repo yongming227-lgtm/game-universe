@@ -2447,7 +2447,8 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
         <div class="companion-section-heading"><div><p class="companion-eyebrow">ROSTER</p><h3>已締結的伴侶</h3></div><span id="companion-count" class="companion-count"></span></div>
         <div id="companion-roster" class="companion-roster"></div>
       </section>`;
-    document.body.appendChild(screen);
+    // 動態頁面必須掛在遊戲主框內，不能成為 body 的第二個 flex 子項。
+    (document.querySelector('.container') || document.body).appendChild(screen);
     screen.querySelector('.companion-back').addEventListener('click', navigateBack);
   }
   function renderCompanionPage() {
@@ -2583,7 +2584,8 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
         <div class="battle-board-shell"><div id="battle-board" class="battle-board" role="grid" aria-label="10乘10戰術棋盤"></div></div>
         <aside class="battle-sidebar"><div class="battle-status-card"><p class="battle-eyebrow">SCENE</p><strong id="battle-scene-name">尚未進入戰鬥</strong><span id="battle-terrain-name"></span><small id="battle-turn-status"></small></div><div id="battle-action-controls" class="battle-action-controls"></div><div class="battle-legend"><span><i class="battle-token battle-token-player">${BATTLE_SVG.player}</i>執行者</span><span><i class="battle-token battle-token-enemy">${BATTLE_SVG.enemy}</i>敵方</span><span><i class="battle-token battle-token-obstacle">${BATTLE_SVG.rock}</i>障礙</span></div><p class="battle-hint">移動、普通攻擊與技能均以曼哈頓距離判定。選取行動後，點擊棋盤上的高亮格。</p></aside>
       </section>`;
-    document.body.appendChild(screen);
+    // 棋盤與絮語結緣共用主框，避免外層 body 產生額外欄位。
+    (document.querySelector('.container') || document.body).appendChild(screen);
     byId('battle-return-story').addEventListener('click', navigateBack);
   }
   function renderBattlePage() {
