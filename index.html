@@ -69,6 +69,8 @@
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
         }
+        /* body 僅保留遊戲主容器作為 flex 子項，確保所有介面在視窗正中央。 */
+        body > .container { margin: auto; }
         .container {
             width: 100%;
             max-width: 480px;
@@ -813,6 +815,7 @@
 /* 伴侶系統獨立頁面：請確保此檔案在主 CSS 後載入。 */
 .companion-screen { max-width: 760px; margin: 0 auto; padding: clamp(20px, 4vw, 38px); }
 .companion-page-header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:24px; }
+.companion-back { width:42px !important; min-width:42px; height:42px; min-height:42px; padding:0 !important; display:grid !important; place-items:center; flex:0 0 42px !important; border-radius:12px; }.companion-back .game-svg-icon { width:19px; height:19px; }
 .companion-page-header h2 { display:flex; align-items:center; gap:10px; margin:2px 0 8px; color:var(--text-color); }
 .companion-page-header h2 .game-svg-icon { width:28px; height:28px; fill:currentColor; }
 .companion-page-header > div > p:last-child { color:var(--sub-text); font-size:14px; }
@@ -841,7 +844,7 @@
 .companion-card p { margin:0; color:var(--sub-text); font-size:12px; }
 .companion-card button { grid-column:1 / -1; width:100%; }
 .companion-empty-roster { grid-column:1 / -1; padding:28px; text-align:center; color:var(--sub-text); border:1px dashed var(--border-color); border-radius:16px; }
-.companion-guide { margin-bottom:18px; }.companion-guide-card,.companion-creation-card { display:grid; grid-template-columns:auto 1fr; gap:16px; padding:20px; border:1px solid var(--border-color); border-radius:18px; background:var(--card-bg); }.companion-guide-card > div:first-child { display:grid; place-items:start center; color:var(--accent-color); }.companion-guide-card > div:first-child .game-svg-icon { width:42px; height:42px; }.companion-guide-card h3,.companion-creation-card h3 { margin:4px 0 10px; color:var(--text-color); }.companion-guide-card ol { margin:0 0 14px; padding-left:20px; color:var(--sub-text); line-height:1.7; font-size:14px; }.companion-creation-section { margin-top:18px; }.companion-creation-card { grid-template-columns:1fr; }.companion-creation-card h3 span { display:block; margin-top:5px; color:var(--sub-text); font-size:13px; font-weight:500; }.companion-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }.companion-form-grid label { display:grid; gap:6px; color:var(--sub-text); font-size:13px; font-weight:700; }.companion-form-grid input,.companion-form-grid textarea,.companion-form-grid select { width:100%; box-sizing:border-box; padding:10px; color:var(--text-color); background:var(--input-bg); border:1px solid var(--border-color); border-radius:10px; font:inherit; }.companion-form-grid textarea { min-height:74px; resize:vertical; }.companion-form-wide { grid-column:1 / -1; }.companion-creation-card .btn-primary { justify-self:start; }
+.companion-guide { margin-bottom:18px; }.companion-guide-card,.companion-creation-card { display:grid; grid-template-columns:auto 1fr; gap:16px; padding:20px; border:1px solid var(--border-color); border-radius:18px; background:var(--card-bg); }.companion-guide-card > div:first-child { display:grid; place-items:start center; color:var(--accent-color); }.companion-guide-card > div:first-child .game-svg-icon { width:42px; height:42px; }.companion-guide-card h3,.companion-creation-card h3 { margin:4px 0 10px; color:var(--text-color); }.companion-guide-intro,.companion-guide-cost { margin:0 0 14px; color:var(--sub-text); font-size:14px; line-height:1.7; }.companion-role-guide-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:10px; margin:14px 0; }.companion-role-guide { padding:13px; border:1px solid var(--border-color); border-radius:12px; background:var(--input-bg); }.companion-role-guide h4 { margin:0 0 5px; color:var(--text-color); }.companion-role-guide > p { margin:0 0 10px; color:var(--sub-text); font-size:12px; line-height:1.5; }.companion-role-guide dl { margin:0; }.companion-role-guide dt { margin-top:8px; color:var(--accent-color); font-size:12px; font-weight:800; }.companion-role-guide dd { margin:3px 0 0; color:var(--sub-text); font-size:12px; line-height:1.55; }.companion-creation-section { margin-top:18px; }.companion-creation-card { grid-template-columns:1fr; }.companion-creation-card h3 span { display:block; margin-top:5px; color:var(--sub-text); font-size:13px; font-weight:500; }.companion-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }.companion-form-grid label { display:grid; gap:6px; color:var(--sub-text); font-size:13px; font-weight:700; }.companion-form-grid input,.companion-form-grid textarea,.companion-form-grid select { width:100%; box-sizing:border-box; padding:10px; color:var(--text-color); background:var(--input-bg); border:1px solid var(--border-color); border-radius:10px; font:inherit; }.companion-form-grid textarea { min-height:74px; resize:vertical; }.companion-form-wide { grid-column:1 / -1; }.companion-creation-card .btn-primary { justify-self:start; }
 @media (max-width:560px) { .companion-page-header { flex-direction:column; } .companion-page-header .btn-secondary { width:100%; } .companion-active-panel { align-items:flex-start; } .companion-guide-card { grid-template-columns:1fr; } .companion-form-grid { grid-template-columns:1fr; } .companion-form-wide { grid-column:auto; } }
 
 /* ===== 戰術棋盤 ===== */
@@ -2407,6 +2410,13 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
     healer: { name: '聖癒奇醫', description: '治療輔助，擅長維持全隊生命。', bonus: { con: 5 }, action: { name: '聖癒光束', minRange: 1, maxRange: 4, damageMultiplier: 0.7, areaRadius: 0 } },
     causal: { name: '因果神子', description: '逆行者，每場戰鬥可抵擋一次致命傷害。', bonus: {}, action: { name: '因果逆行', minRange: 1, maxRange: 3, damageMultiplier: 1.2, areaRadius: 0 } }
   };
+  const COMPANION_GUIDE = {
+    vanguard: { battle: '例：玩家被兩名近戰敵人包圍時，先讓重裝前鋒走到相鄰格，以護衛重擊壓制前排，為玩家開出撤退路線。', world: '例：在崩塌遺跡中保護執行者穿越落石區，或以力量破開封鎖的鐵門。' },
+    assassin: { battle: '例：敵方後排術士位於 3 格外時，幻影刺客可先突襲切入，再由玩家處理前排。', world: '例：潛入敵對據點取得情報、避開巡邏者，或在暗殺委託中降低正面戰鬥風險。' },
+    sage: { battle: '例：敵人聚集在狹窄地形時，智識行者從後排施放智識脈衝，削弱多個目標並為隊伍創造優勢。', world: '例：解析異常碑文、辨識幻象與陷阱，或在抉擇前揭露較安全的因果分支。' },
+    healer: { battle: '例：隊友生命危急時，聖癒奇醫保持 2–4 格距離，以聖癒光束穩住戰線，避免伴侶永久消亡。', world: '例：處置疫病聚落、安撫受傷倖存者，或以醫術換取安全區勢力的信任。' },
+    causal: { battle: '例：玩家即將承受致命傷害時，因果神子本場一次的逆行守護可讓戰局不立刻結束。', world: '例：修復破碎時間線、感知因果裂縫，或在高風險抉擇中找出一次可回溯的機會。' }
+  };
   function companionState() {
     const data = window.playerGameData;
     if (!data.companions || typeof data.companions !== 'object') data.companions = { activeId: null, roster: [], onboardingSeen: false };
@@ -2438,7 +2448,7 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
     screen.innerHTML = `
       <header class="companion-page-header">
         <div><p class="companion-eyebrow">WHISPERBOUND FATE</p><h2>${companionIconMarkup()}絮語結緣</h2><p>以時空餘燼塑造同行者；信任將決定你是否仍握有其行動權。</p></div>
-        <button type="button" class="btn-secondary companion-back">返回上一頁</button>
+        <button type="button" class="btn-secondary companion-back" aria-label="關閉絮語結緣" title="關閉">${UI_CLOSE_SVG}</button>
       </header>
       <section class="companion-guide" id="companion-guide"></section>
       <section class="companion-active-panel" id="companion-active-panel"></section>
@@ -2462,7 +2472,8 @@ items 可以是空陣列，每回合最多產生 2 個物品。只有在劇情�
     if (!guide || !activePanel || !creation || !roster || !count) return;
     guide.replaceChildren();
     if (!state.onboardingSeen) {
-      guide.innerHTML = `<div class="companion-guide-card"><div>${companionIconMarkup()}</div><div><p class="companion-eyebrow">初次結緣指引</p><h3>以 500 時空餘燼創造你的第一位伴侶</h3><ol><li>填寫姓名、性別與外貌特徵。</li><li>選擇流派；它會決定基礎能力與棋盤技能。</li><li>好感度決定戰鬥控制權：71 以上可完全操作，低於 31 則逐步交由 AI 控管。</li><li>伴侶 HP 歸零將永久消亡，請在棋盤上妥善保護。</li></ol><button type="button" class="btn-primary" id="companion-guide-start">開始結緣</button></div></div>`;
+      const roleGuide = Object.entries(COMPANION_ROLES).map(([id, role]) => { const guideInfo = COMPANION_GUIDE[id]; return `<article class="companion-role-guide"><h4>${role.name}</h4><p>${role.description}</p><dl><dt>棋盤戰例</dt><dd>${guideInfo.battle}</dd><dt>世界功用</dt><dd>${guideInfo.world}</dd></dl></article>`; }).join('');
+      guide.innerHTML = `<div class="companion-guide-card"><div>${companionIconMarkup()}</div><div><p class="companion-eyebrow">初次結緣指引</p><h3>伴侶能為你做什麼？</h3><p class="companion-guide-intro">伴侶與你同一回合行動，能在 10×10 棋盤移動、施放專屬技能、協助擊敗敵人；在世界事件中則依流派開啟不同解法。好感度 71 以上由你完全操作；31 以下會逐步改由 AI 行動；HP 歸零即永久消亡。</p><div class="companion-role-guide-grid">${roleGuide}</div><p class="companion-guide-cost">創建需要 ${COMPANION_COST} 時空餘燼。請先決定外觀與流派，再締結第一段命緣。</p><button type="button" class="btn-primary" id="companion-guide-start">我明白了，開始結緣</button></div></div>`;
       byId('companion-guide-start').addEventListener('click', async () => { state.onboardingSeen = true; await saveCloudData(); renderCompanionPage(); byId('companion-create-name')?.focus(); });
     }
     count.textContent = `${state.roster.length} 位伴侶`;
