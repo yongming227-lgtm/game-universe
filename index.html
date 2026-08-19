@@ -903,6 +903,10 @@
 
 .assistant-chat-launch { display:none; position:absolute; right:-9px; bottom:2px; width:30px; height:30px; padding:0; border:2px solid #ede9fe; border-radius:50%; background:#7c3aed; color:#fff; font-size:15px; line-height:1; box-shadow:0 5px 14px rgba(76,29,149,.35); z-index:2; }.assistant-chat-launch.is-visible { display:grid; place-items:center; }
 .assistant-chat-screen { max-width:680px; margin:0 auto; padding:20px; display:none; flex-direction:column; gap:14px; }.assistant-chat-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }.assistant-chat-header h2 { margin:2px 0 5px; }.assistant-chat-header p { margin:0; color:var(--sub-text); font-size:12px; line-height:1.5; }.assistant-chat-log { min-height:360px; flex:1; overflow-y:auto; padding:14px; border:1px solid var(--border-color); border-radius:16px; background:var(--input-bg); display:flex; flex-direction:column; gap:10px; }.assistant-chat-message { max-width:85%; padding:10px 12px; border-radius:14px; font-size:13px; line-height:1.55; white-space:pre-wrap; }.assistant-chat-message.user { align-self:flex-end; background:#312e81; color:#fff; border-bottom-right-radius:4px; }.assistant-chat-message.assistant { align-self:flex-start; background:var(--card-bg); color:var(--text-color); border:1px solid var(--border-color); border-bottom-left-radius:4px; }.assistant-chat-form { display:grid; grid-template-columns:1fr auto; gap:8px; }.assistant-chat-form textarea { min-height:52px; resize:none; }.assistant-chat-clear { width:auto; padding:8px 10px; font-size:11px; }
+
+/* 助理介面圓角與尺度修正 */
+#player-ai-assistant { width:min(410px,calc(100vw - 28px)); }.assistant-orb { width:78px; height:78px; border-radius:50%; box-shadow:0 0 0 6px rgba(139,92,246,.13),0 14px 32px rgba(49,46,129,.42); }.assistant-panel { width:min(390px,calc(100vw - 32px)); bottom:90px; border-radius:26px 26px 10px 26px; box-shadow:0 18px 48px rgba(15,23,42,.28); }.assistant-bubble { border-radius:22px 22px 8px 22px; }.assistant-onboarding-card { border-radius:30px; }.assistant-chat-screen { border-radius:30px; }.assistant-chat-log { border-radius:22px; }.assistant-chat-message { border-radius:18px; }.assistant-chat-launch { width:36px; height:36px; right:-11px; bottom:3px; border-radius:50%; font-size:17px; }.assistant-panel .assistant-quick-actions button { border-radius:13px; }
+@media (max-width:560px) { #player-ai-assistant { width:min(390px,calc(100vw - 22px)); }.assistant-orb { width:72px; height:72px; }.assistant-panel { width:min(370px,calc(100vw - 24px)); bottom:84px; } }
 </style>
 </head>
 <body>
@@ -2610,8 +2614,22 @@ ${reply.story}${got.length?`
 })();
 
 
+
 /* ===== 玩家端 AI 助理邏輯（絮語引導版 2） ===== */
 (() => {
+  // 助理獨立於主遊戲 IIFE；以下橋接讓它能安全呼叫介面與存檔功能。
+  const showToast = window.showToast || ((message) => { const host=document.getElementById('toast-container'); if(host){const note=document.createElement('div');note.className='toast-message';note.textContent=message;host.appendChild(note);window.setTimeout(()=>note.remove(),3500);} else console.info(message); });
+  const saveCloudData = window.saveCloudData || (async () => {});
+  const apiKey = () => window.playerGameData?.apiKey || '';
+  const navigateTo = window.navigateTo || ((screenId) => { document.querySelectorAll('.screen-view').forEach((screen) => { screen.style.display='none'; }); const target=document.getElementById(screenId); if(target) target.style.display=screenId==='assistant-chat-screen'?'flex':'block'; });
+  const navigateBack = window.navigateBack || (() => { document.getElementById('main-screen')?.click(); document.querySelectorAll('.screen-view').forEach((screen) => { screen.style.display='none'; }); const main=document.getElementById('main-screen'); if(main) main.style.display='block'; });
+  const openSettingsPage = window.openSettingsPage || (() => document.getElementById('btn-open-settings-main')?.click());
+  const companionState = () => { const d=window.playerGameData||{}; d.companions={activeId:null,roster:[],...(d.companions||{})}; return d.companions; };
+  const activeCompanion = () => { const s=companionState(); return s.roster.find((c) => c.id===s.activeId && c.alive!==false) || null; };
+  const companionControlMode = (c) => { const a=Number(c?.affinity??c?.bond??50); return a>=71?{label:'玩家完全控制'}:a>=31?{label:'玩家控制＋建言'}:a>=1?{label:'不穩定控制'}:{label:'AI 完全控管'}; };
+  const playerCombatStats = () => ({...(window.playerGameData?.baseStats||{})});
+  const storyState = () => window.playerGameData?.storyState || {summary:'尚未建立輪迴摘要。',recentEvents:[]};
+
   const ASSISTANT_DEFAULT = { configured:false, name:'星語', playerNickname:'執行者', personality:'warm', frequency:'balanced', mutedUntil:0, position:null };
   let greetedThisSession = false, dragging = false, dragOffset = { x:0, y:0 };
   const byAssistantId = (id) => document.getElementById(id);
