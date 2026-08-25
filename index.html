@@ -924,6 +924,14 @@
 
 /* 第 8 版：查詢功能位於助理面板，避免與頭像重疊。 */
 .assistant-chat-launch { display:none !important; }.assistant-quick-actions button[data-assistant-action="open-chat"] { background:#7c3aed; color:#fff; border-color:#7c3aed; }
+
+/* ===== 助理儲存與聊天室穩定化（絮語引導版 9） ===== */
+.assistant-orb.has-avatar { background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; }
+#assistant-chat-screen.assistant-chat-screen { position:fixed !important; inset:clamp(12px,3vw,28px) !important; width:auto !important; height:auto !important; max-width:760px !important; margin:auto !important; z-index:8800 !important; padding:clamp(16px,3vw,28px) !important; border:1px solid var(--border-color); border-radius:28px !important; box-shadow:0 24px 70px rgba(0,0,0,.42); background:var(--card-bg); overflow:hidden !important; }
+#assistant-chat-screen .assistant-chat-log { min-height:0; height:auto; }
+#player-ai-assistant { z-index:9100; }
+@media (max-width:640px) { #assistant-chat-screen.assistant-chat-screen { inset:8px !important; border-radius:22px !important; } .assistant-chat-header { align-items:center; } .assistant-chat-header p { display:none; } }
+
 </style>
 </head>
 <body>
@@ -2781,6 +2789,80 @@ ${reply.story}${got.length?`
     button.addEventListener('click',(event)=>{event.preventDefault();event.stopImmediatePropagation();openAssistantChat();});
   }
   document.addEventListener('DOMContentLoaded',()=>{configureAssistantQueryButton();});
+
+
+  // ===== 本機助理資料與聊天室修正（絮語引導版 9） =====
+  // 頭像和聊天紀錄不再放入 playerGameData/localStorage，以免大型 base64 圖片擠滿儲存空間。
+  let assistantAvatarMemory = '';
+  let assistantChatRowsMemory = null;
+  let assistantDeviceDBPromise = null;
+  function assistantDeviceKey(kind) { return `critical-axis-${kind}-${typeof currentUserId !== 'undefined' && currentUserId ? currentUserId : 'guest'}`; }
+  function assistantDeviceDB() {
+    if (!('indexedDB' in window)) return Promise.reject(new Error('此瀏覽器不支援 IndexedDB'));
+    if (assistantDeviceDBPromise) return assistantDeviceDBPromise;
+    assistantDeviceDBPromise = new Promise((resolve,reject) => {
+      const request=indexedDB.open('critical-axis-assistant',1);
+      request.onupgradeneeded=()=>request.result.createObjectStore('assistant-data');
+      request.onsuccess=()=>resolve(request.result);
+      request.onerror=()=>reject(request.error||new Error('無法開啟本機助理資料庫'));
+    });
+    return assistantDeviceDBPromise;
+  }
+  async function assistantDeviceGet(key) { const db=await assistantDeviceDB(); return new Promise((resolve,reject)=>{const request=db.transaction('assistant-data','readonly').objectStore('assistant-data').get(key);request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);}); }
+  async function assistantDeviceSet(key,value) { const db=await assistantDeviceDB(); return new Promise((resolve,reject)=>{const request=db.transaction('assistant-data','readwrite').objectStore('assistant-data').put(value,key);request.onsuccess=()=>resolve();request.onerror=()=>reject(request.error);}); }
+  function currentAssistantAvatar() { return assistantAvatarMemory || assistantStyleState().avatar || ''; }
+  function applyAssistantAppearance() { const orb=byAssistantId('assistant-orb'),s=assistantStyleState(),avatar=currentAssistantAvatar();if(!orb)return;if(avatar){orb.style.backgroundImage=`url("${avatar}")`;orb.classList.add('has-avatar');}else{orb.style.backgroundImage='';orb.classList.remove('has-avatar');}const title=byAssistantId('assistant-panel-title');if(title)title.textContent=s.name||'我的終端助理'; }
+  function refreshAvatarPreview() { const preview=byAssistantId('assistant-avatar-preview'),avatar=currentAssistantAvatar();if(!preview)return;preview.style.backgroundImage=avatar?`url("${avatar}")`:'';preview.classList.toggle('has-image',Boolean(avatar));preview.textContent=avatar?'':'✦'; }
+  async function hydrateAssistantAvatar() {
+    const s=assistantStyleState();
+    try {
+      const stored=await assistantDeviceGet(assistantDeviceKey('avatar'));
+      if(stored)assistantAvatarMemory=stored;
+      else if(s.avatar){assistantAvatarMemory=s.avatar;await assistantDeviceSet(assistantDeviceKey('avatar'),s.avatar);s.avatar='';s.avatarStored=true;await saveAssistant();}
+    } catch (_) { assistantAvatarMemory=s.avatar||assistantAvatarMemory; }
+    applyAssistantAppearance();refreshAvatarPreview();
+  }
+  async function compressAssistantAvatar(file) {
+    const source=URL.createObjectURL(file);
+    try { const image=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=source;});const size=256,canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;const context=canvas.getContext('2d');const scale=Math.max(size/image.naturalWidth,size/image.naturalHeight),width=image.naturalWidth*scale,height=image.naturalHeight*scale;context.drawImage(image,(size-width)/2,(size-height)/2,width,height);return canvas.toDataURL('image/jpeg',.82); } finally { URL.revokeObjectURL(source); }
+  }
+  async function storeAssistantAvatar(file) {
+    if(!file)return; if(file.size>5*1024*1024)throw new Error('頭像請小於 5 MB。');
+    const data=await compressAssistantAvatar(file); assistantAvatarMemory=data;
+    const s=assistantStyleState();s.avatar='';s.avatarStored=true;
+    try { await assistantDeviceSet(assistantDeviceKey('avatar'),data); } catch (_) { s.avatar=data; }
+    applyAssistantAppearance();refreshAvatarPreview();await saveAssistant();
+  }
+  async function ensureAssistantChatRows() {
+    if(Array.isArray(assistantChatRowsMemory))return assistantChatRowsMemory;
+    let rows=[];
+    try { const stored=await assistantDeviceGet(assistantDeviceKey('chat'));if(Array.isArray(stored))rows=stored; } catch (_) { try { const legacy=JSON.parse(localStorage.getItem(assistantCacheKey())||'[]');if(Array.isArray(legacy))rows=legacy; } catch (_) {} }
+    assistantChatRowsMemory=rows.slice(-20);return assistantChatRowsMemory;
+  }
+  function assistantChatHistory() { return Array.isArray(assistantChatRowsMemory)?assistantChatRowsMemory.slice(-20):[]; }
+  async function saveAssistantChat(rows) { assistantChatRowsMemory=rows.slice(-20);try { await assistantDeviceSet(assistantDeviceKey('chat'),assistantChatRowsMemory); } catch (_) { try { localStorage.setItem(assistantCacheKey(),JSON.stringify(assistantChatRowsMemory.slice(-8))); } catch (_) {} } }
+  async function renderAssistantChat() { await ensureAssistantChatRows();const log=byAssistantId('assistant-chat-log');if(!log)return;const rows=assistantChatHistory();log.replaceChildren();if(!rows.length){const intro=document.createElement('div');intro.className='assistant-chat-message assistant';intro.textContent='你好。你可以問我這次輪迴的世界觀、目前線索、棋盤戰鬥，或任何遊戲功能怎麼使用。';log.appendChild(intro);}rows.forEach(row=>{const el=document.createElement('div');el.className=`assistant-chat-message ${row.role==='user'?'user':'assistant'}`;el.textContent=row.text;log.appendChild(el);});log.scrollTop=log.scrollHeight; }
+  async function callAssistantText(instruction,config) {
+    const s=config||assistantConfig(),provider=s.aiProvider||'gemini',model=s.aiModel||(provider==='gemini'?(window.playerGameData?.aiModel||'gemini-2.5-flash'):'gpt-4.1-mini'),key=(s.aiApiKey||apiKey?.()||'').trim();
+    if(!key)throw new Error('請先在助理設定填入 API Key，並儲存設定。');
+    if(provider==='gemini') { const response=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{role:'user',parts:[{text:instruction}]}]})});const data=await response.json();if(!response.ok)throw new Error(data.error?.message||'Gemini 請求失敗');return safeAssistantText(data.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join(''),1200); }
+    const response=await fetch(s.aiEndpoint||'https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${key}`},body:JSON.stringify({model,messages:[{role:'user',content:instruction}]})});const data=await response.json();if(!response.ok)throw new Error(data.error?.message||'相容 API 請求失敗');return safeAssistantText(data.choices?.[0]?.message?.content,1200);
+  }
+  async function callAssistantModel(question) { return callAssistantText(`你是遊戲《臨界軸》的玩家端助理。${gameQuestionContext()} 請以繁體中文回答，簡潔清楚，不虛構未發生的劇情；若問題無關遊戲，說明你只能協助遊戲問題。玩家問題：${question}`); }
+  async function submitAssistantChat(question) { const text=safeAssistantText(question,600);if(!text)return;const rows=await ensureAssistantChatRows();rows.push({role:'user',text});await saveAssistantChat(rows);await renderAssistantChat();try{const answer=await callAssistantModel(text)||'我暫時無法整理出答案。';rows.push({role:'assistant',text:answer});}catch(error){rows.push({role:'assistant',text:`連線失敗：${error.message}`});}await saveAssistantChat(rows);await renderAssistantChat(); }
+  async function openAssistantChat() { const chat=byAssistantId('assistant-chat-screen');if(!chat)return;chat.style.display='flex';await renderAssistantChat();byAssistantId('assistant-chat-input')?.focus(); }
+  function closeAssistantChat() { const chat=byAssistantId('assistant-chat-screen');if(chat)chat.style.display='none'; }
+  async function analyzeStyleReference() {
+    const input=byAssistantId('assistant-style-reference'),result=byAssistantId('assistant-style-note'),reference=safeAssistantText(input?.value,80);if(!reference)return showToast('請先輸入想參考的角色或作品。');
+    const config={...assistantConfig(),aiProvider:byAssistantId('assistant-ai-provider')?.value||assistantConfig().aiProvider,aiModel:safeAssistantText(byAssistantId('assistant-ai-model')?.value,80),aiApiKey:byAssistantId('assistant-ai-key')?.value.trim()||assistantConfig().aiApiKey,aiEndpoint:safeAssistantText(byAssistantId('assistant-ai-endpoint')?.value,240)||assistantConfig().aiEndpoint};
+    if(result)result.textContent='正在整理可用的高層次角色特徵…';
+    try { const profile=await callAssistantText(`請把「${reference}」轉為一段繁體中文、最多120字的原創助理風格摘要。只描述高層次語氣、節奏、情緒張力與幽默感；不可使用原角色台詞、口頭禪，也不可聲稱助理就是該角色。`,config);if(!profile)throw new Error('未取得可用的風格摘要');const s=assistantStyleState();s.styleReference=reference;s.styleProfile=profile;if(result)result.textContent=`已套用原創風格：${profile}`;await saveAssistant();showToast('角色風格參考已分析並儲存。'); }catch(error){if(result)result.textContent=`無法完成線上分析：${error.message}。你仍可儲存名稱作為風格備註。`;showToast(`風格分析失敗：${error.message}`);}
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    hydrateAssistantAvatar();
+    document.addEventListener('click',event=>{if(!event.target.closest('#assistant-chat-back'))return;event.preventDefault();event.stopImmediatePropagation();closeAssistantChat();},true);
+    document.addEventListener('change',async event=>{if(!event.target.matches('#assistant-avatar-file'))return;event.stopImmediatePropagation();try{await storeAssistantAvatar(event.target.files?.[0]);showToast('助理頭像已儲存在此裝置。');}catch(error){showToast(`頭像儲存失敗：${error.message}`);}},true);
+  });
 
 })();
 
