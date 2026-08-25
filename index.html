@@ -2970,6 +2970,49 @@ ${reply.story}${got.length?`
     document.addEventListener('click',event=>{const action=classifyAssistantAction(event.target);if(action)window.setTimeout(()=>reactToAssistantAction(action[0],action[1]||''),0);});
   });
 
+
+  // ===== 全句角色元素包裝（絮語引導版 13） =====
+  function assistantStyleCorpus() { const s=assistantStyleState();return `${s.styleElements||''} ${s.styleProfile||''} ${s.styleReference||''}`.toLowerCase(); }
+  function assistantCharacterPalette() {
+    const text=assistantStyleCorpus();
+    if(/舞台|戲劇|華麗|優雅|芙寧娜|表演/.test(text))return ['舞台的聚光已落在這個決定上','這一筆已被點亮，接下來就看它如何落幕','讓局勢沿著最清楚的節奏推進吧'];
+    if(/未來|電子|音樂|明快|活潑|初音/.test(text))return ['節奏已接上，下一步會更清晰','這個選擇的訊號很明亮','讓進度順著輕快的節拍往前吧'];
+    if(/高冷|冷靜|克制|理性|沉著/.test(text))return ['結論已收好，無須多餘修飾','局勢已被標記，繼續即可','關鍵仍在畫面上，別錯過'];
+    if(/毒舌|吐槽|俏皮|幽默/.test(text))return ['這一步總算有點意思了','局面還沒失控，先別得意','我會替你盯著，免得它突然變麻煩'];
+    if(/溫柔|療癒|柔和|親切/.test(text))return ['我會陪你把接下來的線索看清楚','不用急，畫面上的選項都還在','這一步已經走得很好了'];
+    return ['我會依你設定的風格陪著這段進程','這個片刻，我已替你留意','讓我們照著目前畫面繼續前進'];
+  }
+  function applyAssistantVoice(message) {
+    const s=assistantStyleState(),intensity=s.styleIntensity||'subtle';if(!message||intensity==='off'||(!s.styleProfile&&!s.styleReference&&!s.styleElements))return message;
+    const palette=assistantCharacterPalette(),strength={subtle:0,balanced:1,strong:2}[intensity]??0;
+    if(strength===0)return message;
+    let index=0;
+    return String(message).match(/[^。！？!?\n]+[。！？!?]?|\n/g)?.map(part=>{
+      if(part==='\n')return part;const match=part.match(/^(.+?)([。！？!?])?$/);if(!match)return part;const core=match[1].trim(),end=match[2]||'。';if(!core)return part;
+      const flair=palette[index++%palette.length];
+      return strength===1?`${core}；${flair}${end}`:`${core}——${flair}${end}`;
+    }).join('')||message;
+  }
+  function assistantVoiceInstruction() {
+    const s=assistantStyleState(),profile=safeAssistantText(s.styleProfile,180),reference=safeAssistantText(s.styleReference,80),elements=safeAssistantText(s.styleElements,120),intensity=s.styleIntensity||'subtle';
+    if(intensity==='off'||(!profile&&!reference&&!elements))return `維持${personalityLabel(s.personality)}的自然繁體中文語氣。`;
+    const amount=({subtle:'偶爾自然地帶入一次角色元素。',balanced:'每一段回答都要呈現角色元素，資訊內容不可變形。',strong:'每一句呈現給玩家的自然語句都必須帶有角色元素的節奏、情緒或修辭；以自然句尾包裝，不要使用制式開頭。'})[intensity];
+    return `角色元素濃度：${amount} 原創風格摘要：${profile||'未提供'}。玩家補充元素：${elements||'未提供'}。參考來源：${reference||'未提供'}。只可借用高層次特徵，不可模仿專有台詞、口頭禪、自稱或聲稱自己是原角色。`;
+  }
+  async function callAssistantModel(question) {
+    const raw=await callAssistantText(`你是遊戲《臨界軸》的玩家端常駐助理。${assistantVoiceInstruction()}\n${gameQuestionContext()}\n${verifiedAssistantFacts()}\n真實性規則：只能陳述明確提供的遊戲狀態、劇情摘要、已知事件和已驗證操作。不得杜撰世界設定、數值、按鍵快捷鍵、按鈕位置、系統功能或未發生劇情；不足時說「我目前無法確認」。玩家問題：${question}`);
+    return applyAssistantVoice(raw);
+  }
+  function injectStyleElementsField() {
+    const reference=byAssistantId('assistant-style-reference');if(!reference||byAssistantId('assistant-style-elements'))return;const label=reference.closest('label');if(!label)return;label.insertAdjacentHTML('afterend',`<label>角色元素指引（可選）<input id="assistant-style-elements" maxlength="120" value="${safeAssistantText(assistantStyleState().styleElements,120)}" placeholder="例如：舞台感、優雅、俏皮吐槽"></label>`);
+  }
+  async function saveSettings() {
+    const s=assistantConfig();s.name=byAssistantId('assistant-name')?.value.trim()||'星語';s.playerNickname=byAssistantId('assistant-nickname')?.value.trim()||'執行者';s.personality=byAssistantId('assistant-personality')?.value||'warm';s.frequency=byAssistantId('assistant-frequency')?.value||'balanced';s.styleReference=safeAssistantText(byAssistantId('assistant-style-reference')?.value,80);s.styleElements=safeAssistantText(byAssistantId('assistant-style-elements')?.value,120);s.styleIntensity=byAssistantId('assistant-style-intensity')?.value||'subtle';s.aiProvider=byAssistantId('assistant-ai-provider')?.value||'gemini';s.aiModel=safeAssistantText(byAssistantId('assistant-ai-model')?.value,80);s.aiApiKey=byAssistantId('assistant-ai-key')?.value.trim()||'';s.aiEndpoint=safeAssistantText(byAssistantId('assistant-ai-endpoint')?.value,240)||'https://api.openai.com/v1/chat/completions';byAssistantId('assistant-onboarding').classList.remove('is-open');applyAssistantAppearance();await saveAssistant();await renderAssistantChat();say('設定已更新。');
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.addEventListener('click',event=>{if(!event.target.closest('[data-assistant-action="settings"]'))return;window.setTimeout(injectStyleElementsField,0);});
+  });
+
 })();
 
 
