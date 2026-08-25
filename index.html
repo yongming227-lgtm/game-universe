@@ -945,6 +945,12 @@
 .assistant-chat-clear { align-self:center; flex:0 0 auto !important; width:auto !important; padding:8px 13px !important; border-radius:11px !important; color:var(--sub-text); font-size:11px; background:transparent !important; }
 @media (max-width:640px) { #assistant-chat-screen.assistant-chat-screen { width:calc(100vw - 16px) !important; height:calc(100dvh - 16px) !important; padding:14px !important; gap:10px; } .assistant-chat-header { padding:11px 12px; } .assistant-chat-header .btn-secondary { min-width:auto; padding:9px 12px; } .assistant-chat-message { max-width:91%; } .assistant-chat-form button { width:64px; } }
 
+
+/* ===== 窄幅聊天室與動態名稱（絮語引導版 11） ===== */
+#assistant-chat-screen.assistant-chat-screen { width:min(500px,calc(100vw - 24px)) !important; height:min(760px,calc(100dvh - 24px)) !important; }
+.assistant-chat-message.assistant::before { content:attr(data-speaker) !important; }
+@media (max-width:540px) { #assistant-chat-screen.assistant-chat-screen { width:calc(100vw - 12px) !important; height:calc(100dvh - 12px) !important; } }
+
 </style>
 </head>
 <body>
@@ -2898,6 +2904,71 @@ ${reply.story}${got.length?`
   async function callAssistantModel(question) {
     return callAssistantText(`你是遊戲《臨界軸》的玩家端常駐助理，正在與玩家本人對話。${assistantVoiceInstruction()}\n${gameQuestionContext()}\n請以繁體中文回答，先直接回答問題，再給最多兩個可行下一步。內容只限遊戲世界觀、目前進度、棋盤戰鬥與系統功能；不可虛構未發生的劇情。玩家問題：${question}`);
   }
+
+
+  // ===== 真實性規則、角色元素濃度與動態名稱（絮語引導版 11） =====
+  function assistantStyleIntensityLabel(value) { return ({off:'關閉：純人格語氣',subtle:'輕微：偶爾帶入角色元素',balanced:'明顯：穩定帶入角色元素',strong:'強烈：更鮮明的原創風格'})[value]||'輕微：偶爾帶入角色元素'; }
+  function assistantVoiceInstruction() {
+    const s=assistantStyleState(),profile=safeAssistantText(s.styleProfile,180),reference=safeAssistantText(s.styleReference,80),intensity=s.styleIntensity||'subtle';
+    if(intensity==='off'||!profile)return `維持${personalityLabel(s.personality)}的自然繁體中文語氣，不加入角色風格元素。`;
+    const amount=({subtle:'只在少量用字或一句簡短感嘆中帶入，不可喧賓奪主。',balanced:'在措辭、節奏與情緒上穩定帶入，但以清楚資訊優先。',strong:'以更鮮明的原創措辭、節奏與情緒帶入，但仍須易讀、不可影響資訊正確性。'})[intensity];
+    return `角色元素濃度：${amount} 依據的原創助理語氣摘要：${profile}。可受「${reference||'使用者設定'}」啟發，但不可模仿原角色的專有台詞、口頭禪、自稱或身分，也不可聲稱自己是該角色。`;
+  }
+  function applyAssistantVoice(message) {
+    const s=assistantStyleState(),profile=safeAssistantText(s.styleProfile,180),intensity=s.styleIntensity||'subtle';if(!profile||intensity==='off'||!message)return message;
+    if(intensity==='subtle')return message;
+    if(/冷靜|克制|理性|沉著/.test(profile))return `我已確認重點。${message}`;
+    if(/活潑|明快|俏皮|幽默/.test(profile))return `${intensity==='strong'?'這點值得先記下：':'我想先提醒你：'}${message}`;
+    if(/優雅|正式|戲劇|華麗/.test(profile))return `容我清楚說明：${message}`;
+    return intensity==='strong'?`我已整理如下：${message}`:message;
+  }
+  function verifiedAssistantFacts() { return '已驗證介面操作：聊天室只能透過畫面上的「返回」按鈕離開。未驗證其他鍵盤快捷鍵。'; }
+  async function callAssistantModel(question) {
+    return callAssistantText(`你是遊戲《臨界軸》的玩家端常駐助理，正與玩家本人對話。${assistantVoiceInstruction()}\n${gameQuestionContext()}\n${verifiedAssistantFacts()}\n真實性規則：只能陳述上述明確提供的遊戲狀態、劇情摘要、已知事件和已驗證操作。不得杜撰世界設定、數值、按鍵快捷鍵、按鈕位置、系統功能或未發生劇情；資料不足時直接說「我目前無法確認」，並引導玩家查看目前畫面上的按鈕或遊戲內說明。不要聲稱可用 ESC、X 或其他未驗證方式關閉畫面。以繁體中文回答，先回答問題，再給最多兩個已驗證或明確標示為建議的下一步。玩家問題：${question}`);
+  }
+  async function renderAssistantChat() { await ensureAssistantChatRows();const log=byAssistantId('assistant-chat-log');if(!log)return;const rows=assistantChatHistory(),speaker=safeAssistantText(assistantStyleState().name,24)||'助理';log.replaceChildren();if(!rows.length){const intro=document.createElement('div');intro.className='assistant-chat-message assistant';intro.dataset.speaker=speaker;intro.textContent='你好。你可以問我目前已知的世界觀、劇情摘要、棋盤戰鬥，或畫面上的功能怎麼使用。';log.appendChild(intro);}rows.forEach(row=>{const el=document.createElement('div');el.className=`assistant-chat-message ${row.role==='user'?'user':'assistant'}`;if(row.role!=='user')el.dataset.speaker=speaker;el.textContent=row.text;log.appendChild(el);});log.scrollTop=log.scrollHeight; }
+  function openSettings() {
+    const s=assistantConfig(),host=byAssistantId('assistant-onboarding-body');host.innerHTML=`<h2>助理設定</h2><p>角色參考僅轉為原創特徵；「角色元素濃度」由你決定助理在談話中帶入的程度。</p><div id="assistant-avatar-preview" class="assistant-avatar-preview">✦</div><label>助理頭像<input id="assistant-avatar-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label><label>助理名稱<input id="assistant-name" maxlength="24" value="${safeAssistantText(s.name,24)}"></label><label>我怎麼稱呼你<input id="assistant-nickname" maxlength="24" value="${safeAssistantText(s.playerNickname,24)}"></label><label>人格<select id="assistant-personality">${['warm','playful','calm','aloof','lazy','silent'].map(id=>`<option value="${id}" ${s.personality===id?'selected':''}>${personalityLabel(id)}</option>`).join('')}</select></label><label>角色風格參考<input id="assistant-style-reference" maxlength="80" value="${safeAssistantText(s.styleReference,80)}" placeholder="例如：芙寧娜、初音未來"></label><label>角色元素濃度<select id="assistant-style-intensity">${['off','subtle','balanced','strong'].map(id=>`<option value="${id}" ${(s.styleIntensity||'subtle')===id?'selected':''}>${assistantStyleIntensityLabel(id)}</option>`).join('')}</select></label><button type="button" class="btn-secondary" id="assistant-analyze-style">分析角色參考</button><p id="assistant-style-note" class="assistant-style-note">${safeAssistantText(s.styleProfile,180)||'尚未設定風格參考。'}</p><label>問答 AI 服務<select id="assistant-ai-provider"><option value="gemini" ${s.aiProvider==='gemini'?'selected':''}>Gemini</option><option value="openai" ${s.aiProvider==='openai'?'selected':''}>OpenAI 相容 API</option></select></label><label>問答模型<input id="assistant-ai-model" maxlength="80" value="${safeAssistantText(s.aiModel,80)}"></label><label>問答 API Key<input id="assistant-ai-key" type="password" value="${safeAssistantText(s.aiApiKey,240)}"></label><label>OpenAI 相容端點<input id="assistant-ai-endpoint" maxlength="240" value="${safeAssistantText(s.aiEndpoint,240)}"></label><label>主動提示<select id="assistant-frequency"><option value="quiet" ${s.frequency==='quiet'?'selected':''}>安靜：只在重要時機提醒</option><option value="balanced" ${s.frequency==='balanced'?'selected':''}>平衡：重要事件與卡關時提醒</option><option value="tactical" ${s.frequency==='tactical'?'selected':''}>戰術：主動提供棋盤建言</option><option value="every_choice" ${s.frequency==='every_choice'?'selected':''}>每次選擇：玩家任何抉擇後都說話</option></select></label><div class="btn-group"><button type="button" id="assistant-save-settings">儲存設定</button><button type="button" class="btn-secondary" id="assistant-close-settings">取消</button></div>`;byAssistantId('assistant-onboarding').classList.add('is-open');refreshAvatarPreview();byAssistantId('assistant-analyze-style').addEventListener('click',analyzeStyleReference);byAssistantId('assistant-save-settings').addEventListener('click',saveSettings);byAssistantId('assistant-close-settings').addEventListener('click',()=>byAssistantId('assistant-onboarding').classList.remove('is-open'));
+  }
+  async function saveSettings() { const s=assistantConfig();s.name=byAssistantId('assistant-name')?.value.trim()||'星語';s.playerNickname=byAssistantId('assistant-nickname')?.value.trim()||'執行者';s.personality=byAssistantId('assistant-personality')?.value||'warm';s.frequency=byAssistantId('assistant-frequency')?.value||'balanced';s.styleReference=safeAssistantText(byAssistantId('assistant-style-reference')?.value,80);s.styleIntensity=byAssistantId('assistant-style-intensity')?.value||'subtle';s.aiProvider=byAssistantId('assistant-ai-provider')?.value||'gemini';s.aiModel=safeAssistantText(byAssistantId('assistant-ai-model')?.value,80);s.aiApiKey=byAssistantId('assistant-ai-key')?.value.trim()||'';s.aiEndpoint=safeAssistantText(byAssistantId('assistant-ai-endpoint')?.value,240)||'https://api.openai.com/v1/chat/completions';byAssistantId('assistant-onboarding').classList.remove('is-open');applyAssistantAppearance();await saveAssistant();await renderAssistantChat();say('設定已更新。'); }
+
+
+  // ===== 操作感知主動提醒（絮語引導版 12） =====
+  // 舊版把整個輪迴控制列都當作劇情選擇；現在只讓 A–E／自訂抉擇使用劇情語句。
+  function everyChoiceHint() { /* 保留舊事件入口，但不再以未知按鈕套用劇情回應。 */ }
+  function assistantCanReactToAction() { const s=assistantStyleState();return s.frequency==='every_choice'&&Date.now()>=Number(s.mutedUntil||0); }
+  function assistantActionLine(kind,label='') {
+    const text={
+      story:`你剛剛選了劇情選項 ${label}。接下來的結果會由遊戲劇情繼續呈現，我會留意新的線索。`,
+      custom:'你選擇了自訂抉擇。等遊戲接收這個決定後，我會協助你整理接下來可確認的資訊。',
+      inventory:'你打開了行囊。這裡可以查看目前持有的補給、裝備、材料與劇情道具。',
+      companion:'你打開了絮語結緣。這裡用來查看、建立或管理同行者。',
+      causal:'你打開了因果。這裡可以查看並調整目前的因果裝備。',
+      menu:'你打開了選單。可從選單前往已列出的功能頁面。',
+      world:'你查看世界功能。畫面正在解析可用的世界資料。',
+      leave:'你正在離開目前輪迴畫面，將回到主介面。',
+      battle:'你選擇了棋盤戰鬥操作「'+label+'」。請依畫面上可用的格子與按鈕完成這一步。',
+      companionCreate:'你開始建立同行者。可依畫面欄位設定姓名、外貌與特徵。',
+      companionManage:'你正在調整絮語結緣的同行者資料。',
+      chat:'你開啟了遊戲問答。你可以直接問我目前畫面或已知遊戲系統。'
+    };
+    return text[kind]||'';
+  }
+  function reactToAssistantAction(kind,label='') { if(!assistantCanReactToAction())return;const line=assistantActionLine(kind,label);if(line)say(line); }
+  function classifyAssistantAction(target) {
+    const control=target.closest('#samsara-controls-grid button');
+    if(control){const label=safeAssistantText(control.textContent,40);if(/^[A-E]$/.test(label))return ['story',label];if(label==='自訂抉擇')return ['custom'];const system={行囊:'inventory',絮語結緣:'companion',選單:'menu',因果:'causal',世界:'world',離開:'leave'};return system[label]?[system[label]]:null;}
+    if(target.closest('#companion-create-button'))return ['companionCreate'];
+    if(target.closest('#companion-roster button,#companion-active-panel button'))return ['companionManage'];
+    const battle=target.closest('#battle-action-controls button,.battle-action-button');if(battle)return ['battle',safeAssistantText(battle.textContent,30)];
+    if(target.closest('[data-assistant-action="open-chat"],#assistant-chat-launch'))return ['chat'];
+    if(target.closest('#menu-card-inventory'))return ['inventory'];
+    if(target.closest('#menu-card-combat'))return ['battle','進入戰鬥'];
+    return null;
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    document.addEventListener('click',event=>{const action=classifyAssistantAction(event.target);if(action)window.setTimeout(()=>reactToAssistantAction(action[0],action[1]||''),0);});
+  });
 
 })();
 
