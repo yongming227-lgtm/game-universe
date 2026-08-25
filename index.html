@@ -932,6 +932,19 @@
 #player-ai-assistant { z-index:9100; }
 @media (max-width:640px) { #assistant-chat-screen.assistant-chat-screen { inset:8px !important; border-radius:22px !important; } .assistant-chat-header { align-items:center; } .assistant-chat-header p { display:none; } }
 
+
+/* ===== 助理對話視覺與語氣一致性（絮語引導版 10） ===== */
+#assistant-chat-screen.assistant-chat-screen { width:min(820px,calc(100vw - 32px)) !important; height:min(760px,calc(100dvh - 32px)) !important; inset:0 !important; display:none; grid-template-rows:auto minmax(220px,1fr) auto auto; gap:14px; padding:clamp(18px,3vw,30px) !important; background:linear-gradient(145deg,var(--card-bg) 0%,color-mix(in srgb,var(--card-bg) 93%,#c4b5fd) 100%); }
+#assistant-chat-screen.assistant-chat-screen[style*="display: flex"] { display:grid !important; }
+.assistant-chat-header { align-items:center; padding:15px 17px; border:1px solid color-mix(in srgb,var(--border-color) 78%,#a78bfa); border-radius:20px; background:color-mix(in srgb,var(--card-bg) 88%,#ede9fe); }
+.assistant-chat-header h2 { font-size:1.3rem; letter-spacing:.02em; }.assistant-chat-header h2::before { content:'✦'; display:inline-grid; place-items:center; width:27px; height:27px; margin-right:8px; border-radius:9px; background:linear-gradient(135deg,#8b5cf6,#5b21b6); color:#fff; font-size:15px; vertical-align:1px; }
+.assistant-chat-header p { margin-top:5px; }.assistant-chat-header .btn-secondary { flex:0 0 auto; width:auto; min-width:112px; padding:11px 18px; border-radius:13px; }
+.assistant-chat-log { min-height:0 !important; height:auto !important; padding:18px !important; border-radius:22px !important; background:linear-gradient(180deg,color-mix(in srgb,var(--input-bg) 94%,#ede9fe),var(--input-bg)) !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.5); scrollbar-color:#a78bfa transparent; }
+.assistant-chat-message { max-width:min(78%,620px); padding:12px 14px !important; border-radius:17px !important; box-shadow:0 6px 15px rgba(15,23,42,.06); }.assistant-chat-message.assistant { border-color:color-mix(in srgb,var(--border-color) 80%,#c4b5fd) !important; }.assistant-chat-message.assistant::before { content:'助理'; display:block; margin-bottom:4px; color:#7c3aed; font-size:10px; font-weight:800; letter-spacing:.08em; }.assistant-chat-message.user { background:linear-gradient(135deg,#4f46e5,#7c3aed) !important; border-bottom-right-radius:6px !important; }.assistant-chat-message.user::before { content:'你'; display:block; margin-bottom:4px; color:#ddd6fe; font-size:10px; font-weight:800; letter-spacing:.08em; }
+.assistant-chat-form { grid-template-columns:minmax(0,1fr) auto !important; align-items:stretch; }.assistant-chat-form textarea { min-height:68px !important; padding:14px 16px; border-radius:17px !important; background:color-mix(in srgb,var(--input-bg) 92%,#fff) !important; }.assistant-chat-form button { flex:0 0 auto; width:84px; border-radius:17px; background:linear-gradient(135deg,#4f46e5,#7c3aed); box-shadow:0 8px 18px rgba(91,33,182,.24); }
+.assistant-chat-clear { align-self:center; flex:0 0 auto !important; width:auto !important; padding:8px 13px !important; border-radius:11px !important; color:var(--sub-text); font-size:11px; background:transparent !important; }
+@media (max-width:640px) { #assistant-chat-screen.assistant-chat-screen { width:calc(100vw - 16px) !important; height:calc(100dvh - 16px) !important; padding:14px !important; gap:10px; } .assistant-chat-header { padding:11px 12px; } .assistant-chat-header .btn-secondary { min-width:auto; padding:9px 12px; } .assistant-chat-message { max-width:91%; } .assistant-chat-form button { width:64px; } }
+
 </style>
 </head>
 <body>
@@ -2684,6 +2697,7 @@ ${reply.story}${got.length?`
     return lines[kind]?.[s.personality] ?? lines[kind]?.warm ?? '';
   };
   function say(message, actions = [], alert = false) {
+    message = applyAssistantVoice(message);
     if (!message) return;
     byAssistantId('assistant-panel')?.classList.remove('is-open');
     byAssistantId('assistant-chat-launch')?.classList.remove('is-visible');
@@ -2863,6 +2877,27 @@ ${reply.story}${got.length?`
     document.addEventListener('click',event=>{if(!event.target.closest('#assistant-chat-back'))return;event.preventDefault();event.stopImmediatePropagation();closeAssistantChat();},true);
     document.addEventListener('change',async event=>{if(!event.target.matches('#assistant-avatar-file'))return;event.stopImmediatePropagation();try{await storeAssistantAvatar(event.target.files?.[0]);showToast('助理頭像已儲存在此裝置。');}catch(error){showToast(`頭像儲存失敗：${error.message}`);}},true);
   });
+
+
+  // ===== 全域原創角色語氣管線（絮語引導版 10） =====
+  function assistantVoiceInstruction() {
+    const s=assistantStyleState(),profile=safeAssistantText(s.styleProfile,180),reference=safeAssistantText(s.styleReference,80);
+    if(!profile)return `維持${personalityLabel(s.personality)}的自然繁體中文語氣。`;
+    return `全程以這份「原創助理語氣摘要」調整措辭、節奏與情緒：${profile}。此摘要可受「${reference||'使用者設定'}」啟發，但不可模仿原角色的專有台詞、口頭禪或自稱，也不可聲稱自己是該角色。`;
+  }
+  function applyAssistantVoice(message) {
+    const s=assistantStyleState(),profile=safeAssistantText(s.styleProfile,180);if(!profile||!message)return message;
+    const personality=s.personality||'warm';
+    // 本機必要提示無須每次連線，但會依已分析出的高層次風格調整節奏。
+    if(/冷靜|克制|理性|沉著/.test(profile))return `我已整理好了。${message}`;
+    if(/活潑|明快|俏皮|幽默/.test(profile))return `嗯，這點我想先提醒你：${message}`;
+    if(/優雅|正式|戲劇|華麗/.test(profile))return `容我用更清楚的方式提醒你：${message}`;
+    if(personality==='aloof')return `……${message}`;
+    return message;
+  }
+  async function callAssistantModel(question) {
+    return callAssistantText(`你是遊戲《臨界軸》的玩家端常駐助理，正在與玩家本人對話。${assistantVoiceInstruction()}\n${gameQuestionContext()}\n請以繁體中文回答，先直接回答問題，再給最多兩個可行下一步。內容只限遊戲世界觀、目前進度、棋盤戰鬥與系統功能；不可虛構未發生的劇情。玩家問題：${question}`);
+  }
 
 })();
 
